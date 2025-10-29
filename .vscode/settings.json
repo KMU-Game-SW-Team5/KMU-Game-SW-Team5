@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "GameSw.sln"
+    "dotnet.defaultSolution": "KMU-Game-SW-Team5.sln"
 }
