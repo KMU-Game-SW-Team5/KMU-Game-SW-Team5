@@ -3,6 +3,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public float speed = 5f; // 총알 속도
+    public int Damage = 10;
 
     void Start()
     {
@@ -40,7 +41,7 @@ public class Bullet : MonoBehaviour
             BossController boss = other.GetComponentInParent<BossController>();
             if (boss != null)
             {
-                boss.TakeDamage(10); // 데미지 적용
+                boss.TakeDamage(Damage); // 데미지 적용
                 Debug.Log($"[Bullet] Hit Boss! Damage applied to {boss.gameObject.name}");
             }
             else
