@@ -9,9 +9,20 @@ public abstract class ActiveSkillBase : ScriptableObject
     [SerializeField] protected float baseValue = 10f;     // 기본 수치
     [SerializeField] protected float coefficient = 1.0f;  // (마력) 계수
     [SerializeField] protected float cooldown = 5f;       // 쿨타임 (초)
+    
+    // TODO : 플레이어 스탯 컴포넌트 생기면 연동 시킬 것
+    // [serializeField] private PlayerStats;
+    protected float magicStat = 1f;          // 플레이어의 마력 스탯
 
     private float lastUseTime = -999f;                    // 마지막 사용 시각
     private float remainingCooldown = 0f;                 // 남은 쿨타임 (초)
+
+
+    // TODO : 플레이어 스탯 컴포넌트 만들어지면 마력 업데이트 하는 함수 완성할 것
+    //public void UpdateMagicStat()
+    //{
+    //    magicStat = PlayerStats.GetMagicStat();
+    //}
 
     // 현재 쿨타임이 끝났는지 여부
     public bool CanUse => (remainingCooldown <= 0f);
@@ -85,5 +96,5 @@ public abstract class ActiveSkillBase : ScriptableObject
         coefficient += value;
     }
 
-    // TODO : 스킬 설명 출력관련
+    // TODO : 스킬 설명 업데이트하는 함수 만들 것
 }
