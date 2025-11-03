@@ -1,53 +1,56 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[CreateAssetMenu(menuName ="Skills/Active/Fireball Skill")]
-// Åõ»çÃ¼ ¹ß»çÇü ½ºÅ³µéÀÇ ÄÄÆ÷³ÍÆ®
+[CreateAssetMenu(menuName ="Skills/Active/Project Type")]
+// íˆ¬ì‚¬ì²´ ë°œì‚¬í˜• ìŠ¤í‚¬ë“¤ì˜ ì»´í¬ë„ŒíŠ¸
 public class AS_ProjectType : ActiveSkillBase
 {
-    [Header("Åõ»çÃ¼ ¼³Á¤")]
-    [SerializeField] private GameObject projectilePrefab;   // Åõ»çÃ¼ ÇÁ¸®ÆÕ
-    [SerializeField] private float projectileSpeed = 1f;    // Åõ»çÃ¼ÀÇ ¼Óµµ
-    [SerializeField] private float lifeTime = 5f;           // Åõ»çÃ¼ÀÇ ¼ö¸í
-    [SerializeField] private float verticalAccel = 0f;      // ¼öÁ÷ ¹æÇâ ¿òÁ÷ÀÓ(¾ç¼ö¸é ºÎ»ó, À½¼ö¸é Ãß¶ô)
-    [SerializeField] private bool penetrable = false;       // °üÅë¼º
-    [SerializeField] private Vector3 instantiateOffset;  // Åõ»çÃ¼¸¦ »ı¼ºÇÏ´Â À§Ä¡ ¿ÀÇÁ¼Â
+    [Header("íˆ¬ì‚¬ì²´ ì„¤ì •")]
+    [SerializeField] public GameObject projectilePrefab;   // íˆ¬ì‚¬ì²´ í”„ë¦¬íŒ¹
+    [SerializeField] public float projectileSpeed = 1f;    // íˆ¬ì‚¬ì²´ì˜ ì†ë„
+    [SerializeField] public float lifeTime = 5f;           // íˆ¬ì‚¬ì²´ì˜ ìˆ˜ëª…
+    [SerializeField] public float verticalAccel = 0f;      // ìˆ˜ì§ ë°©í–¥ ì›€ì§ì„(ì–‘ìˆ˜ë©´ ë¶€ìƒ, ìŒìˆ˜ë©´ ì¶”ë½)
+    [SerializeField] public bool penetrable = false;       // ê´€í†µì„±
+    [SerializeField] public Vector3 instantiateOffset;     // íˆ¬ì‚¬ì²´ë¥¼ ìƒì„±í•˜ëŠ” ìœ„ì¹˜ ì˜¤í”„ì…‹(Zì¶• ë°©í–¥ì´ ì •ë©´)
 
-    // ½î´Â ¹æ½Ä
-    private enum shotType
-    {
-        general         // º¸´Â ¹æÇâÀ¸·Î ÀÏ°üÀûÀ¸·Î ¹ß»ç
-    }
-    private shotType currentShotType = shotType.general;        // ÇöÀç ½î´Â ¹æ½Ä
+    [Header("ë°œì‚¬ ë°©ì‹")]
+    [SerializeReference] private IShotType shotType;
+    public IShotType GetShotType() => shotType;
 
-    // ½ÃÀü ½Ã È£Ãâ
-    protected override void Execute(GameObject user)
+    // ë°œì‚¬ ë°©ì‹ì„ êµì²´í•˜ëŠ” í•¨ìˆ˜
+    public void SetShotType(IShotType newShotType)
     {
-        if (currentShotType == shotType.general)
+        if (newShotType != null)
         {
-            generalShot(user);
+            shotType = newShotType;
         }
     }
 
-    // Æò¹üÇÏ°Ô Á÷¼±À¸·Î ½ò ¶§
-    private void generalShot(GameObject user)
+    // ì‹œì „ ì‹œ í˜¸ì¶œ
+    protected override void Execute(GameObject user)
     {
-        float damage = GetPower(magicStat);      // ½ºÅ³ÀÇ À§·Â ¼³Á¤
-
-        // TODO : ÇÏ´ÜÀÇ Camera.mainÀ¸·Î È£ÃâÇÏ´Â ¹æ½ÄÀº ºñÈ¿À²ÀûÀÓ. ±âÈ¸°¡ µÇ¸é ÃÖÀûÈ­ ÇÒ °Í.
-
-        // Åõ»çÃ¼ »ı¼º À§Ä¡¿Í È¸Àü°ª ¼³Á¤
-        Vector3 spawnPos = user.transform.position + user.transform.TransformDirection(instantiateOffset);
-        Quaternion lookingRotation = Quaternion.LookRotation(Camera.main.transform.forward); // Ä«¸Ş¶ó º¸´Â ¹æÇâ ±âÁØ 
-
-        // Åõ»çÃ¼ »ı¼º
-        GameObject projectile = Instantiate(projectilePrefab, spawnPos, lookingRotation);
-
-        // Åõ»çÃ¼ÀÇ ¼Ó¼º ¼³Á¤
-        ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
-        pc.SetComponent(damage, lifeTime, penetrable, Camera.main.transform.forward * projectileSpeed, verticalAccel);
+        shotType?.Shoot(user, this);
     }
+
+    //// ì¶”ìƒí™”ëœ ë ˆê±°ì‹œ ì½”ë“œ
+    //public void generalShot(GameObject user)
+    //{
+    //    float damage = GetPower(magicStat);      // ìŠ¤í‚¬ì˜ ìœ„ë ¥ ì„¤ì •
+
+    //    // TODO : í•˜ë‹¨ì˜ Camera.mainìœ¼ë¡œ í˜¸ì¶œí•˜ëŠ” ë°©ì‹ì€ ë¹„íš¨ìœ¨ì ì„. ê¸°íšŒê°€ ë˜ë©´ ìµœì í™” í•  ê²ƒ.
+
+    //    // íˆ¬ì‚¬ì²´ ìƒì„± ìœ„ì¹˜ì™€ íšŒì „ê°’ ì„¤ì •
+    //    Vector3 spawnPos = user.transform.position + user.transform.TransformDirection(instantiateOffset);
+    //    Quaternion lookingRotation = Quaternion.LookRotation(Camera.main.transform.forward); // ì¹´ë©”ë¼ ë³´ëŠ” ë°©í–¥ ê¸°ì¤€ 
+
+    //    // íˆ¬ì‚¬ì²´ ìƒì„±
+    //    GameObject projectile = Instantiate(projectilePrefab, spawnPos, lookingRotation);
+
+    //    // íˆ¬ì‚¬ì²´ì˜ ì†ì„± ì„¤ì •
+    //    ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
+    //    pc.SetComponent(damage, lifeTime, penetrable, Camera.main.transform.forward * projectileSpeed, verticalAccel);
+    //}
 
 }

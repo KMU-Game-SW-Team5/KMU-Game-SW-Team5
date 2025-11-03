@@ -1,20 +1,20 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-// Åõ»çÃ¼ÀÇ µ¥¹ÌÁö¿Í Ãæµ¹À» Ã³¸®ÇÏ´Â ÄÄÆ÷³ÍÆ®ÀÓ.
+// íˆ¬ì‚¬ì²´ì˜ ë°ë¯¸ì§€ì™€ ì¶©ëŒì„ ì²˜ë¦¬í•˜ëŠ” ì»´í¬ë„ŒíŠ¸ì„.
 
 public class ProjectileComponent : MonoBehaviour
 {
-    private float damage;       // µ¥¹ÌÁö
-    private float lifetime;     // Áö¼Ó ½Ã°£
-    private bool penetrable;    // °üÅë ¿©ºÎ
+    private float damage;       // ë°ë¯¸ì§€
+    private float lifetime;     // ì§€ì† ì‹œê°„
+    private bool penetrable;    // ê´€í†µ ì—¬ë¶€
 
     private Rigidbody rb;
-    private Vector3 velocity;   // ¼Óµµ º¤ÅÍ
-    private float verticalAccel;   // Áß·Â¿¡ ÀÇÇÑ °¡¼Óµµ (¾ç¼ö = ºÎ»ó, 0 = Á÷¼±, À½¼ö = Ãß¶ô)
+    private Vector3 velocity;   // ì†ë„ ë²¡í„°
+    private float verticalAccel;   // ì¤‘ë ¥ì— ì˜í•œ ê°€ì†ë„ (ì–‘ìˆ˜ = ë¶€ìƒ, 0 = ì§ì„ , ìŒìˆ˜ = ì¶”ë½)
 
-    [SerializeField] private GameObject hitEffectPrefab;    // Å¸°İ ÀÌÆåÆ® ÇÁ¸®ÆÕ
+    [SerializeField] private GameObject hitEffectPrefab;    // íƒ€ê²© ì´í™íŠ¸ í”„ë¦¬íŒ¹
 
-    // Åõ»çÃ¼ º¯¼ö ¼³Á¤
+    // íˆ¬ì‚¬ì²´ ë³€ìˆ˜ ì„¤ì •
     public void SetComponent(float Damage, float Lifetime, bool Penetrable, Vector3 Velocity, float VerticalAccel)
     {
         this.damage = Damage;
@@ -27,19 +27,31 @@ public class ProjectileComponent : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // TODO : ÀûÀÎÁö È®ÀÎÇÏ¿© µ¥¹ÌÁö Àü´Ş
-        
-        // ÀÌÆåÆ® »ı¼º ¹× Åõ»çÃ¼ »èÁ¦(°üÅë¼ºÀÌ ¾øÀ» ¶§¸¸)
-        Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+        // TODO : ì ì¸ì§€ í™•ì¸í•˜ëŠ” ë¶€ë¶„ ì¶”ê°€í•  ê²ƒ
+
+        // ì´í™íŠ¸ ìƒì„± ë° íˆ¬ì‚¬ì²´ ì‚­ì œ(ê´€í†µì„±ì´ ì—†ì„ ë•Œë§Œ)
+        if (hitEffectPrefab != null)
+        {
+            GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+
+            // íŒŒí‹°í´ ì§€ì†ì‹œê°„ í›„ì— ì‚­ì œë˜ê²Œ ì„¤ì •, íŒŒí‹°í´ì„ ì•ˆ ì“°ëŠ” ê²½ìš°ì—” 2ì´ˆ í›„ ì‚­ì œ
+            ParticleSystem ps = effect.GetComponent<ParticleSystem>();
+            if (ps != null)
+                Destroy(effect, ps.main.duration + ps.main.startLifetime.constantMax);
+            else
+                Destroy(effect, 2f); 
+        }
+
         if (!penetrable) Destroy(gameObject);
     }
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Projectile"), LayerMask.NameToLayer("Projectile"));
     }
 
-    // Åõ»çÃ¼ ¿îµ¿ ¹× ¼ö¸í ¹İ¿µ
+    // íˆ¬ì‚¬ì²´ ìš´ë™ ë° ìˆ˜ëª… ë°˜ì˜
     private void FixedUpdate()
     {
         velocity.y += verticalAccel * Time.fixedDeltaTime;
