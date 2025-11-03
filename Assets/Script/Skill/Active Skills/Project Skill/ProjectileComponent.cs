@@ -12,7 +12,7 @@ public class ProjectileComponent : MonoBehaviour
     private Vector3 velocity;   // 속도 벡터
     private float verticalAccel;   // 중력에 의한 가속도 (양수 = 부상, 0 = 직선, 음수 = 추락)
 
-    [SerializeField] private GameObject hitEffectPrefab;    // 타격 이펙트 프리팹
+    [SerializeField] private GameObject ExplosionEffectPrefab;    // 소멸(폭발) 이펙트 프리팹
 
     // 투사체 변수 설정
     public void SetComponent(float Damage, float Lifetime, bool Penetrable, Vector3 Velocity, float VerticalAccel)
@@ -27,12 +27,12 @@ public class ProjectileComponent : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // TODO : 적인지 확인하는 부분 추가할 것
+        // TODO : 적인지 확인하여 데미지 적용하는 부분 추가할 것
 
         // 이펙트 생성 및 투사체 삭제(관통성이 없을 때만)
-        if (hitEffectPrefab != null)
+        if (ExplosionEffectPrefab != null)
         {
-            GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+            GameObject effect = Instantiate(ExplosionEffectPrefab, transform.position, Quaternion.identity);
 
             // 파티클 지속시간 후에 삭제되게 설정, 파티클을 안 쓰는 경우엔 2초 후 삭제
             ParticleSystem ps = effect.GetComponent<ParticleSystem>();

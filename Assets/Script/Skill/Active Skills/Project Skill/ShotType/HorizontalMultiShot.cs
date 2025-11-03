@@ -23,7 +23,7 @@ public class HorizontalMultiShot : IShotType
             float t = (projectileCount == 1) ? 0f : (float)i / (projectileCount - 1);
             float angle = Mathf.Lerp(-spreadAngle / 2f, spreadAngle / 2f, t);
 
-            // LinearShot의 기준 회전을 중심으로 부채꼴 회전 적용
+            // 부채꼴 각도 설정
             Quaternion baseRot = Quaternion.LookRotation(forward);
             Quaternion shotRot = Quaternion.AngleAxis(angle, Vector3.up) * baseRot;
 

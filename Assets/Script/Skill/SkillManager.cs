@@ -29,13 +29,8 @@ public class SkillManager : MonoBehaviour
         // 테스트용 코드
         ChangeShotTypeForTest();
 
-
         // 쿨타임 갱신
-        foreach (var skill in activeSkills)
-        {
-            if (skill != null)
-                skill.UpdateCooldown();
-        }
+        UpdateSkillsCooldown();
 
         // 입력 처리 
         HandleSkillInput();
@@ -67,6 +62,16 @@ public class SkillManager : MonoBehaviour
     {
         if (activeSkills.Contains(skill))
             activeSkills.Remove(skill);
+    }
+
+    // 스킬들 쿨타임 감소
+    public void UpdateSkillsCooldown()
+    {
+        foreach (var skill in activeSkills)
+        {
+            if (skill != null)
+                skill.UpdateCooldown();
+        }
     }
 
     // 테스트용 발사 방식 변경 (1 : 직선, 2 : 가로)

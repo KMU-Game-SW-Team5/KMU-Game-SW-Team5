@@ -1,25 +1,25 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
 public class LinearShot : IShotType
 {
-    // Á÷¼±À¸·Î ÇÑ °³ ¹ß»çÇÏ´Â Å¸ÀÔ
+    // ì§ì„ ìœ¼ë¡œ í•œ ê°œ ë°œì‚¬í•˜ëŠ” íƒ€ì…
     public void Shoot(GameObject user, AS_ProjectType skill)
     {
-        float damage = skill.GetPower(skill.magicStat);      // ½ºÅ³ÀÇ À§·Â ¼³Á¤
+        float damage = skill.GetPower(skill.magicStat);      // ìŠ¤í‚¬ì˜ ìœ„ë ¥ ì„¤ì •
 
-        // TODO : ÇÏ´ÜÀÇ Camera.mainÀ¸·Î È£ÃâÇÏ´Â ¹æ½ÄÀº ºñÈ¿À²ÀûÀÓ. ±âÈ¸°¡ µÇ¸é ÃÖÀûÈ­ ÇÒ °Í.
+        // TODO : í•˜ë‹¨ì˜ Camera.mainìœ¼ë¡œ í˜¸ì¶œí•˜ëŠ” ë°©ì‹ì€ ë¹„íš¨ìœ¨ì ì„. ê¸°íšŒê°€ ë˜ë©´ ìµœì í™” í•  ê²ƒ.
 
-        // Åõ»çÃ¼ »ı¼º À§Ä¡¿Í È¸Àü°ª ¼³Á¤
+        // íˆ¬ì‚¬ì²´ ìƒì„± ìœ„ì¹˜ì™€ íšŒì „ê°’ ì„¤ì •
         Vector3 spawnPos = user.transform.position + user.transform.TransformDirection(skill.instantiateOffset);
-        Quaternion lookingRotation = Quaternion.LookRotation(Camera.main.transform.forward); // Ä«¸Ş¶ó º¸´Â ¹æÇâ ±âÁØ 
+        Quaternion lookingRotation = Quaternion.LookRotation(Camera.main.transform.forward); // ì¹´ë©”ë¼ ë³´ëŠ” ë°©í–¥ ê¸°ì¤€ 
 
-        // Åõ»çÃ¼ »ı¼º
+        // íˆ¬ì‚¬ì²´ ìƒì„±
         GameObject projectile = Object.Instantiate(skill.projectilePrefab, spawnPos, lookingRotation);
 
-        // Åõ»çÃ¼ÀÇ ¼Ó¼º ¼³Á¤
+        // íˆ¬ì‚¬ì²´ì˜ ì†ì„± ì„¤ì •
         ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
         pc.SetComponent(damage, skill.lifeTime, skill.penetrable, 
             Camera.main.transform.forward * skill.projectileSpeed, skill.verticalAccel);

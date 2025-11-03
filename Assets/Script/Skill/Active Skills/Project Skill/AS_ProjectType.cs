@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[CreateAssetMenu(menuName ="Skills/Active/Project Type")]
+[CreateAssetMenu(menuName ="Scriptable Object/Active Skills/Project Type")]
 // 투사체 발사형 스킬들의 컴포넌트
 public class AS_ProjectType : ActiveSkillBase
 {
