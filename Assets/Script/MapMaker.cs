@@ -5,15 +5,23 @@ using UnityEngine;
 public class MapMaker : MonoBehaviour
 {
     public int n = 10;              // 생성할 방의 개수
+    public int floorSize = 1;       // 바닥 크기
     public GameObject floor;        // 바닥 프리팹
+    public int wallSize = 1;        // 벽 크기 일단, floor Size와는 통일할 예정이다.
+    public GameObject wall;
 
     private HashSet<Vector3> PositionSet = new HashSet<Vector3>();
     private Queue<Vector3> PositionQueue = new Queue<Vector3>();
 
     private Vector3 currentPosition = new Vector3(0, 0, 0); // 시작 지점
-    private Vector3 nextPosition;                            // 새로 생성될 방 위치
+    private Vector3 nextPosition;   // 새로 생성될 방 위치
 
     void Start()
+    {
+        PlaneMaker();
+    }
+
+    void PlaneMaker()
     {
         // 시작 지점 초기화
         PositionQueue.Enqueue(currentPosition);
@@ -25,7 +33,8 @@ public class MapMaker : MonoBehaviour
             currentPosition = PositionQueue.Dequeue();
 
             // 방 생성
-            Instantiate(floor, currentPosition, Quaternion.identity);
+            GameObject newfloor = Instantiate(floor, currentPosition, Quaternion.identity);
+            newfloor.transform.localScale = new Vector3(floorSize, 1, floorSize);
             n--;
 
             // 상하좌우 방향 리스트
@@ -41,16 +50,16 @@ public class MapMaker : MonoBehaviour
                 switch (selected)
                 {
                     case "Up":
-                        nextPosition = new Vector3(currentPosition.x, 0, currentPosition.z + 10);
+                        nextPosition = new Vector3(currentPosition.x, 0, currentPosition.z + (10 * floorSize));
                         break;
                     case "Down":
-                        nextPosition = new Vector3(currentPosition.x, 0, currentPosition.z - 10);
+                        nextPosition = new Vector3(currentPosition.x, 0, currentPosition.z - (10 * floorSize));
                         break;
                     case "Left":
-                        nextPosition = new Vector3(currentPosition.x - 10, 0, currentPosition.z);
+                        nextPosition = new Vector3(currentPosition.x - (10 * floorSize), 0, currentPosition.z);
                         break;
                     case "Right":
-                        nextPosition = new Vector3(currentPosition.x + 10, 0, currentPosition.z);
+                        nextPosition = new Vector3(currentPosition.x + (10 * floorSize), 0, currentPosition.z);
                         break;
                 }
 
@@ -68,5 +77,10 @@ public class MapMaker : MonoBehaviour
                 UDLRlist.RemoveAt(index);
             }
         }
+    }
+    
+    void WallMaker()
+    {
+        
     }
 }
