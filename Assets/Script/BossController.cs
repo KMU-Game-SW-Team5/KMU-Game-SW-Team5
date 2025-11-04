@@ -9,6 +9,8 @@ public class BossController : MonoBehaviour
     public int maxHealth = 1000;
     private int currentHealth;
 
+    private bool hasEnteredPhase2 = false;
+
     public int attackDamage = 10;
     public float attackCooldown = 2f;
     private float lastAttackTime;
@@ -106,10 +108,28 @@ public class BossController : MonoBehaviour
             if (playerScript != null)
             {
                 Debug.Log("보스 공격!"); 
+                if(currentHealth > 800)
+                {
+                    animator.SetTrigger("BasicAttack");
+                    playerScript.TakeDamage(attackDamage);
+                }
+                else if(currentHealth > 600) 
+                {
+                    animator.SetTrigger("ClawAttack");
+                    playerScript.TakeDamage(attackDamage*2);
+                }
+                else if(currentHealth > 500)
+                {
+                    animator.SetTrigger("FlameAttack");
+                    playerScript.TakeDamage(attackDamage*3);
+                }
+                else
+                {
+                    animator.SetTrigger("FlyAttack");
+                    playerScript.TakeDamage(attackDamage*4);
+                }
 
-                animator.SetTrigger("Attack");
 
-                playerScript.TakeDamage(attackDamage);
 
                 lastAttackTime = Time.time;
             }
@@ -126,6 +146,17 @@ public class BossController : MonoBehaviour
 
         currentHealth -= damage;
         Debug.Log("보스 체력: " + currentHealth);
+
+        if (!hasEnteredPhase2 && currentHealth < 500 && currentHealth > 0)
+        {
+            attackRange = 30f;
+            hasEnteredPhase2 = true;
+            animator.SetBool("isPhase2", true);
+            animator.SetTrigger("startPhase2"); // 2페이즈 즉시 돌입 트리거 발동
+            Debug.Log("보스: 2페이즈");
+        }
+
+
         if (currentHealth <= 0)
         {
             Die();
