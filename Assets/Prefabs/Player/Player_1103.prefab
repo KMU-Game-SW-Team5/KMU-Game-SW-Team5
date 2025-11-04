@@ -1434,7 +1434,7 @@ MonoBehaviour:
   runSpeed: 50
   jumpForce: 8
   gravity: -100
-  animator: {fileID: 0}
+  animator: {fileID: 9500000, guid: 0fe3ac2ca2e0d7c4287a01044e818b27, type: 3}
 --- !u!114 &1115747810216752695
 MonoBehaviour:
   m_ObjectHideFlags: 0

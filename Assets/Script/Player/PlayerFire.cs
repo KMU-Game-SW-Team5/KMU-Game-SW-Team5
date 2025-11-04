@@ -9,10 +9,12 @@ public class PlayerFire : MonoBehaviour
     private float lastFireTime = 0f;
     
     private Camera mainCam;
+    private Animator animator;
 
     void Start()
     {
         mainCam = Camera.main;
+        animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -26,6 +28,7 @@ public class PlayerFire : MonoBehaviour
 
     void Fire()
     {
+        animator.SetTrigger("Attack");
         Ray ray = new Ray(mainCam.transform.position, mainCam.transform.forward);
         RaycastHit hit;
         Vector3 targetPoint; 
