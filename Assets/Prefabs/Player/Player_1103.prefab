@@ -1384,8 +1384,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79849bac0d3764f0bbb0a2317ae2e937, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  hp: 100
+  maxHealth: 5000
+  hp: 5000
 --- !u!114 &4547363749321256554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1428,8 +1428,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraMount: {fileID: 8679525567009787801}
   lookSensitivity: 200
-  maxLookAngle: 10
-  minLookAngle: -10
+  maxLookAngle: 20
+  minLookAngle: -20
   walkSpeed: 30
   runSpeed: 50
   jumpForce: 8
