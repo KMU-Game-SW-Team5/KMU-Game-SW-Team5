@@ -4,7 +4,7 @@ using UnityEngine;
 public class BossController : MonoBehaviour
 {
     public float detectionRange = 15f;
-    public float attackRange = 5f;
+    private float attackRange = 10f;
     public float moveSpeed = 2f;
     public int maxHealth = 1000;
     private int currentHealth;
@@ -147,9 +147,9 @@ public class BossController : MonoBehaviour
         currentHealth -= damage;
         Debug.Log("보스 체력: " + currentHealth);
 
-        if (!hasEnteredPhase2 && currentHealth < 500 && currentHealth > 0)
+        if (!hasEnteredPhase2 && currentHealth <= 500 && currentHealth > 0)
         {
-            attackRange = 30f;
+            attackRange = 50f;
             hasEnteredPhase2 = true;
             animator.SetBool("isPhase2", true);
             animator.SetTrigger("startPhase2"); // 2페이즈 즉시 돌입 트리거 발동
