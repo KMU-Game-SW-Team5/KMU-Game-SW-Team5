@@ -3,13 +3,18 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class BossController : MonoBehaviour
 {
-    public float detectionRange = 15f; // 플레이어를 감지할 수 있는 최대 범위
-    public float attackRange = 5f;    // 보스가 멈출 거리 (공격 거리)
-    public float moveSpeed = 2f;
-    public int maxHealth = 1000;
+    public float detectionRange;
+    public float attackRange;
+    public float moveSpeed;
+    public int maxHealth;
     private int currentHealth;
 
+    public int attackDamage;
+    public float attackCooldown;
+    private float lastAttackTime;
+    
     private Transform player;
+    private Player playerScript;
     private Rigidbody rb;
 
     void Start()
@@ -21,25 +26,42 @@ public class BossController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (player != null && !player.gameObject.activeInHierarchy)
+        {
+            player = null;
+            playerScript = null;
+        }
+        
         if (player != null)
         {
-            // 플레이어와의 거리를 계산
             float distance = Vector3.Distance(transform.position, player.position);
 
             if (distance <= detectionRange && distance > attackRange)
             {
                 MoveTowardsPlayer();
             }
-           
+            else if (distance <= attackRange)
+            {
+                AttackPlayer();
+            }
         }
     }
 
     void FindPlayer()
     {
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-        if (playerObject != null)
+        if (player == null || !player.gameObject.activeInHierarchy)
         {
-            player = playerObject.transform;
+            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+            if (playerObject != null)
+            {
+                player = playerObject.transform;
+                playerScript = playerObject.GetComponent<Player>();
+                
+                if (playerScript == null)
+                {
+                    Debug.LogError("보스: 'Player' 태그를 가진 오브젝트를 찾았지만, Player.cs 스크립트가 없습니다!");
+                }
+            }
         }
     }
 
@@ -50,7 +72,27 @@ public class BossController : MonoBehaviour
         rb.MovePosition(targetPosition);
     }
 
-    // 데미지를 받는 함수
+    void AttackPlayer()
+    {
+        transform.LookAt(player);
+
+        if (Time.time > lastAttackTime + attackCooldown)
+        {
+            if (playerScript != null)
+            {
+                Debug.Log("보스 공격!"); 
+
+                playerScript.TakeDamage(attackDamage);
+
+                lastAttackTime = Time.time;
+            }
+            else
+            {
+                Debug.LogWarning("보스: 공격하려 했으나 playerScript 참조가 null입니다.");
+            }
+        }
+    }
+
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
@@ -61,7 +103,6 @@ public class BossController : MonoBehaviour
         }
     }
 
-    // 보스 사망 처리 함수
     void Die()
     {
         Debug.Log("보스가 쓰러졌습니다.");
