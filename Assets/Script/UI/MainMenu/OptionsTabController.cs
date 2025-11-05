@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class OptionsController : MonoBehaviour
+public class OptionsTabController : MonoBehaviour
 {
     [Header("Canvas")]
     public GameObject optionsCanvas;
