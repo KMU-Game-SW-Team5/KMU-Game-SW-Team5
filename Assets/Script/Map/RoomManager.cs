@@ -3,9 +3,6 @@ using System.Collections.Generic;
 
 public class RoomManager : MonoBehaviour
 {
-    // 이 방에 속한 몬스터들의 리스트
-    public List<MonsterAI> monstersInRoom = new List<MonsterAI>();
-
     private bool playerHasEntered = false;
 
     public void Initialize(float roomDimension)
@@ -37,17 +34,6 @@ public class RoomManager : MonoBehaviour
 
         playerHasEntered = true;
         Debug.Log($"플레이어가 {gameObject.name} 방에 입장!");
-
-       // 이 방에 속한 모든 몬스터에게 추적 명령
-        foreach (MonsterAI monster in monstersInRoom)
-        {
-            // 몬스터가 null이 아니거나 이미 죽지 않았다면
-            if (monster != null) 
-            {
-                monster.StartChase(other.transform);
-            }
-        
-        }
     }
 
     // 플레이어가 방을 나갔을 때

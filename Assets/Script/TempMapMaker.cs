@@ -76,12 +76,6 @@ public class TempMapMaker : MonoBehaviour
                 // 생성된 몬스터를 방의 자식으로 설정 
                 newMonster.transform.SetParent(newfloor.transform);
                 
-                // 몬스터AI를 RoomManager의 리스트에 추가
-                MonsterAI monsterAI = newMonster.GetComponent<MonsterAI>();
-                if (monsterAI != null)
-                {
-                    roomManager.monstersInRoom.Add(monsterAI);
-                }
             }
 
             // 상하좌우 방향 리스트
