@@ -9738,6 +9738,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c123933d01f1e943a2a7415fa323fef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 50
   ExplosionEffectPrefab: {fileID: 162584487599433031, guid: f936114352452104d8a524ae53a63135, type: 3}
 --- !u!54 &2993070217858637377
 Rigidbody:

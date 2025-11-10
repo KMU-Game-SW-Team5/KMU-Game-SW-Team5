@@ -1,56 +1,103 @@
-ï»¿using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Collections;
 using UnityEngine;
 
-[CreateAssetMenu(menuName ="Scriptable Object/Active Skills/Project Type")]
-// íˆ¬ì‚¬ì²´ ë°œì‚¬í˜• ìŠ¤í‚¬ë“¤ì˜ ì»´í¬ë„ŒíŠ¸
+// °¡·Î·Î ¿©·¯ ¹æÇâ°ú È½¼ö·Î Åõ»çÃ¼¸¦ ¹ß»çÇÒ ¼ö ÀÖ´Â ½ºÅ³
+// ÇÃ·¹ÀÌ Áß¿¡ ¼¼ °¡ÁöÀÇ ¼öÁ¤ÀÌ °¡´ÉÇÔ. °¡ÁöÀÇ °³¼ö, ¿¬¹ßÀÇ È½¼ö, Åõ»çÃ¼ ¼³Á¤
+// Åõ»çÃ¼ÀÇ ¼³Á¤Àº ÇöÀç ¹Ì±¸Çö »óÅÂ.
+[CreateAssetMenu(menuName = "Scriptable Object/Active Skills/Project Type")]
 public class AS_ProjectType : ActiveSkillBase
 {
-    [Header("íˆ¬ì‚¬ì²´ ì„¤ì •")]
-    [SerializeField] public GameObject projectilePrefab;   // íˆ¬ì‚¬ì²´ í”„ë¦¬íŒ¹
-    [SerializeField] public float projectileSpeed = 1f;    // íˆ¬ì‚¬ì²´ì˜ ì†ë„
-    [SerializeField] public float lifeTime = 5f;           // íˆ¬ì‚¬ì²´ì˜ ìˆ˜ëª…
-    [SerializeField] public float verticalAccel = 0f;      // ìˆ˜ì§ ë°©í–¥ ì›€ì§ì„(ì–‘ìˆ˜ë©´ ë¶€ìƒ, ìŒìˆ˜ë©´ ì¶”ë½)
-    [SerializeField] public bool penetrable = false;       // ê´€í†µì„±
-    [SerializeField] public Vector3 instantiateOffset;     // íˆ¬ì‚¬ì²´ë¥¼ ìƒì„±í•˜ëŠ” ìœ„ì¹˜ ì˜¤í”„ì…‹(Zì¶• ë°©í–¥ì´ ì •ë©´)
+    [Header("Åõ»çÃ¼ ¼³Á¤")]
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private float projectileSpeed = 20f;
+    [SerializeField] private float lifeTime = 5f;
+    [SerializeField] private Vector3 acceleration;
+    [SerializeField] private bool penetrable = false;
+    [SerializeField] private Motion projectileMotion;
+    [SerializeField] private float distanceOffset = 10f;
 
-    [Header("ë°œì‚¬ ë°©ì‹")]
-    [SerializeReference] private IShotType shotType;
-    public IShotType GetShotType() => shotType;
+    [Header("¹ß»ç ÆĞÅÏ")]
+    [Min(1)][SerializeField] private int branchCount = 1;    // °¡Áö °³¼ö
+    [Min(1)][SerializeField] private int burstCount = 1;     // ¿¬¼Ó ¹ß»ç °³¼ö
+    [Range(0f, 90f)][SerializeField] private float maxSpreadAngle = 60f; // °¡Áö ÆÛÁü °¢µµ (ÃÖ´ë)
+    [Range(0f, 1f)][SerializeField] private float minInterval = 0.05f;   // ¿¬¼Ó¹ß»ç ÃÖ¼Ò °£°İ
+    [Range(0.05f, 1f)][SerializeField] private float maxInterval = 0.4f; // ¿¬¼Ó¹ß»ç ÃÖ´ë °£°İ
+    [SerializeField] private float decayK = 0.4f;                         // ¿¬¼Ó °£°İ ¼ö·Å »ó¼ö
 
-    // ë°œì‚¬ ë°©ì‹ì„ êµì²´í•˜ëŠ” í•¨ìˆ˜
-    public void SetShotType(IShotType newShotType)
+    // ½ºÅ³ ¹ßµ¿
+    protected override void Execute(GameObject user)
     {
-        if (newShotType != null)
+        MonoBehaviour runner = user.GetComponent<MonoBehaviour>();
+        if (runner != null)
+            runner.StartCoroutine(FireRoutine(user));
+        else
+            Debug.LogWarning("AS_ProjectTypeV2: MonoBehaviour ½ÇÇà ÁÖÃ¼°¡ ¾ø½À´Ï´Ù.");
+    }
+
+    // ºÎÃ¤²Ã ¸ğ¾çÀ¸·Î ¿¬¼Ó ¹ß»ç
+    private IEnumerator FireRoutine(GameObject user)
+    {
+        // ±âº» ¹ß»ç ¹æÇâ / À§Ä¡ °è»ê
+        Vector3 forward = SkillManager.GetForwardDirection();
+        Vector3 spawnPos = SkillManager.GetCameraPosition() + forward * distanceOffset;
+        Quaternion baseRot = Quaternion.LookRotation(forward);
+
+        // ÃÑ °¡Áö ÆÛÁü °¢µµ °è»ê (HorizontalMultiShot ¹æ½Ä)
+        float k = 0.25f;
+        float dynamicSpread = maxSpreadAngle * (1f - Mathf.Exp(-k * (branchCount - 1)));
+
+        // °¡Áöº° ¹æÇâ °è»ê ÈÄ °¢ÀÚ ÄÚ·çÆ¾À¸·Î º´·Ä ¹ß»ç
+        for (int i = 0; i < branchCount; i++)
         {
-            shotType = newShotType;
+            float t = (branchCount == 1) ? 0f : (float)i / (branchCount - 1);
+            float angle = Mathf.Lerp(-dynamicSpread / 2f, dynamicSpread / 2f, t);
+            Quaternion shotRot = Quaternion.AngleAxis(angle, Vector3.up) * baseRot;
+            Vector3 shotDir = shotRot * Vector3.forward;
+
+            // °¢ °¡ÁöÀÇ ¿¬¼Ó¹ß»ç¸¦ µ¿½Ã¿¡ ½ÃÀÛ
+            MonoBehaviour runner = user.GetComponent<MonoBehaviour>();
+            if (runner != null)
+                runner.StartCoroutine(ShootBurst(user, spawnPos, shotDir));
+        }
+
+        // ¸ğµç °¡Áö¸¦ µ¿½Ã¿¡ ½ÇÇàÇÏ¹Ç·Î FireRoutine ÀÚÃ¼´Â Áï½Ã Á¾·á
+        yield break;
+    }
+
+
+    private IEnumerator ShootBurst(GameObject user, Vector3 spawnPos, Vector3 dir)
+    {
+        // ¿¬¼Ó¹ß»ç °£°İ °è»ê 
+        float interval = (burstCount <= 1)
+            ? 0f
+            : minInterval + (maxInterval - minInterval) * Mathf.Exp(-decayK * (burstCount - 2));
+
+        Quaternion rot = Quaternion.LookRotation(dir);
+
+        for (int n = 0; n < burstCount; n++)
+        {
+            GameObject projectile = Object.Instantiate(projectilePrefab, spawnPos, rot);
+
+            ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
+            pc.SetDestroyComponent(lifeTime, penetrable);
+            pc.SetMotionType(projectileMotion);
+            pc.SetPhysicalComponent(dir * projectileSpeed, acceleration, null);
+
+            if (interval > 0f && n < burstCount - 1)
+                yield return new WaitForSeconds(interval);
         }
     }
 
-    // ì‹œì „ ì‹œ í˜¸ì¶œ
-    protected override void Execute(GameObject user)
-    {
-        shotType?.Shoot(user, this);
-    }
+    // ================================
+    // °¡Áö/¿¬¹ß ¼ö Áõ°¨ ¸Ş¼­µå
+    // ================================
+    public void IncreaseBranchCount(int n = 1) => branchCount += n;
+    public void DecreaseBranchCount(int n = 1) => branchCount = Mathf.Max(1, branchCount - n);
 
-    //// ì¶”ìƒí™”ëœ ë ˆê±°ì‹œ ì½”ë“œ
-    //public void generalShot(GameObject user)
-    //{
-    //    float damage = GetPower(magicStat);      // ìŠ¤í‚¬ì˜ ìœ„ë ¥ ì„¤ì •
+    public void IncreaseBurstCount(int n = 1) => burstCount += n;
+    public void DecreaseBurstCount(int n = 1) => burstCount = Mathf.Max(1, burstCount - n);
 
-    //    // TODO : í•˜ë‹¨ì˜ Camera.mainìœ¼ë¡œ í˜¸ì¶œí•˜ëŠ” ë°©ì‹ì€ ë¹„íš¨ìœ¨ì ì„. ê¸°íšŒê°€ ë˜ë©´ ìµœì í™” í•  ê²ƒ.
-
-    //    // íˆ¬ì‚¬ì²´ ìƒì„± ìœ„ì¹˜ì™€ íšŒì „ê°’ ì„¤ì •
-    //    Vector3 spawnPos = user.transform.position + user.transform.TransformDirection(instantiateOffset);
-    //    Quaternion lookingRotation = Quaternion.LookRotation(Camera.main.transform.forward); // ì¹´ë©”ë¼ ë³´ëŠ” ë°©í–¥ ê¸°ì¤€ 
-
-    //    // íˆ¬ì‚¬ì²´ ìƒì„±
-    //    GameObject projectile = Instantiate(projectilePrefab, spawnPos, lookingRotation);
-
-    //    // íˆ¬ì‚¬ì²´ì˜ ì†ì„± ì„¤ì •
-    //    ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
-    //    pc.SetComponent(damage, lifeTime, penetrable, Camera.main.transform.forward * projectileSpeed, verticalAccel);
-    //}
-
+    // Getter (ÇÊ¿ä½Ã)
+    public int GetBranchCount() => branchCount;
+    public int GetBurstCount() => burstCount;
 }

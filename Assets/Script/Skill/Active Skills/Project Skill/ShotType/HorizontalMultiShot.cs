@@ -1,46 +1,45 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
+// ê°€ë¡œë¡œ ì—¬ëŸ¬ê°œì˜ íˆ¬ì‚¬ì²´ë¥¼ ë°œì‚¬í•˜ëŠ” ë°©ì‹
 [System.Serializable]
 public class HorizontalMultiShot : IShotType
 {
-    // Èğ»Ñ¸®´Â Å¸ÀÔ
-    [Range(1, 20)] public int projectileCount = 5;
-    [Range(0, 90)] public float spreadAngle = 30f;
+    [Range(1, 20)] public int projectileCount = 5;   // íˆ¬ì‚¬ì²´ì˜ ê°œìˆ˜
+    [Range(0, 90)] public float maxSpreadAngle = 60f; // ìµœëŒ€ ì´ê° (ì–‘ì˜† 30ë„)
+    private Motion projectileMotion;                  // íˆ¬ì‚¬ì²´ì— ì ìš©í•  ìš´ë™ ë°©ì‹
+    public void ProjectileMotionChange(Motion motion) => projectileMotion = motion;
 
-    public void Shoot(GameObject user, AS_ProjectType skill)
+    public void Shoot(GameObject user, AS_ProjectTypeLegacy skill)
     {
         float damage = skill.GetPower(skill.magicStat);
 
-        // LinearShot°ú µ¿ÀÏÇÑ ±âÁØ À§Ä¡ »ç¿ë
-        Vector3 spawnPos = user.transform.position + user.transform.TransformDirection(skill.instantiateOffset);
+        Vector3 lookingDir = SkillManager.GetForwardDirection();
+        Vector3 spawnPos = SkillManager.GetCameraPosition() + lookingDir * skill.distanceOffset;
 
-        // ±âÁØ ¹æÇâ (Ä«¸Ş¶ó ¹Ù¶óº¸´Â ¹æÇâ)
-        Vector3 forward = Camera.main.transform.forward;
+        // íˆ¬ì‚¬ì²´ê°€ ë§ì•„ì§ˆ ìˆ˜ë¡ ê°ë„ê°€ ë²Œì–´ì§€ê³ , ìµœëŒ€ 60ë„ë¥¼ ë„˜ì§€ ì•ŠìŒ.
+        float k = 0.25f;
+        float dynamicSpread = maxSpreadAngle * (1f - Mathf.Exp(-k * (projectileCount - 1)));
+        // ì˜ˆ: 1ê°œ â†’ 0Â°, 2ê°œ â†’ ì•½ 13Â°, 3ê°œ â†’ ì•½ 23Â°, 5ê°œ â†’ ì•½ 36Â°, 10ê°œ â†’ ì•½ 49Â°, 20ê°œ â†’ 57Â°
 
-        // ºÎÃ¤²Ã ¹ß»ç
+        // ë¶€ì±„ê¼´ë¡œ ë°œì‚¬
         for (int i = 0; i < projectileCount; i++)
         {
             float t = (projectileCount == 1) ? 0f : (float)i / (projectileCount - 1);
-            float angle = Mathf.Lerp(-spreadAngle / 2f, spreadAngle / 2f, t);
+            float angle = Mathf.Lerp(-dynamicSpread / 2f, dynamicSpread / 2f, t);
 
-            // ºÎÃ¤²Ã °¢µµ ¼³Á¤
-            Quaternion baseRot = Quaternion.LookRotation(forward);
+            Quaternion baseRot = Quaternion.LookRotation(lookingDir);
             Quaternion shotRot = Quaternion.AngleAxis(angle, Vector3.up) * baseRot;
 
-            // Åõ»çÃ¼ »ı¼º
             GameObject projectile = Object.Instantiate(skill.projectilePrefab, spawnPos, shotRot);
 
-            // Åõ»çÃ¼ ¼Ó¼º ¼³Á¤
-            if (projectile.TryGetComponent(out ProjectileComponent pc))
-            {
-                pc.SetComponent(
-                    damage,
-                    skill.lifeTime,
-                    skill.penetrable,
-                    shotRot * Vector3.forward * skill.projectileSpeed,
-                    skill.verticalAccel
-                );
-            }
+            ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
+            pc.SetDestroyComponent(skill.lifeTime, skill.penetrable);
+            pc.velocity = (shotRot * Vector3.forward) * skill.projectileSpeed;
+            pc.acceleration = skill.acceleration;
+            pc.SetMotionType(skill.projectileMotion);
         }
     }
+
+    public void IncreaseProjectile(int n = 1) => projectileCount += n;
+    public void DecreaseProjectile(int n = 1) => projectileCount = Mathf.Max(1, projectileCount - n);
 }
