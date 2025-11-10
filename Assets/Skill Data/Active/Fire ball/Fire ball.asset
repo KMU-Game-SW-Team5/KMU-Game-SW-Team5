@@ -18,24 +18,21 @@ MonoBehaviour:
   baseValue: 10
   coefficient: 1
   cooldown: 1
-  magicStat: 1
-  lastUseTime: 23.424898
-  remainingCooldown: 0
+  magicStat: 10
   projectilePrefab: {fileID: 5099431166652583641, guid: 18fd82d41bb8c5f4da5c6b40dffc6b3f, type: 3}
-  projectileSpeed: 100
+  projectileSpeed: 200
   lifeTime: 5
-  verticalAccel: 10
+  acceleration: {x: 0, y: 0, z: 0}
   penetrable: 0
-  instantiateOffset: {x: 0, y: 0, z: 10}
+  projectileMotion: {fileID: 11400000, guid: 0c5917767abbdf444b4237f2669a88d3, type: 2}
+  distanceOffset: 15
   shotType:
-    rid: 1882645452042010628
+    rid: 1882645606443253808
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 1882645452042010628
-      type: {class: SpreadShot, ns: , asm: Assembly-CSharp}
+    - rid: 1882645606443253808
+      type: {class: HorizontalMultiShot, ns: , asm: Assembly-CSharp}
       data:
         projectileCount: 5
         spreadAngle: 30

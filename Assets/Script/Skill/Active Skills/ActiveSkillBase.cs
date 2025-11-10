@@ -12,7 +12,7 @@ public abstract class ActiveSkillBase : ScriptableObject
 
     // TODO : 플레이어 스탯 컴포넌트 생기면 연동 시킬 것
     // [serializeField] private PlayerStats;
-    public float magicStat = 1f;          // 플레이어의 마력 스탯
+    public float magicStat = 1f;          // 플레이어의 마력 스탯, 변경시 SkillManager에서 업데이트 함.
 
     private float lastUseTime = -999f;                    // 마지막 사용 시각
     private float remainingCooldown = 0f;                 // 남은 쿨타임 (초)
