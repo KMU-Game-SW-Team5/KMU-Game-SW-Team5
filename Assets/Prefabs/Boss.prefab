@@ -122,10 +122,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc96fdffb32ef4745a15d788959fcaf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRange: 1000
-  attackRange: 20
-  moveSpeed: 10
+  detectionRange: 300
+  attackRange: 50
+  moveSpeed: 30
   maxHealth: 1000
+  attackDamage: 10
+  attackCooldown: 2
+  knockbackForce: 30
 --- !u!54 &8708117271714528964
 Rigidbody:
   m_ObjectHideFlags: 0

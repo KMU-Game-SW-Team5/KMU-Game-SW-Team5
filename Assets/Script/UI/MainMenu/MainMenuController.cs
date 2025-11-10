@@ -20,12 +20,12 @@ public class MainMenuController : MonoBehaviour
         else
             Debug.LogWarning("GameScene이 Build Settings에 등록되어 있지 않습니다");
         */
-        SceneManager.LoadScene("Assets/Scenes/SampleScene.unity");
+        SceneManager.LoadScene("Assets/Scenes/MapMakerScene.unity");
     }
 
     public void ShowOptionsCanvas()
     {
-        if (optionsCanvas != null)
+        if (optionsCanvas != null) 
             optionsCanvas.SetActive(true);
 
         if (mainCanvas != null)

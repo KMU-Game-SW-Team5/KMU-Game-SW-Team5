@@ -1384,8 +1384,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79849bac0d3764f0bbb0a2317ae2e937, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  hp: 100
+  maxHealth: 5000
+  hp: 5000
 --- !u!114 &4547363749321256554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1428,13 +1428,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraMount: {fileID: 8679525567009787801}
   lookSensitivity: 200
-  maxLookAngle: 7
-  minLookAngle: -6
+  maxLookAngle: 20
+  minLookAngle: -20
   walkSpeed: 30
   runSpeed: 50
   jumpForce: 8
   gravity: -100
-  animator: {fileID: 0}
+  animator: {fileID: 9500000, guid: 0fe3ac2ca2e0d7c4287a01044e818b27, type: 3}
 --- !u!114 &1115747810216752695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2947,9 +2947,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8989284041166370186}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.7018102, z: -0, w: 0.7123641}
-  m_LocalPosition: {x: -1.134213, y: -1.9380001, z: 8.756089}
-  m_LocalScale: {x: 0.09999998, y: 0.1, z: 0.09999998}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8679525567009787801}
