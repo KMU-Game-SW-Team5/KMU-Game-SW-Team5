@@ -4,27 +4,49 @@ using System.Collections.Generic;
 public class RoomManager : MonoBehaviour
 {
     // 이 방에 속한 몬스터들의 리스트
-    // 현재 아무것도 없음 - 방을 생성할 때 이 리스트에 몬스터들을 넣어주어야 함
-    // public List<MonsterAI> monstersInRoom;
+    public List<MonsterAI> monstersInRoom = new List<MonsterAI>();
 
     private bool playerHasEntered = false;
+
+    public void Initialize(float roomDimension)
+    {
+        BoxCollider triggerCollider = gameObject.AddComponent<BoxCollider>();
+
+        // 2. 'Is Trigger'로 설정 (필수)
+        triggerCollider.isTrigger = true;
+
+        // 3. 콜라이더 크기 설정
+        // MapMaker에서 방과 방 사이의 거리가 (10 * floorSize)이므로,
+        // 트리거의 크기도 이에 맞게 설정하여 방 전체를 덮도록 합니다.
+        float size = roomDimension;
+        float height = 20f; 
+        
+        triggerCollider.size = new Vector3(size, height, size);
+        
+        // 피봇이 바닥(y=0)이므로, 콜라이더의 중심을 y축으로 높이의 절반만큼 올림
+        triggerCollider.center = new Vector3(0, height / 2, 0);
+    }
 
     void OnTriggerEnter(Collider other)
     {
         // 이미 한 번 들어왔다면 무시 (중복 실행 방지)
-        if (playerHasEntered) return;
-
-        // 트리거에 부딪힌 것이 "Player" 태그를 가졌는지 확인
-        if (other.CompareTag("Player"))
+        if (playerHasEntered || !other.CompareTag("Player"))
         {
-            playerHasEntered = true;
-            Debug.Log("플레이어가 방에 입장!");
-            
-            // 이 방의 모든 몬스터에게 추적 명령 
-            // foreach (MonsterAI monster in monstersInRoom)
-            // {
-            //     monster.StartChase(other.transform);
-            // }
+            return;
+        }
+
+        playerHasEntered = true;
+        Debug.Log($"플레이어가 {gameObject.name} 방에 입장!");
+
+       // 이 방에 속한 모든 몬스터에게 추적 명령
+        foreach (MonsterAI monster in monstersInRoom)
+        {
+            // 몬스터가 null이 아니거나 이미 죽지 않았다면
+            if (monster != null) 
+            {
+                monster.StartChase(other.transform);
+            }
+        
         }
     }
 
@@ -33,8 +55,7 @@ public class RoomManager : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            // 여기에 몬스터 멈추는 로직 (StopChase)을 넣을 수 있음
-            // 회의 때 논의 필요... 한데 사실 몬스터를 모두 잡아야 나갈 수 있어서 없어도 될 듯
+
         }
     }
 }
