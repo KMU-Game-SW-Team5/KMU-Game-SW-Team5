@@ -9,7 +9,7 @@ public class HorizontalMultiShot : IShotType
     private Motion projectileMotion;                  // 투사체에 적용할 운동 방식
     public void ProjectileMotionChange(Motion motion) => projectileMotion = motion;
 
-    public void Shoot(GameObject user, AS_ProjectType skill)
+    public void Shoot(GameObject user, AS_ProjectTypeLegacy skill)
     {
         float damage = skill.GetPower(skill.magicStat);
 

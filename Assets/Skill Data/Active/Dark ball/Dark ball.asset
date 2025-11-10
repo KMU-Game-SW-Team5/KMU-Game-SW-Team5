@@ -9,30 +9,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2a858b9ea4f9c14bbd1968d1173b447, type: 3}
+  m_Script: {fileID: 11500000, guid: 308b2936cbe43b945885bc09b72d2cec, type: 3}
   m_Name: Dark ball
   m_EditorClassIdentifier: 
   skillName: 
-  icon: {fileID: 21300000, guid: 4184495d79c523148bd19006e6e88b2d, type: 3}
+  icon: {fileID: 0}
   describe: 
   baseValue: 10
   coefficient: 1
-  cooldown: 1
-  magicStat: 10
-  projectilePrefab: {fileID: 7914662257891743077, guid: 5af6aca17542d204eb028ec2744aef98, type: 3}
-  projectileSpeed: 100
+  cooldown: 5
+  magicStat: 1
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 20
   lifeTime: 5
-  acceleration: {x: 0, y: -5, z: 0}
+  acceleration: {x: 0, y: 0, z: 0}
   penetrable: 0
-  projectileMotion: {fileID: 11400000, guid: 14c1dddd00e8efa40abe1167cc5051f1, type: 2}
+  projectileMotion: {fileID: 0}
   distanceOffset: 10
-  shotType:
-    rid: 1882645606443253809
-  references:
-    version: 2
-    RefIds:
-    - rid: 1882645606443253809
-      type: {class: HorizontalMultiShot, ns: , asm: Assembly-CSharp}
-      data:
-        projectileCount: 5
-        spreadAngle: 30
+  branchCount: 1
+  burstCount: 1
+  maxSpreadAngle: 60
+  minInterval: 0.05
+  maxInterval: 0.4
+  decayK: 0.4

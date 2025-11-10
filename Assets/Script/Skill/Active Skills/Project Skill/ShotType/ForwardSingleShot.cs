@@ -12,7 +12,7 @@ public class ForwardSingleShot : IShotType
     private Motion projectileMotion;                     // 투사체의 운동 방식
     public void ProjectileMotionChange(Motion motion) => projectileMotion = motion;
 
-    public void Shoot(GameObject user, AS_ProjectType skill)
+    public void Shoot(GameObject user, AS_ProjectTypeLegacy skill)
     {
         // 코루틴을 이용해 순차 발사
         MonoBehaviour runner = user.GetComponent<MonoBehaviour>();
@@ -23,7 +23,7 @@ public class ForwardSingleShot : IShotType
     }
 
     // 정해진 시간 안에 특정 개수를 등간격으로 발사함.
-    private IEnumerator ShootSequence(GameObject user, AS_ProjectType skill)
+    private IEnumerator ShootSequence(GameObject user, AS_ProjectTypeLegacy skill)
     {
         float damage = skill.GetPower(skill.magicStat);
         Vector3 spawnDir = SkillManager.GetForwardDirection();

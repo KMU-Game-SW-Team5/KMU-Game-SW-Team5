@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using OpenCover.Framework.Model;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SkillManager : MonoBehaviour
@@ -27,7 +28,7 @@ public class SkillManager : MonoBehaviour
         foreach (var skill in activeSkills)
         {
             // 발사형 스킬을 직선형 발사로 초기화함.
-            if (skill is AS_ProjectType projectileSkill)    // 타입 체크 & 다운캐스팅
+            if (skill is AS_ProjectTypeLegacy projectileSkill)    // 타입 체크 & 다운캐스팅
             {
                 ForwardSingleShot linear = new ForwardSingleShot();
                 projectileSkill.SetShotType(linear);
@@ -156,8 +157,8 @@ public class SkillManager : MonoBehaviour
     // 테스트 코드의 집합
     public void Test()
     {
-        ChangeProjectileNumForTest();
-        ChangeShotTypeForTest();
+        ChangeProjectileAttributesForTest();
+        //ChangeShotTypeForTest();
         AnchorTest();
 
     }
@@ -174,13 +175,14 @@ public class SkillManager : MonoBehaviour
             marker.transform.localPosition = Vector3.zero;
             marker.transform.localScale = Vector3.one * 0.3f;
             Renderer r = marker.GetComponent<Renderer>();
-            r.material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            //r.material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
             r.material.color = new Color(1f, 1f, 0f, 0.4f);
             Destroy(marker.GetComponent<Collider>());
         }
     }
-    // 테스트용 투사체 개수 변화 (1 : 투사체 개수 증가, 2 : 투사체 개수 감소)
-    private void ChangeProjectileNumForTest()
+
+    // 테스트용 투사체 개수 변화 (1, 2 : 투사체 가지 증가/감소, 3, 4 : 투사체 연속 발사 횟수 증가/감소)
+    private void ChangeProjectileAttributesForTest()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
@@ -188,7 +190,7 @@ public class SkillManager : MonoBehaviour
             {
                 if (skill is AS_ProjectType projectileSkill)
                 {
-                    projectileSkill.IncreaseProjectileNum();
+                    projectileSkill.IncreaseBranchCount();
                 }
             }
         }
@@ -198,7 +200,27 @@ public class SkillManager : MonoBehaviour
             {
                 if (skill is AS_ProjectType projectileSkill)
                 {
-                    projectileSkill.DecreaseProjectileNum();
+                    projectileSkill.DecreaseBranchCount();
+                }
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            foreach (var skill in activeSkills)
+            {
+                if (skill is AS_ProjectType projectileSkill)
+                {
+                    projectileSkill.IncreaseBurstCount();
+                }
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            foreach (var skill in activeSkills)
+            {
+                if (skill is AS_ProjectType projectileSkill)
+                {   
+                    projectileSkill.DecreaseBurstCount();
                 }
             }
         }
@@ -211,7 +233,7 @@ public class SkillManager : MonoBehaviour
         {
             foreach (var skill in activeSkills)
             {
-                if (skill is AS_ProjectType projectileSkill)
+                if (skill is AS_ProjectTypeLegacy projectileSkill)
                 {
                     IShotType forwardShot = new ForwardSingleShot();
                     projectileSkill.SetShotType(forwardShot);
@@ -222,7 +244,7 @@ public class SkillManager : MonoBehaviour
         {
             foreach (var skill in activeSkills)
             {
-                if (skill is AS_ProjectType projectileSkill)
+                if (skill is AS_ProjectTypeLegacy projectileSkill)
                 {
                     IShotType horizontalShot = new HorizontalMultiShot();
                     projectileSkill.SetShotType(horizontalShot);
