@@ -114,17 +114,6 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-    //// 에임 오프셋을 스킬들에게 전달함.
-    //public void SetSkillAim()
-    //{
-    //    foreach (var skill in activeSkills)
-    //    {
-    //        if (skill is AS_ProjectType projectSkill)
-    //        {
-    //            projectSkill.instantiateOffset += aimOffset;
-    //        }
-    //    }
-    //}
 
     // 바라보는 방향에 가장 먼저 맞은 곳에 오브젝트를 생성해서 그 트랜스폼을 리턴함.
     // 스킬 시전할 때 위치를 지정할 때 사용됨.
@@ -167,6 +156,7 @@ public class SkillManager : MonoBehaviour
     // 테스트 코드의 집합
     public void Test()
     {
+        ChangeProjectileNumForTest();
         ChangeShotTypeForTest();
         AnchorTest();
 
@@ -189,38 +179,53 @@ public class SkillManager : MonoBehaviour
             Destroy(marker.GetComponent<Collider>());
         }
     }
-    // 테스트용 발사 방식 변경 (1 : 직선, 2 : 가로)
-    private void ChangeShotTypeForTest()
+    // 테스트용 투사체 개수 변화 (1 : 투사체 개수 증가, 2 : 투사체 개수 감소)
+    private void ChangeProjectileNumForTest()
     {
-        // 1 입력시 직선으로 여러개 발사하는 방식으로 변경
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             foreach (var skill in activeSkills)
             {
                 if (skill is AS_ProjectType projectileSkill)
                 {
-                    ForwardSingleShot linear = new ForwardSingleShot();
-                    projectileSkill.SetShotType(linear);
-                    Debug.Log($"[Change] {projectileSkill.name} → SpreadShot으로 변경됨");
+                    projectileSkill.IncreaseProjectileNum();
                 }
             }
         }
-        // 2 입력시 가로로 여러개 발사하는 방식으로 변경
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             foreach (var skill in activeSkills)
             {
                 if (skill is AS_ProjectType projectileSkill)
                 {
-                    HorizontalMultiShot spread = new HorizontalMultiShot
-                    {
-                        projectileCount = 5,   // 발사 개수
-                        spreadAngle = 30f      // 퍼지는 각도
-                    };
+                    projectileSkill.DecreaseProjectileNum();
+                }
+            }
+        }
+    }
 
-                    projectileSkill.SetShotType(spread);
-                    Debug.Log($"[Change] {projectileSkill.name} → SpreadShot으로 변경됨 " +
-                        $"(개수 {spread.projectileCount}, 각도 {spread.spreadAngle})");
+    // 테스트용 투사 방식 변경 (3 : 직선, 4 : 가로)
+    public void ChangeShotTypeForTest()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            foreach (var skill in activeSkills)
+            {
+                if (skill is AS_ProjectType projectileSkill)
+                {
+                    IShotType forwardShot = new ForwardSingleShot();
+                    projectileSkill.SetShotType(forwardShot);
+                }
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            foreach (var skill in activeSkills)
+            {
+                if (skill is AS_ProjectType projectileSkill)
+                {
+                    IShotType horizontalShot = new HorizontalMultiShot();
+                    projectileSkill.SetShotType(horizontalShot);
                 }
             }
         }

@@ -35,4 +35,15 @@ public class AS_ProjectType : ActiveSkillBase
         shotType?.Shoot(user, this);
     }
 
+    // 탄환 개수 증가
+    public void IncreaseProjectileNum(int n = 1)
+    {
+        shotType?.IncreaseProjectile(n);
+    }
+
+    // 탄환 개수 감소. 1 이하로는 떨어지지 않음.
+    public void DecreaseProjectileNum(int n = 1)
+    {
+        shotType?.DecreaseProjectile(n);
+    }
 }

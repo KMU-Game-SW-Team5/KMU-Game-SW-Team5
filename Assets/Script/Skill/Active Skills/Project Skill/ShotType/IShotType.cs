@@ -4,4 +4,7 @@
 public interface IShotType
 {
     void Shoot(GameObject user, AS_ProjectType skill);
+
+    void IncreaseProjectile(int n = 1);
+    void DecreaseProjectile(int n = 1);
 }
