@@ -53,6 +53,7 @@ public class InGameUIManager : MonoBehaviour
     // About Skill
     // -----------------------------
     public void UseSkill(int index, float cooldownTime) { skillSlots[index].ActivateCooldown(cooldownTime); }
+    public void UpdateIcon(int index, Sprite newSkillSprite) { skillSlots[index].SetIcon(newSkillSprite); }
 
     // -----------------------------
     // About Minimap

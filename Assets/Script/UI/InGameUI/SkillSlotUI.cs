@@ -6,6 +6,7 @@ public class SkillSlotUI : MonoBehaviour
 {
     [SerializeField] private Image cooldownFill;
     [SerializeField] private float cooldownTime;
+    [SerializeField] private Image icon;
     private bool isCoolingDown = false;
     private float elapsed = 0f;
 
@@ -33,5 +34,10 @@ public class SkillSlotUI : MonoBehaviour
 
         cooldownFill.fillAmount = 0f;
         isCoolingDown = false;
+    }
+
+    public void SetIcon(Sprite sprite)
+    {
+        icon.sprite = sprite;
     }
 }
