@@ -25,7 +25,7 @@ public class MainMenuController : MonoBehaviour
 
     public void ShowOptionsCanvas()
     {
-        if (optionsCanvas != null)
+        if (optionsCanvas != null) 
             optionsCanvas.SetActive(true);
 
         if (mainCanvas != null)
