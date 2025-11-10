@@ -9,17 +9,25 @@ public class MapMaker : MonoBehaviour
     public GameObject floor;        // 바닥 프리팹
     public GameObject wall;         // 벽 프리팹 
     public GameObject wallDoor;     // 문이 있는 벽 프리팹 
+    public GameObject boss;         // 보스몹 프리팹
 
     private HashSet<Vector3> TempSet = new HashSet<Vector3>();
     private HashSet<Vector3> PositionSet = new HashSet<Vector3>();
     private HashSet<Vector3> WallSet = new HashSet<Vector3>();
     private Queue<Vector3> PositionQueue = new Queue<Vector3>();
     private Vector3 nextPosition;   // 새로 생성될 방 위치
+    private Vector3 bossPosition;
 
     void Start()
     {
         FloorMaker();
         WallMaker();
+        BossRoomMaker();
+
+        // 맵 생성이 모두 끝난 시점
+        Debug.Log("맵 생성 완료!");
+
+
     }
 
     void FloorMaker()
@@ -35,6 +43,7 @@ public class MapMaker : MonoBehaviour
         {
             // 큐에서 위치 꺼내기
             Vector3 nowPosition = PositionQueue.Dequeue();
+            bossPosition = nowPosition;
 
             // 방생성
             GameObject newfloor = Instantiate(floor, nowPosition, Quaternion.identity);
@@ -99,7 +108,7 @@ public class MapMaker : MonoBehaviour
 
         }
     }
-    
+
     void WallMaker()
     {
         // 큐와 집합 초기화 및 초기값 설정
@@ -132,23 +141,23 @@ public class MapMaker : MonoBehaviour
                 {
                     case "Up":
                         nextPosition = new Vector3(nowPosition.x, 0, nowPosition.z + (10 * roomSize));
-                        wallPosition = nowPosition + new Vector3(0, 0, ((10 * roomSize) / 2.0f));  
-                        wallRotation = Quaternion.Euler(0, 90, 0); 
+                        wallPosition = nowPosition + new Vector3(0, 0, ((10 * roomSize) / 2.0f));
+                        wallRotation = Quaternion.Euler(0, 90, 0);
                         break;
                     case "Down":
                         nextPosition = new Vector3(nowPosition.x, 0, nowPosition.z - (10 * roomSize));
-                        wallPosition = nowPosition + new Vector3(0, 0, -((10 * roomSize)/2.0f));   
-                        wallRotation = Quaternion.Euler(0, -90, 0);  
+                        wallPosition = nowPosition + new Vector3(0, 0, -((10 * roomSize) / 2.0f));
+                        wallRotation = Quaternion.Euler(0, -90, 0);
                         break;
                     case "Left":
                         nextPosition = new Vector3(nowPosition.x - (10 * roomSize), 0, nowPosition.z);
-                        wallPosition = nowPosition + new Vector3(-((10 * roomSize) / 2.0f), 0, 0); 
-                        wallRotation = Quaternion.Euler(0, 0, 0);    
+                        wallPosition = nowPosition + new Vector3(-((10 * roomSize) / 2.0f), 0, 0);
+                        wallRotation = Quaternion.Euler(0, 0, 0);
                         break;
                     case "Right":
                         nextPosition = new Vector3(nowPosition.x + (10 * roomSize), 0, nowPosition.z);
-                        wallPosition = nowPosition + new Vector3(((10 * roomSize) / 2.0f), 0, 0);  
-                        wallRotation = Quaternion.Euler(0, 180, 0); 
+                        wallPosition = nowPosition + new Vector3(((10 * roomSize) / 2.0f), 0, 0);
+                        wallRotation = Quaternion.Euler(0, 180, 0);
                         break;
                 }
 
@@ -184,7 +193,7 @@ public class MapMaker : MonoBehaviour
                             else
                             {
                                 // 문이 없는 벽 생성, 및 방 크기 변경
-                                wallPosition.y += wall.transform.localScale.y * ((roomSize/2));
+                                wallPosition.y += wall.transform.localScale.y * ((roomSize / 2));
                                 GameObject newWall = Instantiate(wall, wallPosition, wallRotation);
                                 newWall.transform.localScale *= roomSize;
                             }
@@ -194,12 +203,18 @@ public class MapMaker : MonoBehaviour
                 else // 방을 생성할 수 있는 위치가 아니라면
                 {
                     // 문이 없는 벽 생성, 및 방 크기 변경
-                    wallPosition.y += wall.transform.localScale.y * ((roomSize/2));
+                    wallPosition.y += wall.transform.localScale.y * ((roomSize / 2));
                     GameObject newWall = Instantiate(wall, wallPosition, wallRotation);
                     newWall.transform.localScale *= roomSize;
                 }
 
             }
         }
+    }
+
+    void BossRoomMaker()
+    {
+        bossPosition.y += 20;
+        GameObject newfloor = Instantiate(boss, bossPosition, Quaternion.identity);
     }
 }

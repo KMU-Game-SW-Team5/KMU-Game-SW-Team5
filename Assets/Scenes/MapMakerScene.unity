@@ -170,6 +170,34 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3840248389228140183, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
       propertyPath: m_Name
       value: Player_1103
@@ -303,10 +331,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   n: 20
-  roomSize: 20
+  roomSize: 40
   floor: {fileID: 8368730452213065613, guid: f2472ab0bab8c2091a3256d67e1b90f7, type: 3}
   wall: {fileID: 3098698459111696107, guid: 9365670580c6b0f7f94ac7642fe2d6bc, type: 3}
-  wallDoor: {fileID: 0}
+  wallDoor: {fileID: 7891159075151969132, guid: 27f0420f6fb56753696ccb3b35815626, type: 3}
+  boss: {fileID: 8591019436512848637, guid: 1dbce9339d2d04b6684100211eacf162, type: 3}
 --- !u!4 &1557583933
 Transform:
   m_ObjectHideFlags: 0
