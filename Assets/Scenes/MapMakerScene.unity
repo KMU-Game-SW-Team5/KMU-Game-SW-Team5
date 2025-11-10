@@ -122,7 +122,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &611003078
+--- !u!1001 &600620580
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -132,11 +132,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1299886531282735195, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 88.66
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1299886531282735195, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 13.26
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1299886531282735195, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
       propertyPath: m_LocalPosition.z
@@ -169,18 +169,6 @@ PrefabInstance:
     - target: {fileID: 1299886531282735195, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3183558579234304370, guid: 0bfce84c246944929b28c6b427913eb7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -343,10 +331,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   n: 20
-  floorSize: 20
+  roomSize: 40
   floor: {fileID: 8368730452213065613, guid: f2472ab0bab8c2091a3256d67e1b90f7, type: 3}
-  wallSize: 20
-  wall: {fileID: 1102447927206353299, guid: 3d8d9239089c2bdfd9d5408b64128230, type: 3}
+  wall: {fileID: 3098698459111696107, guid: 9365670580c6b0f7f94ac7642fe2d6bc, type: 3}
+  wallDoor: {fileID: 7891159075151969132, guid: 27f0420f6fb56753696ccb3b35815626, type: 3}
+  boss: {fileID: 8591019436512848637, guid: 1dbce9339d2d04b6684100211eacf162, type: 3}
 --- !u!4 &1557583933
 Transform:
   m_ObjectHideFlags: 0
@@ -368,4 +357,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 1056307279}
   - {fileID: 1557583933}
-  - {fileID: 611003078}
+  - {fileID: 600620580}
