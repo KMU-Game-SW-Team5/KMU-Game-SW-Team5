@@ -196,6 +196,29 @@ public class MapMaker : MonoBehaviour
                                 wallPosition.y += wall.transform.localScale.y * ((roomSize / 2));
                                 GameObject newWall = Instantiate(wall, wallPosition, wallRotation);
                                 newWall.transform.localScale *= roomSize;
+                                // ✅ 모든 Light 조정
+                                Light[] lights = newWall.GetComponentsInChildren<Light>();
+                                foreach (var light in lights)
+                                {
+                                    // Range (조명 거리) 확대
+                                    light.range *= roomSize;
+
+                                    // (선택) 밝기 강화 — 원하면 활성화
+                                    // light.intensity *= roomSize;
+                                }
+
+                                // ✅ 모든 Particle System 조정
+                                ParticleSystem[] particles = newWall.GetComponentsInChildren<ParticleSystem>();
+                                foreach (var ps in particles)
+                                {
+                                    // // 발사 범위 스케일
+                                    // ps.transform.localScale *= roomSize;
+
+                                    // 입자 크기와 속도 비례 확대
+                                    var main = ps.main;
+                                    main.startSizeMultiplier *= roomSize;
+                                    main.startSpeedMultiplier *= roomSize;
+                                }
                             }
                         }
                     }
