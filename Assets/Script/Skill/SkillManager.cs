@@ -159,7 +159,7 @@ public class SkillManager : MonoBehaviour
     {
         ChangeProjectileAttributesForTest();
         //ChangeShotTypeForTest();
-        AnchorTest();
+        //AnchorTest();
 
     }
 
