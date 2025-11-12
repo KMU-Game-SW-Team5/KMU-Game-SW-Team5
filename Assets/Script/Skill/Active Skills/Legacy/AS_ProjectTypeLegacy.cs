@@ -29,7 +29,7 @@ public class AS_ProjectTypeLegacy : ActiveSkillBase
     }
 
     // 시전 시 호출
-    protected override void Execute(GameObject user)
+    protected override void Execute(GameObject user, Transform target)
     {
         shotType?.Shoot(user, this);
     }

@@ -41,8 +41,8 @@ public class ForwardSingleShot : IShotType
 
             ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
             pc.SetDestroyComponent(skill.lifeTime, skill.penetrable);
-            pc.velocity = spawnDir * skill.projectileSpeed;
-            pc.acceleration = skill.acceleration;
+            //pc.velocity = spawnDir * skill.projectileSpeed;
+            //pc.acceleration = skill.acceleration;
             pc.SetMotionType(skill.projectileMotion);
 
             // 다음 발사까지 대기

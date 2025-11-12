@@ -34,8 +34,8 @@ public class HorizontalMultiShot : IShotType
 
             ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
             pc.SetDestroyComponent(skill.lifeTime, skill.penetrable);
-            pc.velocity = (shotRot * Vector3.forward) * skill.projectileSpeed;
-            pc.acceleration = skill.acceleration;
+            //pc.velocity = (shotRot * Vector3.forward) * skill.projectileSpeed;
+            //pc.acceleration = skill.acceleration;
             pc.SetMotionType(skill.projectileMotion);
         }
     }

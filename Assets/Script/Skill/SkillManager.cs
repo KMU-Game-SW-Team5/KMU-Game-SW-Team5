@@ -24,18 +24,11 @@ public class SkillManager : MonoBehaviour
 
     private void Start()
     {
-        // 테스트용 코드임을 감안할 것.
         foreach (var skill in activeSkills)
         {
-            // 발사형 스킬을 직선형 발사로 초기화함.
-            if (skill is AS_ProjectTypeLegacy projectileSkill)    // 타입 체크 & 다운캐스팅
-            {
-                ForwardSingleShot linear = new ForwardSingleShot();
-                projectileSkill.SetShotType(linear);
-            }
+            if (skill != null)
+                skill.Init();
         }
-
-
 
         // 스킬 개발 테스트가 종료되면 플레이어 스탯 변화시로 이동시킬 것
         UpdateSkillPower();
@@ -86,7 +79,7 @@ public class SkillManager : MonoBehaviour
                 ActiveSkillBase skill = activeSkills[i];
                 if (skill != null)
                 {
-                    skill.TryUse(gameObject); // 플레이어 자신을 user로 전달
+                    skill.TryUse(gameObject, CreateSkillAnchor()); // 플레이어 자신을 user로 전달, 조준한 곳의 첫 번째로 맞은 위치 전달
                 }
             }
         }

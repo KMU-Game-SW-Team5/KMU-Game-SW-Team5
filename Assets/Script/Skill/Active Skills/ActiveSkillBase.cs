@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.VisualScripting;
+using UnityEngine;
 
 public abstract class ActiveSkillBase : ScriptableObject
 {
@@ -24,6 +25,11 @@ public abstract class ActiveSkillBase : ScriptableObject
     //    magicStat = PlayerStats.GetMagicStat();
     //}
 
+    // skill manager에서 초기화함.
+    public void Init()
+    {
+        remainingCooldown = 0f;
+    }
     // 현재 쿨타임이 끝났는지 여부
     public bool CanUse => (remainingCooldown <= 0f);
 
@@ -37,22 +43,23 @@ public abstract class ActiveSkillBase : ScriptableObject
     }
 
     // 스킬 사용 시도 — 사용 가능하면 실행
-    public void TryUse(GameObject user)
+    public void TryUse(GameObject user, Transform target)
     {
         // 아직 쿨이면 실행이 안 되고, UI에 쿨이라고 표시 (UI 만들어지면 완성할 것)
         if (!CanUse)
         {
+            Debug.Log("아직 사용할 수 없습니다. 남은 재사용 대기시간 : " + remainingCooldown + "초");
             // TODO : UI에 재사용 대기 중이라고 띄우기
             return;    
         }
         lastUseTime = Time.time;        // 사용 시간 기록
         remainingCooldown = cooldown;   // 쿨타임 적용
-        Execute(user);                  // 스킬 실행
+        Execute(user, target);                  // 스킬 실행
     }
 
 
     /// 실제 스킬 효과 구현 (파생 클래스에서 반드시 정의)
-    protected abstract void Execute(GameObject user);
+    protected abstract void Execute(GameObject user, Transform target);
 
     /// 기본 수치 + 마력 * 계수 계산
     public float GetPower(float userMagicStat)

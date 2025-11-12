@@ -7,7 +7,7 @@ namespace UnityStandardAssets.ImageEffects
     [AddComponentMenu("Image Effects/Color Adjustments/Contrast Stretch")]
     public class ContrastStretch : MonoBehaviour
     {
-        /// Adaptation speed - percents per frame, if playing at 30FPS.
+        /// Adaptation motionSpeed - percents per frame, if playing at 30FPS.
         /// Default is 0.02 (2% each 1/30s).
         [Range(0.0001f, 1.0f)]
         public float adaptationSpeed = 0.02f;
@@ -175,7 +175,7 @@ namespace UnityStandardAssets.ImageEffects
             int prevAdaptIndex = curAdaptIndex;
             curAdaptIndex = (curAdaptIndex+1) % 2;
 
-            // Adaptation speed is expressed in percents/frame, based on 30FPS.
+            // Adaptation motionSpeed is expressed in percents/frame, based on 30FPS.
             // Calculate the adaptation lerp, based on current FPS.
             float adaptLerp = 1.0f - Mathf.Pow( 1.0f - adaptationSpeed, 30.0f * Time.deltaTime );
             const float kMinAdaptLerp = 0.01f;

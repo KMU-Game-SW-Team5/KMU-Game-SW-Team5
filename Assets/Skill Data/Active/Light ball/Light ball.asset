@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 308b2936cbe43b945885bc09b72d2cec, type: 3}
-  m_Name: Dark ball
+  m_Name: Light ball
   m_EditorClassIdentifier: 
   skillName: 
   icon: {fileID: 0}
@@ -19,15 +19,15 @@ MonoBehaviour:
   coefficient: 1
   cooldown: 1
   magicStat: 10
-  projectilePrefab: {fileID: 7914662257891743077, guid: 5af6aca17542d204eb028ec2744aef98, type: 3}
-  projectileSpeed: 20
+  projectilePrefab: {fileID: 2089860787992684173, guid: 3d53bec11ec83cb47bcd20a7eb615632, type: 3}
+  projectileSpeed: 100
   lifeTime: 5
   acceleration: {x: 0, y: 0, z: 0}
   penetrable: 0
-  projectileMotion: {fileID: 11400000, guid: 4fde45d831405db46bbec451aae91804, type: 2}
+  projectileMotion: {fileID: 11400000, guid: 7d4c32c827706f74c9700b1462be7b09, type: 2}
   distanceOffset: 10
   branchCount: 1
-  burstCount: 1
+  burstCount: 3
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4
