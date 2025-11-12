@@ -1,35 +1,35 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [CreateAssetMenu(menuName = "Scriptable Object/Motion/NontargetParabolic")]
 public class NontargetParabolicMotion : Motion
 {
-    [Header("Æ÷¹°¼± ¿îµ¿ ¼³Á¤")]
-    [Tooltip("ÁøÇà ¹æÇâ¿¡ ¼öÁ÷ÇÑ Æò¸é¿¡¼­ ÈÖ´Â ¹æÇâ°ú ¼¼±â (°¡¼Óµµ º¤ÅÍ¿Í µ¿ÀÏ)")]
+    [Header("í¬ë¬¼ì„  ìš´ë™ ì„¤ì •")]
+    [Tooltip("ì§„í–‰ ë°©í–¥ì— ìˆ˜ì§í•œ í‰ë©´ì—ì„œ íœ˜ëŠ” ë°©í–¥ê³¼ ì„¸ê¸° (ê°€ì†ë„ ë²¡í„°ì™€ ë™ì¼)")]
     public Vector2 curVector = new Vector2(0f, -9.81f);
-    [Header("Áß·Â ¿©ºÎ")]
-    [Tooltip("Áß·Â¿¡ ÀÇÇÑ Æ÷¹°¼±ÀÌ¶ó¸é Ã¼Å©. y°ª¸¸ »ç¿ëµÊ.")]
+    [Header("ì¤‘ë ¥ ì—¬ë¶€")]
+    [Tooltip("ì¤‘ë ¥ì— ì˜í•œ í¬ë¬¼ì„ ì´ë¼ë©´ ì²´í¬. yê°’ë§Œ ì‚¬ìš©ë¨.")]
     public bool isGravity = true;
 
     [Range(0, 90)]
-    [Tooltip("ÁøÇà ¹æÇâ º¤ÅÍ¿¡¼­ ÈÖ´Â ¹æÇâ º¤ÅÍ·Î ¿òÁ÷ÀÌ´Â °¢µµ (¹ß»ç °¢µµ)")]
+    [Tooltip("ì§„í–‰ ë°©í–¥ ë²¡í„°ì—ì„œ íœ˜ëŠ” ë°©í–¥ ë²¡í„°ë¡œ ì›€ì§ì´ëŠ” ê°ë„ (ë°œì‚¬ ê°ë„)")]
     public int angle = 45;
 
-    // ³»ºÎ °è»ê¿ë
-    private float speed;         // ÃÊ±â ¼Ó·ÂÀÇ Å©±â
-    private Vector3 direction;   // ÁøÇà ¹æÇâ (°¡¼Óµµ´Â ÀÌ ¹æÇâ¿¡ ¼öÁ÷ÇÑ Æò¸é¿¡ Á¸Àç)
+    // ë‚´ë¶€ ê³„ì‚°ìš©
+    private float speed;         // ì´ˆê¸° ì†ë ¥ì˜ í¬ê¸°
+    private Vector3 direction;   // ì§„í–‰ ë°©í–¥ (ê°€ì†ë„ëŠ” ì´ ë°©í–¥ì— ìˆ˜ì§í•œ í‰ë©´ì— ì¡´ì¬)
 
     public override void SetVariables(Transform user, Transform target, Vector3 startVelocity, float motionSpeed = 1f)
     {
-        // ±âº» ÇÊµå
+        // ê¸°ë³¸ í•„ë“œ
         this.user = user;
         this.target = target;
         this.velocity = startVelocity;
         this.motionSpeed = motionSpeed;
 
-        // ÁøÇà ¹æÇâ : Å¸±êÀ» ÀÌ¿ëÇÏÁö ¾Ê°í, ÃÊ±â ¼Óµµ ¼³Á¤À» ¹æÇâÀ¸·Î ÀÌ¿ëÇÔ.
+        // ì§„í–‰ ë°©í–¥ : íƒ€ê¹ƒì„ ì´ìš©í•˜ì§€ ì•Šê³ , ì´ˆê¸° ì†ë„ ì„¤ì •ì„ ë°©í–¥ìœ¼ë¡œ ì´ìš©í•¨.
         direction = startVelocity.normalized;
 
-        // µî¼Ó Á÷¼± ¿îµ¿ÀÇ °æ¿ì Áï½Ã Á¾·á
+        // ë“±ì† ì§ì„  ìš´ë™ì˜ ê²½ìš° ì¦‰ì‹œ ì¢…ë£Œ
         if (curVector == Vector2.zero)
         {
             if (target != null) Object.Destroy(target.gameObject);
@@ -38,12 +38,12 @@ public class NontargetParabolicMotion : Motion
 
         speed = startVelocity.magnitude;
 
-        // °¡¼Óµµ ¼³Á¤
+        // ê°€ì†ë„ ì„¤ì •
         if (!isGravity)
         {
-            // ÁøÇà ¹æÇâ¿¡ ¼öÁ÷ÀÎ Æò¸éÀ» ±âÁØÀ¸·Î °¡¼Óµµ ¹æÇâ ¼³Á¤ (xÁõ°¡ ¹æÇâ = ¿À¸¥ÂÊ, yÁõ°¡ ¹æÇâ = À§)
+            // ì§„í–‰ ë°©í–¥ì— ìˆ˜ì§ì¸ í‰ë©´ì„ ê¸°ì¤€ìœ¼ë¡œ ê°€ì†ë„ ë°©í–¥ ì„¤ì • (xì¦ê°€ ë°©í–¥ = ì˜¤ë¥¸ìª½, yì¦ê°€ ë°©í–¥ = ìœ„)
             Vector3 right = -Vector3.Cross(direction, Vector3.up).normalized;
-            if (right == Vector3.zero)      // ¸¸¾à ÁøÇà ¹æÇâÀÌ ¼öÁ÷ÀÌ¶ó¸é ¹«ÀÛÀ§ ¹æÇâÀ¸·Î ¼³Á¤
+            if (right == Vector3.zero)      // ë§Œì•½ ì§„í–‰ ë°©í–¥ì´ ìˆ˜ì§ì´ë¼ë©´ ë¬´ì‘ìœ„ ë°©í–¥ìœ¼ë¡œ ì„¤ì •
             {
                 float rand = Random.Range(0f, 360f) * Mathf.Deg2Rad;
                 right = new Vector3(Mathf.Cos(rand), 0f, Mathf.Sin(rand));
@@ -51,16 +51,14 @@ public class NontargetParabolicMotion : Motion
             Vector3 up = -Vector3.Cross(right, direction).normalized;
             acceleration = (right * curVector.x + up * curVector.y);
         }
-        else    // Áß·ÂÀÏ ¶§´Â y°ª¸¸ »ç¿ë
+        else    // ì¤‘ë ¥ì¼ ë•ŒëŠ” yê°’ë§Œ ì‚¬ìš©
             acceleration = Vector3.up * curVector.y;
 
 
-        // ¹ß»ç °¢µµ¸¦ Àû¿ëÇÑ ¼Óµµ (ÁøÇà ¹æÇâ¿¡¼­ ÁøÇà ¹æÇâ°ú °¡¼Óµµ¿¡ ¼öÁ÷ÀÎ ÃàÀ» ±âÁØÀ¸·Î È¸ÀüÇÑ ¹æÇâ * ¼Ó·Â)
+        // ë°œì‚¬ ê°ë„ë¥¼ ì ìš©í•œ ì†ë„ (ì§„í–‰ ë°©í–¥ì—ì„œ ì§„í–‰ ë°©í–¥ê³¼ ê°€ì†ë„ì— ìˆ˜ì§ì¸ ì¶•ì„ ê¸°ì¤€ìœ¼ë¡œ íšŒì „í•œ ë°©í–¥ * ì†ë ¥)
         velocity = (Quaternion.AngleAxis(angle, Vector3.Cross(direction, -acceleration)) * direction)
             .normalized * speed;
 
-        // Å¸±ê(ÀÓ½Ã ¾ŞÄ¿) Á¤¸®
-        if (target != null) Object.Destroy(target.gameObject);
     }
 
 }

@@ -12,9 +12,9 @@ public class AS_ProjectType : ActiveSkillBase
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float projectileSpeed = 20f;
     [SerializeField] private float lifeTime = 5f;
-    [SerializeField] private Vector3 acceleration;
     [SerializeField] private bool penetrable = false;
     [SerializeField] private Motion projectileMotion;
+    [SerializeField] private float motionSpeed = 1.0f;
     [SerializeField] private float distanceOffset = 10f;
 
     [Header("발사 패턴")]
@@ -66,14 +66,13 @@ public class AS_ProjectType : ActiveSkillBase
                 Quaternion shotRot = Quaternion.AngleAxis(angle, Vector3.up) * baseRot;
                 Vector3 shotDir = shotRot * Vector3.forward;
 
-                // 이 시점에서는 절대 yield가 발생하지 않음 → 모든 가지가 같은 프레임에 나감
-                GameObject projectile = Object.Instantiate(projectilePrefab, spawnPos, shotRot);
-
+                GameObject projectile = ObjectPooler.Instance.Spawn(projectilePrefab, spawnPos, shotRot);
 
                 ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
+                pc.SetPrefabRef(projectilePrefab);
                 pc.SetDestroyComponent(lifeTime, penetrable);
                 pc.SetMotionType(projectileMotion);
-                pc.SetPhysicalComponent(target, shotDir * projectileSpeed);
+                pc.SetPhysicalComponent(target, shotDir * projectileSpeed, motionSpeed);
             }
 
             // 🔸 모든 branch가 전부 나간 다음에만 딜레이 시작

@@ -14703,7 +14703,7 @@ GameObject:
   - component: {fileID: 3497780988369214769}
   - component: {fileID: 5396372950321188654}
   - component: {fileID: 1148153646561574513}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Blue Lightening Hit
   m_TagString: Untagged
   m_Icon: {fileID: 0}

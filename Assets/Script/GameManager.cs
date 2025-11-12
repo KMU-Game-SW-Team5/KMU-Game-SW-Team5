@@ -5,6 +5,8 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     public bool IsPaused { get; private set; }
 
+    [SerializeField] private LayerMask ignoreLayerMaskWithRay;  // 스킬 타겟팅에서 무시할 레이어
+
     private void Awake()
     {
         // 싱글톤 중복 방지
@@ -22,10 +24,23 @@ public class GameManager : MonoBehaviour
     // 각종 전역 세팅 초기화
     private void InitializeGameSettings()
     {
-        // 게임 전역 물리 규칙 설정
-        Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Projectile"), LayerMask.NameToLayer("Projectile"));
-        Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Projectile"));
+        int projectile = LayerMask.NameToLayer("Projectile");
+        int player = LayerMask.NameToLayer("Player");
+        int skillAnchor = LayerMask.NameToLayer("SkillAnchor");
 
+        // --- Projectile 관련 충돌 전부 무시 ---
+        Physics.IgnoreLayerCollision(projectile, projectile);     // 투사체끼리
+        Physics.IgnoreLayerCollision(player, projectile);         // 플레이어와 투사체
+        Physics.IgnoreLayerCollision(projectile, skillAnchor);    // 투사체와 스킬 앵커
+
+        // --- 스킬 타겟팅용 무시 레이어 ---
+        ignoreLayerMaskWithRay = LayerMask.GetMask("Projectile", "SkillAnchor");
+    }
+
+
+    public LayerMask GetIgnoreLayerMaskWithRay()
+    {
+        return ignoreLayerMaskWithRay;
     }
 
 }

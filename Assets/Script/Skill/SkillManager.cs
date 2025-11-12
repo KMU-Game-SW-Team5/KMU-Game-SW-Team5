@@ -16,6 +16,11 @@ public class SkillManager : MonoBehaviour
     [Header("스탯")]
     [SerializeField] public float magicStat = 10f;  // 마력 스탯 
 
+    [Header("스킬 시전용 앵커 프리팹")]
+    [Tooltip("스킬 타겟용 앵커 프리팹 (없으면 기본 빈 오브젝트 생성)")]
+    [SerializeField] private GameObject skillAnchorPrefab;
+    int mask;       // 레이가 무시할 레이어
+
     [Header("스킬 시전 위치 지정을 위한 변수")]
     [SerializeField] public static Camera cam;
     public static Vector3 forwardDirection;                      // 전방 방향을 가리키는 벡터
@@ -36,6 +41,9 @@ public class SkillManager : MonoBehaviour
         // 카메라 연결
         cam = Camera.main;
         UpdateForwardDirection();
+
+        // 레이가 무시할 레이어 설정
+        mask = ~GameManager.Instance.GetIgnoreLayerMaskWithRay();
     }
 
 
@@ -109,33 +117,44 @@ public class SkillManager : MonoBehaviour
     }
 
 
-    // 바라보는 방향에 가장 먼저 맞은 곳에 오브젝트를 생성해서 그 트랜스폼을 리턴함.
+    // 바라보는 방향에 가장 먼저 맞은 곳에 프리팹을 생성해서 그 트랜스폼을 리턴함.
     // 스킬 시전할 때 위치를 지정할 때 사용됨.
     public Transform CreateSkillAnchor()
-    { 
-        Vector3 origin = GetCameraPosition();    // 레이의 시작 벡터
+    {
+        Vector3 origin = GetCameraPosition();
         UpdateForwardDirection();
-        Vector3 direction = forwardDirection;               // 레이의 방향
+        Vector3 direction = forwardDirection;
 
-        // 테스트를 위해 레이 그림. 나중에 삭제해야 함.
-        //Debug.DrawRay(origin, direction * maxSpellDistance, Color.red, 3f);
+        GameObject anchorObj;
+        Vector3 spawnPos;
+        Transform targetTransform = null;
 
-        GameObject anchor = new GameObject("SkillAnchor");  // 앵커 오브젝트 생성. 위치는 레이로 결정.
-        // 앵커 오브젝트의 소멸은 각 스킬에서 관리하도록 함.
-
-        // 레이 발사
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, maxSpellDistance, ~0, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(origin, direction, out RaycastHit hit, maxSpellDistance, mask, QueryTriggerInteraction.Ignore))
         {
-            // 레이에 맞은 위치로 앵커 배치
-            anchor.transform.position = hit.point;
+            spawnPos = hit.point;
+            targetTransform = hit.transform;
         }
         else
         {
-            // 맞지 않으면 설정한 최대 거리에 앵커 배치
-            anchor.transform.position = origin + direction * maxSpellDistance;
+            spawnPos = origin + direction * maxSpellDistance;
         }
-        return anchor.transform;
+
+        if (skillAnchorPrefab != null)
+            anchorObj = Instantiate(skillAnchorPrefab, spawnPos, Quaternion.identity);
+        else
+            anchorObj = new GameObject("SkillAnchor (Fallback)");
+
+
+        // 🔹 Raycast로 맞은 오브젝트가 있다면 직접 부착 처리
+        SkillAnchor anchor = anchorObj.GetComponent<SkillAnchor>();
+        if (anchor != null && targetTransform != null)
+            anchor.AttachTo(targetTransform, spawnPos);
+
+        Destroy(anchorObj, anchorLifetime);
+        return anchorObj.transform;
     }
+
+
 
     // 플레이어의 능력치 변화를 스킬들에 반영해줌.
     public void UpdateSkillPower()

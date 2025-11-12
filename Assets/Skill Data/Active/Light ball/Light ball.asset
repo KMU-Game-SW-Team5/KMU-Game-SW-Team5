@@ -22,12 +22,12 @@ MonoBehaviour:
   projectilePrefab: {fileID: 2089860787992684173, guid: 3d53bec11ec83cb47bcd20a7eb615632, type: 3}
   projectileSpeed: 100
   lifeTime: 5
-  acceleration: {x: 0, y: 0, z: 0}
   penetrable: 0
   projectileMotion: {fileID: 11400000, guid: 7d4c32c827706f74c9700b1462be7b09, type: 2}
+  motionSpeed: 2
   distanceOffset: 10
-  branchCount: 1
-  burstCount: 3
+  branchCount: 8
+  burstCount: 23
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4
