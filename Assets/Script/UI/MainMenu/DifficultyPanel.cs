@@ -10,7 +10,6 @@ public class DifficultyPanel : MonoBehaviour
     public void OnClickDifficulty(int idx)
     {
         SettingsService.GameDifficulty = idx;
-        SettingsService.Save();
 
         StartGame();
     }

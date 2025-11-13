@@ -588,7 +588,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerDisc: {fileID: 459620206}
-  timeManager: {fileID: 0}
+  timeManager: {fileID: 685047901}
 --- !u!224 &287713508
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2037,7 +2037,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15527bb244aebbe43967e0275081d44c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minimapContent: {fileID: 0}
+  minimapContent: {fileID: 751851296}
 --- !u!114 &1169343107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3418,7 +3418,7 @@ MonoBehaviour:
   - {fileID: 2013458224}
   minimapUI: {fileID: 1169343106}
   waveTimerUI: {fileID: 287713507}
-  timeManager: {fileID: 0}
+  timeManager: {fileID: 685047901}
 --- !u!114 &1850163457
 MonoBehaviour:
   m_ObjectHideFlags: 0

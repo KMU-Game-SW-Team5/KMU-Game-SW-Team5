@@ -3,25 +3,43 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [DefaultExecutionOrder(-1000)]  // 다른 스크립트보다 우선 순위 높게 설정
-public class Brightness : MonoBehaviour
+public class VideoManager : MonoBehaviour
 {
     private static bool _baselineReady = false;
     private static Color _ambientBaseline; // 초기 기준
 
-    // Start is called before the first frame update
     void Awake()
     {
         DontDestroyOnLoad(gameObject);
+
+        SettingsService.OnFullScreenChanged += ApplyFullScreen;
+        SettingsService.OnVSyncChanged += ApplyVSync;
         SettingsService.OnBrightnessChanged += ApplyBrightness;
+        SettingsService.OnResolutionChanged += ApplyResolution;
+
+        InitBrightnessBaseline();
+
         SettingsService.ApplyAll();
     }
 
     private void OnDestroy()
     {
-        SettingsService.OnBrightnessChanged -= ApplyBrightness;
+        SettingsService.OnFullScreenChanged -= ApplyFullScreen;
+        SettingsService.OnVSyncChanged -= ApplyVSync;
+        SettingsService.OnBrightnessChanged -= ApplyBrightness;        
+        SettingsService.OnResolutionChanged -= ApplyResolution;
     }
 
-    // Update is called once per frame
+    private void ApplyFullScreen(bool on)
+    {
+        Screen.fullScreen = on;
+    }
+
+    private void ApplyVSync(bool on)
+    {
+        QualitySettings.vSyncCount = on ? 1 : 0;
+    }
+
     public void ApplyBrightness(float t)
     {
         InitBrightnessBaseline();
@@ -35,6 +53,12 @@ public class Brightness : MonoBehaviour
 
         RenderSettings.ambientLight = new Color(factor, factor, factor, 1f);
     }
+
+    private void ApplyResolution(int w, int h, bool fullscreen)
+    {
+        Screen.SetResolution(w, h, fullscreen);
+    }
+
 
 
     // t: 슬라이더(0~1), mid: 가운데에서 목표할 밝기(예: 0.01886797)
