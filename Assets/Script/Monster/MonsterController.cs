@@ -12,7 +12,7 @@ public class MonsterController : MonoBehaviour
     public int maxHealth = 1000;
     public int attackDamage = 5;      
     public float attackCooldown = 1f; 
-    public float deathAnimationDuration = 2f;
+    private float deathAnimationDuration = 3f;
 
     
     private int currentHealth;

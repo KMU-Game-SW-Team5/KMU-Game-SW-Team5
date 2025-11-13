@@ -15,7 +15,7 @@ public class BossController : MonoBehaviour
     public float attackCooldown = 2f;
     private float lastAttackTime;
 
-    public float deathAnimationDuration = 3f;
+    private float deathAnimationDuration = 3f;
     private bool isDead = false;
     
     private Transform player;
