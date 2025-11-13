@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class BossController : MonoBehaviour
 {
-    public float detectionRange = 15f;
+    public float detectionRange = 300f;
     private float attackRange = 50f;
     public float moveSpeed = 2f;
     public int maxHealth = 1000;
@@ -86,7 +86,7 @@ public class BossController : MonoBehaviour
                 
                 if (playerScript == null)
                 {
-                    Debug.LogError("보스: 'Player' 태그를 가진 오브젝트를 찾았지만, Player.cs 스크립트가 없습니다!");
+                    Debug.LogError("보스: 'Player' 태그를 가진 오브젝트를 찾았지만, Player.cs 없음");
                 }
             }
         }
@@ -107,7 +107,7 @@ public class BossController : MonoBehaviour
         {
             if (playerScript != null)
             {
-                Debug.Log("보스 공격!"); 
+                Debug.Log("보스 공격"); 
                 if(currentHealth > 800)
                 {
                     animator.SetTrigger("BasicAttack");
@@ -135,7 +135,7 @@ public class BossController : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("보스: 공격하려 했으나 playerScript 참조가 null입니다.");
+                Debug.LogWarning("보스: 공격하려 했으나 playerScript 없음");
             }
         }
     }
