@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Light ball
   m_EditorClassIdentifier: 
   skillName: 
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 62ce59ce09148c847b198159a3abc9f6, type: 3}
   describe: 
   baseValue: 10
   coefficient: 1
-  cooldown: 1
+  cooldown: 3
   magicStat: 10
   projectilePrefab: {fileID: 2089860787992684173, guid: 3d53bec11ec83cb47bcd20a7eb615632, type: 3}
   projectileSpeed: 100

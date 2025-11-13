@@ -48,7 +48,6 @@ public abstract class ActiveSkillBase : ScriptableObject
         // 아직 쿨이면 실행이 안 되고, UI에 쿨이라고 표시 (UI 만들어지면 완성할 것)
         if (!CanUse)
         {
-            Debug.Log("아직 사용할 수 없습니다. 남은 재사용 대기시간 : " + remainingCooldown + "초");
             // TODO : UI에 재사용 대기 중이라고 띄우기
             return;    
         }
@@ -61,6 +60,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     /// 실제 스킬 효과 구현 (파생 클래스에서 반드시 정의)
     protected abstract void Execute(GameObject user, Transform target);
 
+
     /// 기본 수치 + 마력 * 계수 계산
     public float GetPower(float userMagicStat)
     {
@@ -71,6 +71,12 @@ public abstract class ActiveSkillBase : ScriptableObject
     public float GetCooldown()
     {
         return remainingCooldown;
+    }
+
+    // 남은 쿨타임 비율(0~1) 리턴
+    public float GetCooldownRatio()
+    {
+        return (remainingCooldown / cooldown);
     }
 
     // 쿨타임 입력한 만큼 감소(음수 넣으면 증가)
@@ -101,6 +107,12 @@ public abstract class ActiveSkillBase : ScriptableObject
     public void IncreaseCoefficient(float value)
     {
         coefficient += value;
+    }
+
+    // 스킬 아이콘 getter
+    public Sprite GetIcon()
+    {
+        return icon;
     }
 
     // TODO : 스킬 설명 업데이트하는 함수 만들 것

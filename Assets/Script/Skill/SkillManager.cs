@@ -1,6 +1,9 @@
 ﻿using OpenCover.Framework.Model;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using TMPro;
+
 
 public class SkillManager : MonoBehaviour
 {
@@ -27,6 +30,10 @@ public class SkillManager : MonoBehaviour
     [SerializeField] float maxSpellDistance = 1000f;      // 최대 시전 거리
     [SerializeField] float anchorLifetime = 10f;          // 앵커 오브젝트의 수명(최적화 변수)
 
+    [Header("스킬 UI")]
+    List<SkillSlotUI> skillSlots;
+    List<TextMeshProUGUI> cooldownTexts;  // 쿨다운 텍스트 배열
+
     private void Start()
     {
         foreach (var skill in activeSkills)
@@ -34,9 +41,21 @@ public class SkillManager : MonoBehaviour
             if (skill != null)
                 skill.Init();
         }
+        // UI 연결
+        skillSlots = InGameUIManager.Instance.skillSlots;
+        cooldownTexts = InGameUIManager.Instance.cooldownTexts;
+        // InGameUIManager에서 스킬 키 텍스트 배열 설정
+        InGameUIManager.Instance.SetSkillKeys(skillKeys);
 
-        // 스킬 개발 테스트가 종료되면 플레이어 스탯 변화시로 이동시킬 것
+        // TODO : 스킬 개발 테스트가 종료되면 플레이어 스탯 변화시로 이동시킬 것
         UpdateSkillPower();
+
+        // TODO : 스킬 개발 테스트가 종료되면 스킬 습득시에만 호출되게 할 것.
+        for (int i = 0; i < activeSkills.Count; i++)
+        {
+            UpdateSkillIcon(i);
+
+        }
 
         // 카메라 연결
         cam = Camera.main;
@@ -106,13 +125,54 @@ public class SkillManager : MonoBehaviour
             activeSkills.Remove(skill);
     }
 
+    // 스킬 습득시 호출
+    public void OnSkillGetted()
+    {
+        
+    }
+
     // 스킬들 쿨타임 감소
     public void UpdateSkillsCooldown()
     {
-        foreach (var skill in activeSkills)
+        for (int i = 0; i < activeSkills.Count; i++)
         {
-            if (skill != null)
-                skill.UpdateCooldown();
+            if (activeSkills[i] != null)
+            {
+                activeSkills[i].UpdateCooldown();
+                UpdateSkillCoolDownUI(i);
+            }
+        }
+    }
+
+    // 스킬 쿨타임 UI 업데이트
+    public void UpdateSkillCoolDownUI(int skillIndex)
+    {
+        if (skillIndex >= 0 && skillIndex < skillSlots.Count)
+        {
+            float remainingCooldown = activeSkills[skillIndex].GetCooldown();
+
+            // 쿨타임을 표시할 텍스트를 정수나 소수 첫째 자리로 처리
+            string cooldownText = remainingCooldown >= 1f
+                ? Mathf.Floor(remainingCooldown).ToString()  // 1 이상일 경우 정수로
+                : remainingCooldown.ToString("F1");         // 1 이하일 경우 소수점 첫째자리로
+
+            cooldownTexts[skillIndex].text = cooldownText;
+
+            // 쿨타임이 끝났으면 비활성화
+            if (remainingCooldown <= 0f)
+            {
+                cooldownTexts[skillIndex].gameObject.SetActive(false); // 비활성화
+            }
+            else
+            {
+                cooldownTexts[skillIndex].gameObject.SetActive(true);  // 활성화
+            }
+
+            // 시계방향 필터 적용
+            if (skillIndex >= 0 && skillIndex < skillSlots.Count)
+            {
+                skillSlots[skillIndex].SetCooldownRatio(activeSkills[skillIndex].GetCooldownRatio());
+            }
         }
     }
 
@@ -165,6 +225,23 @@ public class SkillManager : MonoBehaviour
         }
     }
 
+    // 스킬 아이콘 업데이트, 스킬 습득시 호출
+    public void UpdateSkillIcon(int skillIndex)
+    {
+        if (skillIndex >= 0 && skillIndex < skillSlots.Count)
+        {
+            if (activeSkills[skillIndex].GetIcon() != null)
+            {
+                activeSkills[skillIndex].GetIcon().ToString();
+                skillSlots[skillIndex].SetIcon(activeSkills[skillIndex].GetIcon());
+            }
+            else
+            {
+                Debug.Log("아이콘 발견 안됨.");
+            }
+        }
+    }
+
 
     // 테스트 코드의 집합
     public void Test()
@@ -172,7 +249,7 @@ public class SkillManager : MonoBehaviour
         ChangeProjectileAttributesForTest();
         //ChangeShotTypeForTest();
         //AnchorTest();
-
+        //if (cam == null) Debug.Log("?");
     }
 
     // 앵커가 제대로 생성되는지 확인하는 테스트(좌클릭 시 앵커 생성)

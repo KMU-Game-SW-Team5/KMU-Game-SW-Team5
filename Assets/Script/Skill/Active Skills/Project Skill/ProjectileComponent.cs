@@ -12,7 +12,7 @@ public class ProjectileComponent : MonoBehaviour
 
     [SerializeField] private GameObject ExplosionEffectPrefab; // 폭발 이펙트 프리팹
 
-    [SerializeField] private GameObject projectilePrefabRef; // 오브젝트 풀러에서 키로 사용되는 정보
+    private GameObject projectilePrefabRef; // 오브젝트 풀러에서 키로 사용되는 정보
 
 
     private void Awake()
@@ -65,12 +65,6 @@ public class ProjectileComponent : MonoBehaviour
     // 뭔가에 닿았을 때
     private void OnTriggerEnter(Collider other)
     {
-        //// --- 🔍 충돌 로그 출력 ---
-        //string otherName = other.gameObject.name;
-        //string otherTag = other.gameObject.tag;
-        //string otherLayer = LayerMask.LayerToName(other.gameObject.layer);
-
-        //Debug.Log($"[ProjectileComponent] 충돌 발생 → 대상: {otherName}, 태그: {otherTag}, 레이어: {otherLayer}", other.gameObject);
         Bomb();
     }
 
