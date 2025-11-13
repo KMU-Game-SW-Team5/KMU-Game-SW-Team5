@@ -300,8 +300,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraMount: {fileID: 491807650015605938}
   lookSensitivity: 200
-  maxLookAngle: 20
-  minLookAngle: -20
+  maxLookAngle: 30
+  minLookAngle: -30
   walkSpeed: 30
   runSpeed: 50
   jumpForce: 8
