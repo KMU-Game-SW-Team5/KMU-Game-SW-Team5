@@ -6,10 +6,9 @@ public class TestCode : MonoBehaviour
     [SerializeField] TimeManager timeManager;
     int LV = 1;
 
-    private void Start()
-    {
-        timeManager.AddWaveChangedListener(ApplyWave);
-    }
+    void OnEnable() { timeManager.OnWaveChanged += ApplyWave; }
+    void OnDisable() { timeManager.OnWaveChanged -= ApplyWave; }
+
     void Update()
     {
         // 1~4: 스킬 사용(쿨다운 시작)

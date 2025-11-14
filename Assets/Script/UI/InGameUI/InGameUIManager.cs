@@ -25,10 +25,19 @@ public class InGameUIManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        waveTimerUI.SetRatio(timeManager.DayRatio);
     }
 
-    void OnEnable() { timeManager.AddProgressListener(waveTimerUI.UpdateRotation); }
-    void OnDisable() { timeManager.RemoveProgressListener(waveTimerUI.UpdateRotation); }
+    void OnEnable()
+    {
+        timeManager.OnCycleProgress += waveTimerUI.UpdateRotation; 
+        timeManager.OnDayRatioChanged += waveTimerUI.SetRatio;
+    }
+    void OnDisable()
+    {
+        timeManager.OnCycleProgress -= waveTimerUI.UpdateRotation;
+        timeManager.OnDayRatioChanged -= waveTimerUI.SetRatio;
+    }
 
     // -----------------------------
     // About Player
