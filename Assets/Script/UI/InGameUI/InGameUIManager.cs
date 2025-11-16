@@ -16,6 +16,9 @@ public class InGameUIManager : MonoBehaviour
     [SerializeField] GameObject bossStatusPanel;
     [SerializeField] PointBarUI bossHPUI;
     [SerializeField] TextMeshProUGUI bossNameUI;
+    [Header("LevelUp UI")]
+    [SerializeField] LevelUpUI levelUpUI;
+    [SerializeField] GameObject levelUpPanel;
     [Header("Etc")]
     [SerializeField] SkillSlotUI[] skillSlots;
     [SerializeField] MinimapUI minimapUI;
@@ -63,6 +66,15 @@ public class InGameUIManager : MonoBehaviour
     // -----------------------------
     public void UseSkill(int index, float cooldownTime) { skillSlots[index].ActivateCooldown(cooldownTime); }
     public void UpdateIcon(int index, Sprite newSkillSprite) { skillSlots[index].SetIcon(newSkillSprite); }
+
+    // -----------------------------
+    // About LevelUp
+    // -----------------------------
+    public void ShowLevelUpUI(SkillData[] options)
+    {
+        levelUpPanel.SetActive(true);
+        levelUpUI.Show(options);        
+    }
 
     // -----------------------------
     // About Minimap
