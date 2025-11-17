@@ -43,6 +43,7 @@ public class AS_ProjectType : ActiveSkillBase
     // ============================================================
     private IEnumerator FireRoutine()
     {
+        Debug.Log(1);
         Vector3 forward;
         Vector3 spawnPos;
         Quaternion baseRot;
@@ -54,23 +55,30 @@ public class AS_ProjectType : ActiveSkillBase
         float interval = (burstCount <= 1)
             ? 0f
             : minInterval + (maxInterval - minInterval) * Mathf.Exp(-decayK * (burstCount - 2));
+        Debug.Log(2);
+
 
         // 🔸 n번 연속 발사
         for (int n = 0; n < burstCount; n++)
         {
-            Debug.Log(1);
             // 시전할 때마다 플레이어 시점 갱신
             forward = SkillManager.GetForwardDirection();
             spawnPos = SkillManager.GetCameraPosition() + forward * distanceOffset;
             baseRot = Quaternion.LookRotation(forward);
+            Debug.Log(3);
+
 
             // 🔸 가지 발사(부채꼴)
             for (int i = 0; i < branchCount; i++)
             {
+                Debug.Log(4);
+
                 float t = (branchCount == 1) ? 0f : (float)i / (branchCount - 1);
                 float angle = Mathf.Lerp(-dynamicSpread / 2f, dynamicSpread / 2f, t);
                 Quaternion shotRot = Quaternion.AngleAxis(angle, Vector3.up) * baseRot;
                 Vector3 shotDir = shotRot * Vector3.forward;
+                Debug.Log(5);
+
 
                 // ==========================================
                 //  🎯 투사체 생성
@@ -82,11 +90,15 @@ public class AS_ProjectType : ActiveSkillBase
                 );
 
                 ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
+                Debug.Log(6);
+
 
                 pc.SetPrefabRef(projectilePrefab);
 
                 // 🔥 SkillManager 싱글톤 기반: owner는 자동 => baseDamage만 넘기면 됨
                 pc.Initialize(GetDamage());
+                Debug.Log(7);
+
 
                 pc.SetDestroyComponent(lifeTime, penetrable);
                 pc.SetMotionType(projectileMotion);
