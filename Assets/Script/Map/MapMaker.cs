@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class MapMaker : MonoBehaviour
 {
+    [Header("방의 개수")]
     public int n = 10;              // 생성할 방의 개수
+    [Header("방의 크기(기본 40)")]
     public int roomSize = 1;        // 방 크기
+    [Header("맵관련 프리팹")] 
     public GameObject floor;        // 바닥 프리팹
     public GameObject wall;         // 벽 프리팹 
     public GameObject wallDoor;     // 문이 있는 벽 프리팹 
+    public GameObject ceiling;      // 천장 프리팹
     public GameObject boss;         // 보스몹 프리팹
 
     private HashSet<Vector3> TempSet = new HashSet<Vector3>();
@@ -20,17 +24,15 @@ public class MapMaker : MonoBehaviour
 
     void Start()
     {
-        FloorMaker();
+        FloorAndCeilingMaker();
         WallMaker();
         BossRoomMaker();
 
         // 맵 생성이 모두 끝난 시점
         Debug.Log("맵 생성 완료!");
-
-
     }
 
-    void FloorMaker()
+    void FloorAndCeilingMaker()
     {   
         // 큐와 집합 초기화 및 초기값 설정
         PositionQueue.Clear();
@@ -43,11 +45,19 @@ public class MapMaker : MonoBehaviour
         {
             // 큐에서 위치 꺼내기
             Vector3 nowPosition = PositionQueue.Dequeue();
+            
             bossPosition = nowPosition;
 
             // 방생성
-            GameObject newfloor = Instantiate(floor, nowPosition, Quaternion.identity);
-            newfloor.transform.localScale = new Vector3(roomSize, 1, roomSize);
+            GameObject newFloor = Instantiate(floor, nowPosition, Quaternion.identity);
+            newFloor.transform.localScale = new Vector3(roomSize, 1, roomSize);
+
+            // 천장 생성
+            Vector3 nowCeilingPosition = nowPosition;
+            nowCeilingPosition.y = 10 * 20;
+            Quaternion nowCeilingRotation = Quaternion.Euler(180, 0, 0);
+            GameObject newCeiling = Instantiate(ceiling, nowCeilingPosition, nowCeilingRotation);
+            newCeiling.transform.localScale = new Vector3(roomSize, 1, roomSize);
 
             // 방이 생성된 위치를 집합에 저장
             PositionSet.Add(nowPosition);
@@ -177,6 +187,7 @@ public class MapMaker : MonoBehaviour
                         // 처음 접근하는 것으로 문을 만든다.
                         GameObject doorWall = Instantiate(wallDoor, wallPosition, wallRotation);
                         doorWall.transform.localScale *= roomSize;
+                        ToarchMaker(doorWall);
                     }
                     else // TempSet에 있는 위치라면(이미 접근한 적 있는 방이라면)
                     {
@@ -189,6 +200,7 @@ public class MapMaker : MonoBehaviour
                                 // 처음 접근하는 것으로 문을 만든다.
                                 GameObject doorWall = Instantiate(wallDoor, wallPosition, wallRotation);
                                 doorWall.transform.localScale *= roomSize;
+                                ToarchMaker(doorWall);
                             }
                             else
                             {
@@ -196,6 +208,8 @@ public class MapMaker : MonoBehaviour
                                 wallPosition.y += wall.transform.localScale.y * ((roomSize / 2));
                                 GameObject newWall = Instantiate(wall, wallPosition, wallRotation);
                                 newWall.transform.localScale *= roomSize;
+                                ToarchMaker(newWall);
+
                             }
                         }
                     }
@@ -206,9 +220,37 @@ public class MapMaker : MonoBehaviour
                     wallPosition.y += wall.transform.localScale.y * ((roomSize / 2));
                     GameObject newWall = Instantiate(wall, wallPosition, wallRotation);
                     newWall.transform.localScale *= roomSize;
+                    ToarchMaker(newWall);
                 }
 
             }
+        }
+    }
+
+    void ToarchMaker(GameObject gameObject)
+    {
+        // ✅ 모든 Light 조정
+        Light[] lights = gameObject.GetComponentsInChildren<Light>();
+        foreach (var light in lights)
+        {
+            // Range (조명 거리) 확대
+            light.range *= roomSize;
+
+            // (선택) 밝기 강화 — 원하면 활성화
+            // light.intensity *= roomSize;
+        }
+
+        // ✅ 모든 Particle System 조정
+        ParticleSystem[] particles = gameObject.GetComponentsInChildren<ParticleSystem>();
+        foreach (var ps in particles)
+        {
+            // // 발사 범위 스케일
+            // ps.transform.localScale *= roomSize;
+
+            // 입자 크기와 속도 비례 확대
+            var main = ps.main;
+            main.startSizeMultiplier *= roomSize;
+            main.startSpeedMultiplier *= roomSize;
         }
     }
 
@@ -217,4 +259,6 @@ public class MapMaker : MonoBehaviour
         bossPosition.y += 20;
         GameObject newfloor = Instantiate(boss, bossPosition, Quaternion.identity);
     }
+
+
 }
