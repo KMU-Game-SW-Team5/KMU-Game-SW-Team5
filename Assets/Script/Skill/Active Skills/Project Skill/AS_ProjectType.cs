@@ -58,6 +58,7 @@ public class AS_ProjectType : ActiveSkillBase
         // 🔸 n번 연속 발사
         for (int n = 0; n < burstCount; n++)
         {
+            Debug.Log(1);
             // 시전할 때마다 플레이어 시점 갱신
             forward = SkillManager.GetForwardDirection();
             spawnPos = SkillManager.GetCameraPosition() + forward * distanceOffset;
