@@ -17,3 +17,4 @@ MonoBehaviour:
   describe: 
   hitEffects:
   - {fileID: 11400000, guid: 8e48abeeffff2294fb336594066595d7, type: 2}
+  - {fileID: 11400000, guid: 8e48abeeffff2294fb336594066595d7, type: 2}
