@@ -4,58 +4,77 @@ using System;
 public class TimeManager : MonoBehaviour
 {
     // 던전에 밤낮은 없지만, 일단 밤/낮으로 표현
-    public float fullCycle = 600f;  //  하루: 600초
+    [SerializeField] float dayDuration = 240f;
+    [SerializeField] float nightDuration = 360f;
 
     public event Action<bool> OnWaveChanged;   // true: 낮, false: 밤
-    public event Action<float> OnProgress;  // 0~1 진행도 (원판 회전에 사용)
+    public event Action<float> OnCycleProgress;  // 0~1 진행도 (원판 회전에 사용)
+    public event Action<float> OnDayRatioChanged;   // DayRatio 변경 시 호출
 
     double elapsed; // 누적 시간
-    int wave = 1;  // 0: 밤, 1: 낮
-    float Half => fullCycle * 0.5f;
+    bool isDay = true;
 
     void Update()
     {
         float dt = Time.deltaTime;
         elapsed += dt;
 
-        float progress = (float)(elapsed % fullCycle) / fullCycle;
-        OnProgress?.Invoke(progress);
+        float fullCycle = dayDuration + nightDuration;
+        float t = (float)(elapsed % fullCycle);
+        float progress = t / fullCycle;
 
-        int newWave = ((int)Math.Floor((elapsed % fullCycle) / Half)) == 0 ? 1 : 0;
-        if (newWave != wave)
+        OnCycleProgress?.Invoke(progress);
+
+        bool changed = isDay != (t < dayDuration);
+
+        if (changed)
         {
-            wave = newWave;
-            OnWaveChanged?.Invoke(wave == 1);
+            isDay = !isDay;
+            OnWaveChanged?.Invoke(isDay);
         }
     }
-    public void AddProgressListener(Action<float> listener)
+
+    public float DayRatio => dayDuration / (dayDuration + nightDuration);
+
+    public void SetDuration(float dd, float nd)
     {
-        OnProgress -= listener;
-        OnProgress += listener;
+        dayDuration = Mathf.Max(0.01f, dd);
+        nightDuration = Mathf.Max(0.01f, nd);
+
+        OnDayRatioChanged?.Invoke(DayRatio);
     }
-    public void RemoveProgressListener(Action<float> listener)
-    {
-        OnProgress -= listener;
-    }
-    public void AddWaveChangedListener(Action<bool> listener)
-    {
-        OnWaveChanged -= listener; // 중복 방지
-        OnWaveChanged += listener;
-    }
-    public void RemoveWaveChangedListener(Action<bool> listener)
-    {
-        OnWaveChanged -= listener;
-    }
-    
+
     /*
     활용 예시
-    void OnEnable()  { timeManager.AddWaveChangedListener += ApplyWave; }
-    void OnDisable() { timeManager.RemoveWaveChangedListener -= ApplyWave; }
+    void OnEnable()
+    {
+        timeManager.OnWaveChanged += ApplyWave;
+        timeManager.OnCycleProgress += ApplyCycleProgress;
+        timeManager.OnDayRatioChanged += ApplyRatioChange;
+    }
+    void OnDisable()
+    {
+        timeManager.OnWaveChanged -= ApplyWave;
+        timeManager.OnCycleProgress -= ApplyCycleProgress;
+        timeManager.OnDayRatioChanged -= ApplyRatioChange;
+    }
 
     void ApplyWave(bool isDay)
     {
-        if(isDay){}
-        else {}
+        if (isDay) { }
+        else { }
+        timeManager.SetDuration(5f, 10f);
+    }
+
+    void ApplyCycleProgress(float progress)
+    {
+        Debug.Log(progress);
+    }
+
+    void ApplyRatioChange(float ratio)
+    {
+        if (ratio < TimeManager.DayRatio) Debug.Log("밤이 길어집니다.");
     }
     */
+
 }
