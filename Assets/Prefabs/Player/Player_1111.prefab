@@ -300,8 +300,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraMount: {fileID: 491807650015605938}
   lookSensitivity: 200
-  maxLookAngle: 20
-  minLookAngle: -20
+  maxLookAngle: 30
+  minLookAngle: -30
   walkSpeed: 30
   runSpeed: 50
   jumpForce: 8
@@ -3137,7 +3137,7 @@ SkinnedMeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9186861697781619533}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
