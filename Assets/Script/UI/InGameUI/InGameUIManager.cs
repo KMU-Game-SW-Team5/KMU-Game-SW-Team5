@@ -33,8 +33,8 @@ public class InGameUIManager : MonoBehaviour
         FilterCooldownTexts();
     }
 
-    void OnEnable() { timeManager.AddProgressListener(waveTimerUI.UpdateRotation); }
-    void OnDisable() { timeManager.RemoveProgressListener(waveTimerUI.UpdateRotation); }
+    void OnEnable() { timeManager?.AddProgressListener(waveTimerUI.UpdateRotation); }
+    void OnDisable() { timeManager?.RemoveProgressListener(waveTimerUI.UpdateRotation); }
 
     // -----------------------------
     // About Player

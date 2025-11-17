@@ -3,12 +3,25 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using TMPro;
+using static UnityEngine.UI.GridLayoutGroup;
 
 
 public class SkillManager : MonoBehaviour
 {
+    // 싱글톤 인스턴스
+    public static SkillManager Instance { get; private set; }
+
+    // 플레이어 오브젝트
+    public GameObject owner { get; private set; }
+
     [Header("장착된 액티브 스킬 목록")]
     [SerializeField] private List<ActiveSkillBase> activeSkills = new List<ActiveSkillBase>();
+
+    [Header("장착된 패시브 스킬 목록")]
+    [SerializeField] private List<PassiveSkillBase> passiveSkills = new List<PassiveSkillBase>();
+
+    // 현재 적용 중인 적중시 효과 목록
+    private readonly List<IHitEffect> runtimeEffects = new();
 
     [Header("스킬 발동 키 설정")]
     [SerializeField] private KeyCode[] skillKeys = { KeyCode.Q, KeyCode.E, KeyCode.R, KeyCode.F };
@@ -18,6 +31,7 @@ public class SkillManager : MonoBehaviour
 
     [Header("스탯")]
     [SerializeField] public float magicStat = 10f;  // 마력 스탯 
+    public float GetMagicStat() { return magicStat; }
 
     [Header("스킬 시전용 앵커 프리팹")]
     [Tooltip("스킬 타겟용 앵커 프리팹 (없으면 기본 빈 오브젝트 생성)")]
@@ -34,6 +48,19 @@ public class SkillManager : MonoBehaviour
     List<SkillSlotUI> skillSlots;
     List<TextMeshProUGUI> cooldownTexts;  // 쿨다운 텍스트 배열
 
+    private void Awake()
+    {
+        // 싱글톤 기본 코드
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
+        owner = this.gameObject;   // SkillManager는 플레이어에게 붙어있음
+    }
+
     private void Start()
     {
         foreach (var skill in activeSkills)
@@ -41,20 +68,17 @@ public class SkillManager : MonoBehaviour
             if (skill != null)
                 skill.Init();
         }
+        TestMethodsInStart();
         // UI 연결
         skillSlots = InGameUIManager.Instance.skillSlots;
         cooldownTexts = InGameUIManager.Instance.cooldownTexts;
         // InGameUIManager에서 스킬 키 텍스트 배열 설정
         InGameUIManager.Instance.SetSkillKeys(skillKeys);
 
-        // TODO : 스킬 개발 테스트가 종료되면 플레이어 스탯 변화시로 이동시킬 것
-        UpdateSkillPower();
-
         // TODO : 스킬 개발 테스트가 종료되면 스킬 습득시에만 호출되게 할 것.
         for (int i = 0; i < activeSkills.Count; i++)
         {
             UpdateSkillIcon(i);
-
         }
 
         // 카메라 연결
@@ -69,7 +93,7 @@ public class SkillManager : MonoBehaviour
     private void Update()
     {
         // 테스트용 코드
-        Test();
+        TestMethodsInUpdate();
 
         // 쿨타임 갱신
         UpdateSkillsCooldown();
@@ -112,17 +136,36 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-    // 스킬 추가
-    public void AddSkill(ActiveSkillBase newSkill)
+    // 액티브 스킬 추가
+    public void AddActiveSkill(ActiveSkillBase newSkill)
     {
         if (!activeSkills.Contains(newSkill))
             activeSkills.Add(newSkill);
     }
-    // 스킬 제거
-    public void RemoveSkill(ActiveSkillBase skill)
+    // 액티브 스킬 제거
+    public void RemoveAcvtiveSkill(ActiveSkillBase skill)
     {
         if (activeSkills.Contains(skill))
             activeSkills.Remove(skill);
+    }
+
+    // 패시브 스킬 추가
+    public void AddPassiveSkill(PassiveSkillBase skill)
+    {
+        passiveSkills.Add(skill);
+        if (skill is PS_AddHitEffectType addHitSkill)
+        {
+            foreach (var effSO in addHitSkill.hitEffects)
+                runtimeEffects.Add(effSO.CreateEffectInstance());
+        }
+    }
+
+    // 스킬 적중 발생시 호출
+    public void OnHit(HitContext ctx)
+    {
+        foreach (var eff in runtimeEffects)
+            if (eff.CanApply(ctx))
+                eff.Apply(ctx);
     }
 
     // 스킬 습득시 호출
@@ -215,16 +258,6 @@ public class SkillManager : MonoBehaviour
     }
 
 
-
-    // 플레이어의 능력치 변화를 스킬들에 반영해줌.
-    public void UpdateSkillPower()
-    {
-        foreach (var skill in activeSkills)
-        {
-            skill.magicStat = this.magicStat;
-        }
-    }
-
     // 스킬 아이콘 업데이트, 스킬 습득시 호출
     public void UpdateSkillIcon(int skillIndex)
     {
@@ -243,13 +276,16 @@ public class SkillManager : MonoBehaviour
     }
 
 
-    // 테스트 코드의 집합
-    public void Test()
+    // ===============================================테스트 함수들======================================================
+    // Start()에서 호출되어야 하는 테스트 함수들의 집합
+    public void TestMethodsInStart()
+    {
+        LoadInitialPassiveSkills();
+    }
+    // Update()에서 호출되어야 하는 테스트 함수들의 집합
+    public void TestMethodsInUpdate()
     {
         ChangeProjectileAttributesForTest();
-        //ChangeShotTypeForTest();
-        //AnchorTest();
-        //if (cam == null) Debug.Log("?");
     }
 
     // 앵커가 제대로 생성되는지 확인하는 테스트(좌클릭 시 앵커 생성)
@@ -315,30 +351,31 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-    // 테스트용 투사 방식 변경 (3 : 직선, 4 : 가로)
-    public void ChangeShotTypeForTest()
+    // ======================================================
+    // 테스트용: 씬에 배치된 초기 패시브 스킬 자동 등록
+    // ======================================================
+    public void LoadInitialPassiveSkills()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+        runtimeEffects.Clear();   // 혹시나 중복을 막기 위해 초기화
+
+        foreach (var skill in passiveSkills)
         {
-            foreach (var skill in activeSkills)
+            if (skill == null) continue;
+
+            if (skill is PS_AddHitEffectType addHitSkill)
             {
-                if (skill is AS_ProjectTypeLegacy projectileSkill)
+                foreach (var effSO in addHitSkill.hitEffects)
                 {
-                    IShotType forwardShot = new ForwardSingleShot();
-                    projectileSkill.SetShotType(forwardShot);
+                    if (effSO != null)
+                        runtimeEffects.Add(effSO.CreateEffectInstance());
                 }
             }
         }
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            foreach (var skill in activeSkills)
-            {
-                if (skill is AS_ProjectTypeLegacy projectileSkill)
-                {
-                    IShotType horizontalShot = new HorizontalMultiShot();
-                    projectileSkill.SetShotType(horizontalShot);
-                }
-            }
-        }
+
+        Debug.Log($"[SkillManager] 초기 패시브 스킬 {passiveSkills.Count}개 적용됨, " +
+                  $"런타임 효과 {runtimeEffects.Count}개 생성됨.");
     }
+
+
+
 }

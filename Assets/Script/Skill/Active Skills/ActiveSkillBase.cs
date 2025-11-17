@@ -11,19 +11,17 @@ public abstract class ActiveSkillBase : ScriptableObject
     [SerializeField] protected float coefficient = 1.0f;  // (마력) 계수
     [SerializeField] protected float cooldown = 5f;       // 쿨타임 (초)
 
-    // TODO : 플레이어 스탯 컴포넌트 생기면 연동 시킬 것
-    // [serializeField] private PlayerStats;
-    public float magicStat = 1f;          // 플레이어의 마력 스탯, 변경시 SkillManager에서 업데이트 함.
 
     private float lastUseTime = -999f;                    // 마지막 사용 시각
     private float remainingCooldown = 0f;                 // 남은 쿨타임 (초)
 
 
-    // TODO : 플레이어 스탯 컴포넌트 만들어지면 마력 업데이트 하는 함수 완성할 것
-    //public void UpdateMagicStat()
-    //{
-    //    magicStat = PlayerStats.GetMagicStat();
-    //}
+    // 플레이어의 마력 스탯을 가져와서 스킬의 데미지 출력
+    public float GetDamage()
+    {
+        float magicStat = SkillManager.Instance.GetMagicStat();
+        return baseValue + magicStat * coefficient;
+    }
 
     // skill manager에서 초기화함.
     public void Init()

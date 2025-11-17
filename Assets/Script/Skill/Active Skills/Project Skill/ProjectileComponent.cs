@@ -1,28 +1,33 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-// 투사체의 데미지, 수명, 운동을 관리하는 컴포넌트.
 public class ProjectileComponent : MonoBehaviour
 {
-    private float damage;       // 데미지
-    private float lifetime;     // 지속 시간
-    private bool penetrable;    // 관통 여부
+    private float baseDamage;        // 기본 데미지
+    private float lifetime;          // 지속 시간
+    private bool penetrable;         // 관통 여부
 
-    private Motion motionType;     // 운동 로직 (ScriptableObject 복제본)
+    private Motion motionType;       // 운동 로직
 
-    [SerializeField] private GameObject ExplosionEffectPrefab; // 폭발 이펙트 프리팹
+    [SerializeField] private GameObject ExplosionEffectPrefab;
 
-    private GameObject projectilePrefabRef; // 오브젝트 풀러에서 키로 사용되는 정보
+    private GameObject projectilePrefabRef; // 오브젝트 풀링 키
+    private SkillManager skillManager;      // 싱글톤 SkillManager
 
 
+    // ---------------------------------------------------------------------
+    // 초기화
+    // ---------------------------------------------------------------------
     private void Awake()
     {
-        // 자신을 Projectile 레이어로 설정
+        // Projectile 레이어 설정
         gameObject.layer = LayerMask.NameToLayer("Projectile");
 
-        // 폭발 이펙트 프리팹도 Projectile 레이어로 맞춤
         if (ExplosionEffectPrefab != null)
             ExplosionEffectPrefab.layer = LayerMask.NameToLayer("Projectile");
+
+        // 싱글톤 SkillManager 가져오기
+        skillManager = SkillManager.Instance;
     }
 
     private void OnEnable()
@@ -32,71 +37,120 @@ public class ProjectileComponent : MonoBehaviour
 
     private void ResetState()
     {
-        // 남은 속도나 타겟 데이터가 꼬이지 않도록 초기화
         lifetime = Mathf.Max(lifetime, 0f);
     }
 
 
-    // 소멸과 관련된 설정 (수명, 관통성)
+    // ---------------------------------------------------------------------
+    // Skill에서 넘겨주는 데미지만 초기화
+    // ---------------------------------------------------------------------
+    public void Initialize(float baseDamage)
+    {
+        this.baseDamage = baseDamage;
+    }
+
+
+    // ---------------------------------------------------------------------
+    // 파괴 관련 설정
+    // ---------------------------------------------------------------------
     public void SetDestroyComponent(float Lifetime, bool Penetrable)
     {
         this.lifetime = Lifetime;
         this.penetrable = Penetrable;
     }
 
-    // 운동 로직 설정 (인스턴스를 만들어야 값 공유를 방지할 수 있음)
+
+    // ---------------------------------------------------------------------
+    // Motion 설정
+    // ---------------------------------------------------------------------
     public void SetMotionType(Motion newMotionType)
-    {   
+    {
         if (newMotionType == null)
         {
             motionType = null;
             return;
         }
+
         motionType = ScriptableObject.Instantiate(newMotionType);
     }
 
-
-    // 운동 변수 설정
     public void SetPhysicalComponent(Transform _target, Vector3 _velocity, float _motionSpeed)
     {
-        motionType.SetVariables(this.transform, _target, _velocity, _motionSpeed);
+        motionType?.SetVariables(this.transform, _target, _velocity, _motionSpeed);
     }
 
-    // 뭔가에 닿았을 때
-    private void OnTriggerEnter(Collider other)
+
+    // ---------------------------------------------------------------------
+    // 충돌 처리 (Trigger → Collision)
+    // ---------------------------------------------------------------------
+    private void OnCollisionEnter(Collision collision)
     {
+        Collider other = collision.collider;
+        Transform root = other.transform.root;
+
+        // 🔹 Tag 기반 몬스터 판별
+        if (other.CompareTag("Monster") || root.CompareTag("Monster"))
+        {
+            // 🔹 MonsterBase 찾기 (자식 콜라이더 고려)
+            if (other.TryGetComponent<MonsterBase>(out var monster) ||
+                root.TryGetComponent<MonsterBase>(out monster))
+            {
+                GameObject attacker = skillManager.owner;
+
+                // ① 기본 데미지 적용
+                monster.TakeDamage(baseDamage, attacker);
+
+                // ② HitContext 생성
+                HitContext ctx = new HitContext(
+                    attacker: attacker,
+                    target: monster.gameObject,
+                    hitPoint: collision.GetContact(0).point,
+                    baseDamage: baseDamage,
+                    source: this
+                );
+
+                // ③ 적중시 효과 발동
+                skillManager.OnHit(ctx);
+            }
+        }
+
         Bomb();
     }
 
+
+
+    // ---------------------------------------------------------------------
+    // 폭발 처리
+    // ---------------------------------------------------------------------
     public void Bomb()
     {
-        // --- 폭발 이펙트 생성 ---
         if (ExplosionEffectPrefab != null)
         {
-            GameObject effect = ObjectPooler.Instance.Spawn(ExplosionEffectPrefab, transform.position, Quaternion.identity);
+            GameObject effect = ObjectPooler.Instance.Spawn(
+                ExplosionEffectPrefab,
+                transform.position,
+                Quaternion.identity
+            );
 
-            // 🔹 prefab 참조 전달
             var ec = effect.GetComponent<ExplosionEffectComponent>();
             if (ec != null)
                 ec.SetPrefabRef(ExplosionEffectPrefab);
         }
 
-        // --- 관통 불가 시 비활성화 ---
         if (!penetrable)
-        {
             DespawnProjectile();
-        }
     }
 
 
-
+    // ---------------------------------------------------------------------
+    // Update 루프
+    // ---------------------------------------------------------------------
     private void FixedUpdate()
     {
         ManageLifetime();
         Move();
     }
 
-    // 수명 관리
     private void ManageLifetime()
     {
         lifetime -= Time.fixedDeltaTime;
@@ -104,13 +158,15 @@ public class ProjectileComponent : MonoBehaviour
             DespawnProjectile();
     }
 
-    // Motion 기반 이동
     private void Move()
     {
-        motionType.Move();
+        motionType?.Move();
     }
 
-    // 오브젝트 풀러에서 쓸 키 설정
+
+    // ---------------------------------------------------------------------
+    // 오브젝트 풀링 관련
+    // ---------------------------------------------------------------------
     public void SetPrefabRef(GameObject prefab)
     {
         projectilePrefabRef = prefab;
@@ -119,7 +175,5 @@ public class ProjectileComponent : MonoBehaviour
     public void DespawnProjectile()
     {
         ObjectPooler.Instance.Despawn(projectilePrefabRef, gameObject);
-
     }
-
 }
