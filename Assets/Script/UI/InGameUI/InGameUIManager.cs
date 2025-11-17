@@ -15,10 +15,13 @@ public class InGameUIManager : MonoBehaviour
     [SerializeField] GameObject bossStatusPanel;
     [SerializeField] PointBarUI bossHPUI;
     [SerializeField] TextMeshProUGUI bossNameUI;
+    [Header("LevelUp UI")]
+    [SerializeField] LevelUpUI levelUpUI;
+    [SerializeField] GameObject levelUpPanel;
     [Header("Etc")]
-    [HideInInspector] public List<SkillSlotUI> skillSlots = new List<SkillSlotUI>();    // µ¿Àû List
-    [HideInInspector] public List<TextMeshProUGUI> skillKeysTexts = new List<TextMeshProUGUI>();  // µ¿Àû List
-    [HideInInspector] public List<TextMeshProUGUI> cooldownTexts = new List<TextMeshProUGUI>();  // µ¿Àû List
+    [HideInInspector] public List<SkillSlotUI> skillSlots = new List<SkillSlotUI>();    // ë™ì  List
+    [HideInInspector] public List<TextMeshProUGUI> skillKeysTexts = new List<TextMeshProUGUI>();  // ë™ì  List
+    [HideInInspector] public List<TextMeshProUGUI> cooldownTexts = new List<TextMeshProUGUI>();  // ë™ì  List
     [SerializeField] MinimapUI minimapUI;
     [SerializeField] WaveTimerUI waveTimerUI;
     [SerializeField] TimeManager timeManager;
@@ -26,6 +29,7 @@ public class InGameUIManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        waveTimerUI.SetRatio(timeManager.DayRatio);
         skillSlots = new List<SkillSlotUI>(GetComponentsInChildren<SkillSlotUI>());
         skillKeysTexts = new List<TextMeshProUGUI>(GetComponentsInChildren<TextMeshProUGUI>());
         FilterSkillKeyTexts();
@@ -33,8 +37,16 @@ public class InGameUIManager : MonoBehaviour
         FilterCooldownTexts();
     }
 
-    void OnEnable() { timeManager?.AddProgressListener(waveTimerUI.UpdateRotation); }
-    void OnDisable() { timeManager?.RemoveProgressListener(waveTimerUI.UpdateRotation); }
+    void OnEnable()
+    {
+        timeManager.OnCycleProgress += waveTimerUI.UpdateRotation; 
+        timeManager.OnDayRatioChanged += waveTimerUI.SetRatio;
+    }
+    void OnDisable()
+    {
+        timeManager.OnCycleProgress -= waveTimerUI.UpdateRotation;
+        timeManager.OnDayRatioChanged -= waveTimerUI.SetRatio;
+    }
 
     // -----------------------------
     // About Player
@@ -61,50 +73,59 @@ public class InGameUIManager : MonoBehaviour
     public void UseSkill(int index, float cooldownTime) { skillSlots[index].ActivateCooldown(cooldownTime); }
     public void UpdateIcon(int index, Sprite newSkillSprite) { skillSlots[index].SetIcon(newSkillSprite); }
 
-    // ½ºÅ³ Å° ÅØ½ºÆ® UI ¾÷µ¥ÀÌÆ® 
+    // ìŠ¤í‚¬ í‚¤ í…ìŠ¤íŠ¸ UI ì—…ë°ì´íŠ¸ 
     public void SetSkillKeys(KeyCode[] skillKeysArray)
     {
 
         for (int i = 0; i < skillKeysArray.Length; i++)
         {
-            skillKeysTexts[i].text = skillKeysArray[i].ToString();  // °¢ ½ºÅ³¿¡ ´ëÀÀÇÏ´Â Å° ÅØ½ºÆ®¸¦ ¼³Á¤
+            skillKeysTexts[i].text = skillKeysArray[i].ToString();  // ê° ìŠ¤í‚¬ì— ëŒ€ì‘í•˜ëŠ” í‚¤ í…ìŠ¤íŠ¸ë¥¼ ì„¤ì •
         }
     }
 
-    // ÄğÅ¸ÀÓ ÅØ½ºÆ®¸¸ ÇÊÅÍ¸µÇÏ´Â ÇÔ¼ö
+    // ì¿¨íƒ€ì„ í…ìŠ¤íŠ¸ë§Œ í•„í„°ë§í•˜ëŠ” í•¨ìˆ˜
     private void FilterCooldownTexts()
     {
         List<TextMeshProUGUI> cooldownList = new List<TextMeshProUGUI>();
 
         foreach (var text in cooldownTexts)
         {
-            // ÄğÅ¸ÀÓ ÅØ½ºÆ®¿¡¸¸ Æ¯Á¤ ÅÂ±×³ª ÀÌ¸§ µîÀ» ±âÁØÀ¸·Î ÇÊÅÍ¸µ °¡´É
-            if (text.gameObject.name.Contains("Cooldown"))  // ¿¹½Ã: ÀÌ¸§¿¡ "Cooldown"ÀÌ Æ÷ÇÔµÈ °æ¿ì
+            // ì¿¨íƒ€ì„ í…ìŠ¤íŠ¸ì—ë§Œ íŠ¹ì • íƒœê·¸ë‚˜ ì´ë¦„ ë“±ì„ ê¸°ì¤€ìœ¼ë¡œ í•„í„°ë§ ê°€ëŠ¥
+            if (text.gameObject.name.Contains("Cooldown"))  // ì˜ˆì‹œ: ì´ë¦„ì— "Cooldown"ì´ í¬í•¨ëœ ê²½ìš°
             {
                 cooldownList.Add(text);
             }
         }
 
-        cooldownTexts = cooldownList;  // ÄğÅ¸ÀÓ ÅØ½ºÆ®¸¸ ³²±âµµ·Ï List °»½Å
+        cooldownTexts = cooldownList;  // ì¿¨íƒ€ì„ í…ìŠ¤íŠ¸ë§Œ ë‚¨ê¸°ë„ë¡ List ê°±ì‹ 
     }
 
-    // SkillKey ÅØ½ºÆ®¸¸ ÇÊÅÍ¸µÇÏ´Â ÇÔ¼ö
+    // SkillKey í…ìŠ¤íŠ¸ë§Œ í•„í„°ë§í•˜ëŠ” í•¨ìˆ˜
     private void FilterSkillKeyTexts()
     {
         List<TextMeshProUGUI> skillKeyList = new List<TextMeshProUGUI>();
 
-        // skillKeys ¹è¿­ÀÇ °¢ TextMeshProUGUI¸¦ È®ÀÎ
+        // skillKeys ë°°ì—´ì˜ ê° TextMeshProUGUIë¥¼ í™•ì¸
         foreach (var text in skillKeysTexts)
         {
-            // "SkillKey"¶ó´Â ´Ü¾î°¡ Æ÷ÇÔµÈ ÅØ½ºÆ®¸¸ ÇÊÅÍ¸µ
-            if (text.gameObject.name.Contains("SkillKey")) // ÀÌ¸§¿¡ "SkillKey"°¡ Æ÷ÇÔµÈ °æ¿ì
+            // "SkillKey"ë¼ëŠ” ë‹¨ì–´ê°€ í¬í•¨ëœ í…ìŠ¤íŠ¸ë§Œ í•„í„°ë§
+            if (text.gameObject.name.Contains("SkillKey")) // ì´ë¦„ì— "SkillKey"ê°€ í¬í•¨ëœ ê²½ìš°
             {
                 skillKeyList.Add(text);
             }
         }
 
-        // ÇÊÅÍ¸µµÈ ÅØ½ºÆ®µé¸¸ List·Î °»½Å
+        // í•„í„°ë§ëœ í…ìŠ¤íŠ¸ë“¤ë§Œ Listë¡œ ê°±ì‹ 
         skillKeysTexts = skillKeyList;
+    }
+
+    // -----------------------------
+    // About LevelUp
+    // -----------------------------
+    public void ShowLevelUpUI(SkillData[] options)
+    {
+        levelUpPanel.SetActive(true);
+        levelUpUI.Show(options);        
     }
 
     // -----------------------------

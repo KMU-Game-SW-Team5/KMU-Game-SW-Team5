@@ -15,20 +15,17 @@ public class GameSettingsPanel : MonoBehaviour
     {
         SettingsService.GameDifficulty = idx; 
         RefreshDifficultyUI(); 
-        SettingsService.Save();
     }
 
     public void OnChangeVolume(float v)
     {
         SettingsService.MasterVolume = v; 
-        SettingsService.Save();
     }
 
     public void OnClickTooltips(bool on)
     {
         SettingsService.Tooltips = on; 
         RefreshTooltipsUI(); 
-        SettingsService.Save();
     }
 
     private void Refresh()

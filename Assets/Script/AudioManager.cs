@@ -6,7 +6,9 @@ public class AudioManager : MonoBehaviour
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
+
         SettingsService.OnMasterVolumeChanged += ApplyMasterVolume;
+
         SettingsService.ApplyAll();        
     }
 

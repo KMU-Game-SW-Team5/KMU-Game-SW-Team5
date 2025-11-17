@@ -12,28 +12,23 @@ public class VideoSettingsPanel : MonoBehaviour
 
     private Resolution[] available;
 
-    void OnEnable() { Refresh(); }
+    void OnEnable() { BuildResolutions(); Refresh(); }
 
     public void OnClickFullScreen(bool on)
     {
         SettingsService.FullScreen = on;
-        SettingsService.ApplySavedResolution();
-        SettingsService.Save();
-        OnEnable();
+        RefreshFullScreenUI();
     }
 
     public void OnClickVSync(bool on)
     {
         SettingsService.VSyncOn = on;
-        SettingsService.Save();
-        OnEnable();
+        RefreshVSyncOnUI();
     }
 
     public void OnChangeBrightness(float v)
     {
         SettingsService.Brightness = v;
-        SettingsService.Save();
-        // 실제 화면 노출(PostProcess) 연결은 프로젝트 셋업에 맞게 추가
     }
 
     public void OnChangeResolution(int idx)
@@ -41,9 +36,9 @@ public class VideoSettingsPanel : MonoBehaviour
         if (available == null || idx < 0 || idx >= available.Length) return;
         var r = available[idx];
         SettingsService.SetResolution(r.width, r.height, SettingsService.FullScreen);
-        SettingsService.Save();
     }
 
+    // 드롭다운 해상도 목록 생성 및 현재 해상도에 맞춰 선택을 맞추는 함수
     private void BuildResolutions()
     {
         dropdownResolution.ClearOptions();
