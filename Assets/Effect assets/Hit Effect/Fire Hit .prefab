@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 2378385045970906311}
   - component: {fileID: 1301697207402410478}
   - component: {fileID: 630240670755586313}
-  m_Layer: 0
+  - component: {fileID: 3013442109132085850}
+  m_Layer: 6
   m_Name: 'Fire Hit '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4950,6 +4951,20 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &3013442109132085850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 162584487599433031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecc72fbd58a2af947a41b9667d1a4023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectPrefabRef: {fileID: 0}
+  lifetime: 2
 --- !u!1 &184910779077419236
 GameObject:
   m_ObjectHideFlags: 0

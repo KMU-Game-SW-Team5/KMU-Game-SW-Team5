@@ -13,21 +13,21 @@ MonoBehaviour:
   m_Name: Fire ball
   m_EditorClassIdentifier: 
   skillName: 
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 9f69b220176e6964fbd87f5f158d45e3, type: 3}
   describe: 
   baseValue: 10
   coefficient: 1
-  cooldown: 5
+  cooldown: 2
   magicStat: 10
   projectilePrefab: {fileID: 5099431166652583641, guid: 18fd82d41bb8c5f4da5c6b40dffc6b3f, type: 3}
   projectileSpeed: 100
   lifeTime: 5
-  acceleration: {x: 0, y: 0, z: 0}
   penetrable: 0
-  projectileMotion: {fileID: 11400000, guid: 0c5917767abbdf444b4237f2669a88d3, type: 2}
+  projectileMotion: {fileID: 11400000, guid: cbd820820019a854f8f6484d84dc0813, type: 2}
+  motionSpeed: 1
   distanceOffset: 10
-  branchCount: 3
-  burstCount: 19
+  branchCount: 10
+  burstCount: 10
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4

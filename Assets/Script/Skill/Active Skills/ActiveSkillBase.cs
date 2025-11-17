@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.VisualScripting;
+using UnityEngine;
 
 public abstract class ActiveSkillBase : ScriptableObject
 {
@@ -10,20 +11,23 @@ public abstract class ActiveSkillBase : ScriptableObject
     [SerializeField] protected float coefficient = 1.0f;  // (마력) 계수
     [SerializeField] protected float cooldown = 5f;       // 쿨타임 (초)
 
-    // TODO : 플레이어 스탯 컴포넌트 생기면 연동 시킬 것
-    // [serializeField] private PlayerStats;
-    public float magicStat = 1f;          // 플레이어의 마력 스탯, 변경시 SkillManager에서 업데이트 함.
 
     private float lastUseTime = -999f;                    // 마지막 사용 시각
     private float remainingCooldown = 0f;                 // 남은 쿨타임 (초)
 
 
-    // TODO : 플레이어 스탯 컴포넌트 만들어지면 마력 업데이트 하는 함수 완성할 것
-    //public void UpdateMagicStat()
-    //{
-    //    magicStat = PlayerStats.GetMagicStat();
-    //}
+    // 플레이어의 마력 스탯을 가져와서 스킬의 데미지 출력
+    public float GetDamage()
+    {
+        float magicStat = SkillManager.Instance.GetMagicStat();
+        return baseValue + magicStat * coefficient;
+    }
 
+    // skill manager에서 초기화함.
+    public void Init()
+    {
+        remainingCooldown = 0f;
+    }
     // 현재 쿨타임이 끝났는지 여부
     public bool CanUse => (remainingCooldown <= 0f);
 
@@ -37,7 +41,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     }
 
     // 스킬 사용 시도 — 사용 가능하면 실행
-    public void TryUse(GameObject user)
+    public void TryUse(GameObject user, Transform target)
     {
         // 아직 쿨이면 실행이 안 되고, UI에 쿨이라고 표시 (UI 만들어지면 완성할 것)
         if (!CanUse)
@@ -47,12 +51,13 @@ public abstract class ActiveSkillBase : ScriptableObject
         }
         lastUseTime = Time.time;        // 사용 시간 기록
         remainingCooldown = cooldown;   // 쿨타임 적용
-        Execute(user);                  // 스킬 실행
+        Execute(user, target);                  // 스킬 실행
     }
 
 
     /// 실제 스킬 효과 구현 (파생 클래스에서 반드시 정의)
-    protected abstract void Execute(GameObject user);
+    protected abstract void Execute(GameObject user, Transform target);
+
 
     /// 기본 수치 + 마력 * 계수 계산
     public float GetPower(float userMagicStat)
@@ -64,6 +69,12 @@ public abstract class ActiveSkillBase : ScriptableObject
     public float GetCooldown()
     {
         return remainingCooldown;
+    }
+
+    // 남은 쿨타임 비율(0~1) 리턴
+    public float GetCooldownRatio()
+    {
+        return (remainingCooldown / cooldown);
     }
 
     // 쿨타임 입력한 만큼 감소(음수 넣으면 증가)
@@ -94,6 +105,12 @@ public abstract class ActiveSkillBase : ScriptableObject
     public void IncreaseCoefficient(float value)
     {
         coefficient += value;
+    }
+
+    // 스킬 아이콘 getter
+    public Sprite GetIcon()
+    {
+        return icon;
     }
 
     // TODO : 스킬 설명 업데이트하는 함수 만들 것
