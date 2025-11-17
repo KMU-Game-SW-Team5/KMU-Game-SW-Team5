@@ -6,9 +6,24 @@ public class SkillSlotUI : MonoBehaviour
 {
     [SerializeField] private Image cooldownFill;
     [SerializeField] private float cooldownTime;
-    [SerializeField] private Image icon;
+    private SpriteRenderer iconSR;
+    private Image iconImage;
     private bool isCoolingDown = false;
     private float elapsed = 0f;
+
+    private void Start()
+    {
+        //iconSR = GetComponentInChildren<SpriteRenderer>();
+        iconImage = GetComponentInChildren<Image>();
+    }
+
+
+    // 남은 쿨타임 비율을 입력받아서 UI를 세팅함.
+    public void SetCooldownRatio(float ratio)
+    {
+        // ratio는 0~1 사이의 값이어야 함.
+        cooldownFill.fillAmount = Mathf.Clamp01(ratio); // 비율을 0-1 범위로 제한
+    }
 
     public void ActivateCooldown(float time)
     {
@@ -38,6 +53,7 @@ public class SkillSlotUI : MonoBehaviour
 
     public void SetIcon(Sprite sprite)
     {
-        icon.sprite = sprite;
+        iconImage.sprite = sprite;
+        iconImage.color = Color.white;
     }
 }

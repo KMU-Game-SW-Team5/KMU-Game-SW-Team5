@@ -14636,7 +14636,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   velocity: {x: 0, y: 0, z: 0}
-  speed: 30
+  motionSpeed: 1
+  acceleration: {x: 0, y: 0, z: 0}
   ExplosionEffectPrefab: {fileID: 362261158077530393, guid: 2c9db3a9de4416144a1c48728cd1b193, type: 3}
 --- !u!54 &9059216168035384646
 Rigidbody:
@@ -14660,7 +14661,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0

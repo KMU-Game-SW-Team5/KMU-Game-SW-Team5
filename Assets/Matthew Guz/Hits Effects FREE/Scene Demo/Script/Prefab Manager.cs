@@ -10,7 +10,7 @@ namespace MatthewAssets
         public GameObject[] prefabs; // List of prefabs assigned from the Inspector
         public Collider floorCollider; // The floor to detect clicks
         public Transform cameraPivot; // Pivot for the camera
-        public float cameraRotationSpeed = 10f; // Rotation speed
+        public float cameraRotationSpeed = 10f; // Rotation motionSpeed
         public float destroyDelay = 2f; // Time to destroy prefabs
         public Text infoText;
         private int currentIndex = 0; // Index of the current prefab
