@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dark ball
   m_EditorClassIdentifier: 
   skillName: 
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: e5f8e29c0eb39d74e9509b0469b5204c, type: 3}
   describe: 
   baseValue: 10
   coefficient: 1
@@ -22,12 +22,12 @@ MonoBehaviour:
   projectilePrefab: {fileID: 7914662257891743077, guid: 5af6aca17542d204eb028ec2744aef98, type: 3}
   projectileSpeed: 20
   lifeTime: 5
-  acceleration: {x: 0, y: 0, z: 0}
   penetrable: 0
-  projectileMotion: {fileID: 11400000, guid: 14c1dddd00e8efa40abe1167cc5051f1, type: 2}
+  projectileMotion: {fileID: 11400000, guid: 4fde45d831405db46bbec451aae91804, type: 2}
+  motionSpeed: 5
   distanceOffset: 10
-  branchCount: 5
-  burstCount: 1
+  branchCount: 3
+  burstCount: 5
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4

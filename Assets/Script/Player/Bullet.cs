@@ -20,13 +20,27 @@ public class Bullet : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         
-        var root = other.transform.root; // 최상위 부모 (RigidBody 있는 BossCapsule)
-        Debug.Log($"[Bullet] Hit: {other.name} (Tag: {other.tag}), Root: {root.name} (RootTag: {root.tag})");
+        var root = other.transform.root;
+        
 
         
         if (other.CompareTag("Monster") || root.CompareTag("Monster"))
         {
-            Debug.Log($"[Bullet] Monster hit detected on {other.name}");
+            
+            
+            MonsterController monster = other.GetComponentInParent<MonsterController>();
+            if (monster != null)
+            {
+                
+                monster.TakeDamage(Damage); 
+                
+            }
+            else
+            {
+                
+                
+            }
+
             EventManager.MonsterHit();
             Destroy(gameObject);
             return;
@@ -35,18 +49,17 @@ public class Bullet : MonoBehaviour
         
         if (other.CompareTag("Boss") || root.CompareTag("Boss"))
         {
-            Debug.Log("[Bullet] Boss hit detected, searching for BossController...");
 
-            // 부모 계층에서 BossController 탐색
+         
             BossController boss = other.GetComponentInParent<BossController>();
             if (boss != null)
             {
                 boss.TakeDamage(Damage); // 데미지 적용
-                Debug.Log($"[Bullet] Hit Boss! Damage applied to {boss.gameObject.name}");
+         
             }
             else
             {
-                Debug.LogError($"[Bullet] BossController not found in parents of {other.name}. Check hierarchy!");
+         
             }
             EventManager.MonsterHit();
 
