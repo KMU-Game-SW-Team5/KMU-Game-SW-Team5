@@ -7,11 +7,11 @@ public class SkillSlotUI : MonoBehaviour
     [SerializeField] private Image cooldownFill;
     [SerializeField] private float cooldownTime;
     private SpriteRenderer iconSR;
-    private Image iconImage;
+    Image iconImage;
     private bool isCoolingDown = false;
     private float elapsed = 0f;
 
-    private void Start()
+    private void Awake()
     {
         //iconSR = GetComponentInChildren<SpriteRenderer>();
         iconImage = GetComponentInChildren<Image>();

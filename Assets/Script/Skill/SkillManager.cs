@@ -266,7 +266,15 @@ public class SkillManager : MonoBehaviour
             if (activeSkills[skillIndex].GetIcon() != null)
             {
                 activeSkills[skillIndex].GetIcon().ToString();
-                skillSlots[skillIndex].SetIcon(activeSkills[skillIndex].GetIcon());
+                //skillSlots[skillIndex].SetIcon(activeSkills[skillIndex].GetIcon());
+                var slot = skillSlots[skillIndex];
+                var skill = activeSkills[skillIndex];
+                var icon = skill.GetIcon();
+
+                Debug.Log($"slot: {slot}, skill: {skill}, icon: {icon}");
+
+                slot.SetIcon(icon);
+
             }
             else
             {
