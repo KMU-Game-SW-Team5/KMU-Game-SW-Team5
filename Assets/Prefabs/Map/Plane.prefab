@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 7509037043563134188}
   - component: {fileID: 1874980464468845896}
   - component: {fileID: 2498303979434928542}
-  - component: {fileID: 3749535264337986093}
   - component: {fileID: -6531200488417988873}
+  - component: {fileID: 3871381763836714099}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -108,7 +108,22 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &3749535264337986093
+--- !u!114 &-6531200488417988873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8368730452213065613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad57eb85e1b24ca44adccec12092544b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MapMaker: {fileID: 1666993418016072022, guid: cfd51bdf5c092e376bbe6b96c5ed28c4, type: 3}
+  TempMonster: {fileID: 2720939918413591380, guid: 86288d9d99d2294769ca2275e2400cda, type: 3}
+  monstersPerRoom: 1
+--- !u!65 &3871381763836714099
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,18 +142,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 10, y: 20, z: 10}
+  m_Size: {x: 10, y: 2.220446e-16, z: 10}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-6531200488417988873
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8368730452213065613}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad57eb85e1b24ca44adccec12092544b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  monstersInRoom: []
