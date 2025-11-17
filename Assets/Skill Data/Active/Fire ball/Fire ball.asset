@@ -18,7 +18,6 @@ MonoBehaviour:
   baseValue: 10
   coefficient: 1
   cooldown: 2
-  magicStat: 10
   projectilePrefab: {fileID: 5099431166652583641, guid: 18fd82d41bb8c5f4da5c6b40dffc6b3f, type: 3}
   projectileSpeed: 100
   lifeTime: 5
@@ -27,7 +26,7 @@ MonoBehaviour:
   motionSpeed: 1
   distanceOffset: 10
   branchCount: 10
-  burstCount: 10
+  burstCount: 11
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4
