@@ -81,11 +81,10 @@ public class ProjectileComponent : MonoBehaviour
 
 
     // ---------------------------------------------------------------------
-    // 충돌 처리 (Trigger → Collision)
+    // 충돌 처리
     // ---------------------------------------------------------------------
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        Collider other = collision.collider;
         Transform root = other.transform.root;
 
         // 🔹 Tag 기반 몬스터 판별
@@ -104,7 +103,7 @@ public class ProjectileComponent : MonoBehaviour
                 HitContext ctx = new HitContext(
                     attacker: attacker,
                     target: monster.gameObject,
-                    hitPoint: collision.GetContact(0).point,
+                    hitPoint: transform.position,
                     baseDamage: baseDamage,
                     source: this
                 );
@@ -116,7 +115,6 @@ public class ProjectileComponent : MonoBehaviour
 
         Bomb();
     }
-
 
 
     // ---------------------------------------------------------------------
