@@ -3,11 +3,11 @@ using UnityEngine;
 public class TestCode : MonoBehaviour
 {
     [SerializeField] InGameUIManager inGameUIManager;
-    [SerializeField] TimeManager timeManager;
+    //[SerializeField] TimeManager timeManager;
     int LV = 1;
 
-    void OnEnable() { timeManager.OnWaveChanged += ApplyWave; }
-    void OnDisable() { timeManager.OnWaveChanged -= ApplyWave; }
+    void OnEnable() { TimeManager.Instance.OnWaveChanged += ApplyWave; }
+    void OnDisable() { TimeManager.Instance.OnWaveChanged -= ApplyWave; }
 
     void Update()
     {

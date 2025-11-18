@@ -3,6 +3,8 @@ using System;
 
 public class TimeManager : MonoBehaviour
 {
+    public static TimeManager Instance { get; private set; }
+
     // 던전에 밤낮은 없지만, 일단 밤/낮으로 표현
     [SerializeField] float dayDuration = 240f;
     [SerializeField] float nightDuration = 360f;
@@ -13,6 +15,17 @@ public class TimeManager : MonoBehaviour
 
     double elapsed; // 누적 시간
     bool isDay = true;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
     void Update()
     {
@@ -48,22 +61,22 @@ public class TimeManager : MonoBehaviour
     활용 예시
     void OnEnable()
     {
-        timeManager.OnWaveChanged += ApplyWave;
-        timeManager.OnCycleProgress += ApplyCycleProgress;
-        timeManager.OnDayRatioChanged += ApplyRatioChange;
+        TimeManager.Instance.OnWaveChanged += ApplyWave;
+        TimeManager.Instance.OnCycleProgress += ApplyCycleProgress;
+        TimeManager.Instance.OnDayRatioChanged += ApplyRatioChange;
     }
     void OnDisable()
     {
-        timeManager.OnWaveChanged -= ApplyWave;
-        timeManager.OnCycleProgress -= ApplyCycleProgress;
-        timeManager.OnDayRatioChanged -= ApplyRatioChange;
+        TimeManager.Instance.OnWaveChanged -= ApplyWave;
+        TimeManager.Instance.OnCycleProgress -= ApplyCycleProgress;
+        TimeManager.Instance.OnDayRatioChanged -= ApplyRatioChange;
     }
 
     void ApplyWave(bool isDay)
     {
         if (isDay) { }
         else { }
-        timeManager.SetDuration(5f, 10f);
+        TimeManager.Instance.SetDuration(5f, 10f);
     }
 
     void ApplyCycleProgress(float progress)
@@ -73,7 +86,7 @@ public class TimeManager : MonoBehaviour
 
     void ApplyRatioChange(float ratio)
     {
-        if (ratio < TimeManager.DayRatio) Debug.Log("밤이 길어집니다.");
+        if (ratio < TimeManager.Instance.DayRatio) Debug.Log("밤이 길어집니다.");
     }
     */
 
