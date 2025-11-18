@@ -4233,11 +4233,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ef4896fd77744d8c84ae2d0e61cc17b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRange: 100
-  attackRange: 20
-  moveSpeed: 10
-  maxHealth: 1000
-  attackDamage: 2
+  detectionRange: 200
+  attackRange: 30
+  moveSpeed: 20
+  maxHealth: 500
+  attackDamage: 5
   attackCooldown: 1
 --- !u!54 &6005667815165334090
 Rigidbody:

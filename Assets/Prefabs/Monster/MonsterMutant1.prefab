@@ -5453,11 +5453,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ef4896fd77744d8c84ae2d0e61cc17b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRange: 100
-  attackRange: 10
-  moveSpeed: 10
+  detectionRange: 200
+  attackRange: 30
+  moveSpeed: 30
   maxHealth: 1000
-  attackDamage: 5
+  attackDamage: 10
   attackCooldown: 1
 --- !u!1 &7643583250752076574
 GameObject:

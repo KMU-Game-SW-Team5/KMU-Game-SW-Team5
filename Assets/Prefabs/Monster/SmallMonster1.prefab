@@ -130,12 +130,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ef4896fd77744d8c84ae2d0e61cc17b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRange: 100
-  attackRange: 20
-  moveSpeed: 30
-  maxHealth: 1000
-  attackDamage: 5
-  attackCooldown: 1
+  detectionRange: 200
+  attackRange: 30
+  moveSpeed: 40
+  maxHealth: 300
+  attackDamage: 1
+  attackCooldown: 0.5
 --- !u!65 &2951697434240577947
 BoxCollider:
   m_ObjectHideFlags: 0
