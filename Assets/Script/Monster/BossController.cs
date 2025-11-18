@@ -30,10 +30,7 @@ public class BossController : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody>();
         
         animator = GetComponentInChildren<Animator>();
-        if (animator == null)
-        {
-            Debug.LogError("보스: 자식 오브젝트에서 Animator 컴포넌트를 찾을 수 없습니다!");
-        }
+        
 
         InvokeRepeating("FindPlayer", 0f, 0.5f);
     }
@@ -84,10 +81,6 @@ public class BossController : MonoBehaviour, IDamageable
                 player = playerObject.transform;
                 playerScript = playerObject.GetComponent<Player>();
                 
-                if (playerScript == null)
-                {
-                    Debug.LogError("보스: 'Player' 태그를 가진 오브젝트를 찾았지만, Player.cs 없음");
-                }
             }
         }
     }
@@ -133,10 +126,6 @@ public class BossController : MonoBehaviour, IDamageable
 
                 lastAttackTime = Time.time;
             }
-            else
-            {
-                Debug.LogWarning("보스: 공격하려 했으나 playerScript 없음");
-            }
         }
     }
 
@@ -152,7 +141,7 @@ public class BossController : MonoBehaviour, IDamageable
             attackRange = 100f;
             hasEnteredPhase2 = true;
             animator.SetBool("isPhase2", true);
-            animator.SetTrigger("startPhase2"); // 2페이즈 즉시 돌입 트리거 발동
+            animator.SetTrigger("startPhase2");
             Debug.Log("보스: 2페이즈");
         }
 
@@ -168,7 +157,7 @@ public class BossController : MonoBehaviour, IDamageable
         if (isDead) return;
         isDead = true;
 
-        Debug.Log("보스가 쓰러졌습니다.");
+        Debug.Log("보스1 사망");
         
         animator.SetTrigger("Die"); 
 
