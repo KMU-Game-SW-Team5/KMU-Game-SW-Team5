@@ -27,78 +27,50 @@ public class ParticleProjectile : MonoBehaviour
         }
     }
 
+    
     private void OnTriggerEnter(Collider other)
     {
-    
         if (isHit) return;
-
 
         var root = other.transform.root;
         Debug.Log($"[Particle] Hit: {other.name} (Tag: {other.tag}), Root: {root.name} (RootTag: {root.tag})");
 
-        bool targetHit = false;
+        // "데미지를 받을 수 있는" 컴포넌트 (몬스터/보스1/보스2 등 모두)
+        IDamageable damageable = root.GetComponent<IDamageable>();
 
-        // 몬스터 충돌 체크
-        if (other.CompareTag("Monster") || root.CompareTag("Monster"))
+        if (damageable != null)
         {
             
+            damageable.TakeDamage(Damage);
+            EventManager.MonsterHit();
             
-            MonsterController monster = other.GetComponentInParent<MonsterController>();
-            if (monster != null)
+            
+            if (root.CompareTag("Monster"))
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
+            if (root.CompareTag("Boss"))
             {
                 
-                monster.TakeDamage(Damage); 
-                
             }
-            else
-            {
-                
-                
-            }
-
-            EventManager.MonsterHit();
-            Destroy(gameObject);
-            return;
-        }
-        // 보스 충돌 체크
-        else if (other.CompareTag("Boss") || root.CompareTag("Boss"))
-        {
-            Debug.Log("[Particle] Boss hit detected, searching for BossController...");
-            BossController boss = other.GetComponentInParent<BossController>();
-            if (boss != null)
-            {
-                boss.TakeDamage(Damage);
-                Debug.Log($"[Particle] Hit Boss! Damage applied to {boss.gameObject.name}");
-            }
-            else
-            {
-                Debug.LogError($"[Particle] BossController not found in parents of {other.name}.");
-            }
-            EventManager.MonsterHit();
-            targetHit = true;
         }
         else
         {
-            // 몬스터나 보스가 아닌 다른 것에 부딪혔을 때
+            
             Debug.Log("[Particle] Hit non-target object.");
-    
         }
 
-
+        
         HandleImpact();
     }
-
-    /// 이펙트가 어딘가에 충돌했을 때 호출되는 함수
     private void HandleImpact()
     {
         isHit = true;
-
         speed = 0; 
-        
         col.enabled = false; 
-
         ps.Stop();
-
         Destroy(gameObject, ps.main.duration);
     }
 }

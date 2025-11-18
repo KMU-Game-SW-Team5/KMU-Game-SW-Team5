@@ -1,11 +1,11 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class BossController : MonoBehaviour
+public class BossController : MonoBehaviour, IDamageable
 {
-    public float detectionRange = 300f;
-    private float attackRange = 50f;
-    public float moveSpeed = 2f;
+    public float detectionRange = 150f;
+    public float attackRange = 30f;
+    public float moveSpeed = 30f;
     public int maxHealth = 1000;
     private int currentHealth;
 
