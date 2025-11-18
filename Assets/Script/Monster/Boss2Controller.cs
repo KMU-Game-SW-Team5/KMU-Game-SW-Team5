@@ -74,6 +74,13 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             if(animator != null)
                 animator.SetFloat("Speed", 0f);
         }
+
+        if(currentHealth <= 500)
+        {
+            attackDamage = 20;
+            attackCooldown = 2f;
+            attackRange = 130f;
+        }
     }
 
     void FindPlayer()

@@ -2090,12 +2090,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5eeb3ea3145544279ea912927e83c6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRange: 300
-  attackRange: 80
-  moveSpeed: 30
+  detectionRange: 400
+  attackRange: 100
+  moveSpeed: 50
   maxHealth: 1000
   attackDamage: 10
-  attackCooldown: 4
+  attackCooldown: 1
 --- !u!1 &2472132083438425500
 GameObject:
   m_ObjectHideFlags: 0
