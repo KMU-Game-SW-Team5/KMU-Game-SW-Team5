@@ -1159,8 +1159,8 @@ GameObject:
   - component: {fileID: 2375490720002717834}
   - component: {fileID: 4801592990784770200}
   - component: {fileID: 24362354431254022}
-  - component: {fileID: 9136165248124095794}
-  - component: {fileID: 6751934303319668115}
+  - component: {fileID: 6872226483569315868}
+  - component: {fileID: -8782557311146098682}
   m_Layer: 0
   m_Name: SmallMonster2
   m_TagString: Monster
@@ -1214,7 +1214,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8293850449769682973}
   serializedVersion: 4
-  m_Mass: 20
+  m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1231,7 +1231,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 116
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &24362354431254022
 MonoBehaviour:
@@ -1251,28 +1251,7 @@ MonoBehaviour:
   maxHealth: 1000
   attackDamage: 5
   attackCooldown: 1
---- !u!65 &9136165248124095794
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8293850449769682973}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 2, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!65 &6751934303319668115
+--- !u!65 &6872226483569315868
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1291,8 +1270,29 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.82604414, y: 0.45940682, z: 1}
+  m_Center: {x: -0.017362643, y: 0.2359213, z: 0}
+--- !u!65 &-8782557311146098682
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8293850449769682973}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.82604414, y: 0.45940682, z: 1}
+  m_Center: {x: -0.017362643, y: 0.2359213, z: 0}
 --- !u!1 &8476468600143344536
 GameObject:
   m_ObjectHideFlags: 0

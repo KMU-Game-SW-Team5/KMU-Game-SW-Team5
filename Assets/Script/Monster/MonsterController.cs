@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))] // Rigidbody를 강제로 요구합니다.
+[RequireComponent(typeof(Rigidbody))] 
 public class MonsterController : MonoBehaviour
 {
     
@@ -28,7 +28,11 @@ public class MonsterController : MonoBehaviour
     {
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody>();
+        
+        // (수정) Rigidbody의 중력을 사용하고, 회전은 스크립트로 제어하도록 X, Z축 고정
+        rb.useGravity = true;
         rb.isKinematic = false; 
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
         animator = GetComponentInChildren<Animator>();
         if (animator == null)
@@ -40,6 +44,7 @@ public class MonsterController : MonoBehaviour
         InvokeRepeating("FindPlayer", 0f, 0.5f);
     }
 
+    // (수정) Update가 아닌 FixedUpdate에서 물리 처리
     void FixedUpdate()
     {
         if (isDead) return;
@@ -50,7 +55,7 @@ public class MonsterController : MonoBehaviour
             
             player = null;
             playerScript = null;
-            if(animator != null) animator.SetFloat("Speed", 0f); // 멈춤
+            if(animator != null) animator.SetFloat("Speed", 0f); 
         }
 
         
@@ -60,27 +65,21 @@ public class MonsterController : MonoBehaviour
 
             if (distance <= detectionRange && distance > attackRange)
             {
-                rb.isKinematic = false;
                 MoveTowardsPlayer();
-                if(animator != null) animator.SetFloat("Speed", 1f); // 걷기/뛰기 애니메이션
+                if(animator != null) animator.SetFloat("Speed", 1f); 
             }
             else if (distance <= attackRange)
             {
-                rb.isKinematic = true;
                 AttackPlayer();
                 if(animator != null) animator.SetFloat("Speed", 0f);
-                
-             
             }
             else
             {
-                rb.isKinematic = true;
                 if(animator != null) animator.SetFloat("Speed", 0f);
             }
         }
         else
         {
-
             if (animator != null) animator.SetFloat("Speed", 0f);
         }
     }
@@ -105,18 +104,25 @@ public class MonsterController : MonoBehaviour
 
     void MoveTowardsPlayer()
     {
+        // (수정) Y축(높이)을 무시하는 로직
         
+        // 1. 바라볼 위치의 Y축을 몬스터 자신의 Y축으로 고정
         Vector3 lookPosition = player.position;
         lookPosition.y = transform.position.y;
         transform.LookAt(lookPosition);
         
-        Vector3 targetPosition = Vector3.MoveTowards(transform.position, player.position, moveSpeed * Time.fixedDeltaTime);
-        rb.MovePosition(targetPosition);
+        // 2. 이동할 타겟 위치의 Y축도 몬스터 자신의 Y축으로 고정
+        Vector3 targetPosition = player.position;
+        targetPosition.y = transform.position.y;
+
+        // 3. Y축이 고정된 타겟으로 이동
+        Vector3 newPos = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.fixedDeltaTime);
+        rb.MovePosition(newPos);
     }
 
     void AttackPlayer()
     {
-        
+        // (수정) 공격 시에도 Y축(높이)을 무시하고 바라봄
         Vector3 lookPosition = player.position;
         lookPosition.y = transform.position.y;
         transform.LookAt(lookPosition);
@@ -161,7 +167,7 @@ public class MonsterController : MonoBehaviour
         if(animator != null) animator.SetTrigger("Die");
 
         
-        rb.isKinematic = true;
+        rb.isKinematic = true; // 사망 시 물리 정지
         rb.velocity = Vector3.zero;
         GetComponent<Collider>().enabled = false; 
 
