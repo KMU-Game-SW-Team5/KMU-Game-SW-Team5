@@ -37,30 +37,6 @@ public class TestCode : MonoBehaviour
 
         // y: 레벨업
         if (Input.GetKeyDown(KeyCode.Y)) inGameUIManager.UpdatePlayerLVUI(++LV);
-
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            SkillData skillData1 = new SkillData();
-            skillData1.skillName = "FireBall";
-            skillData1.level = 5;
-            skillData1.description = $"적에게 화염구 {skillData1.level}개를 발사하여 피해를 입힙니다.";
-
-            SkillData skillData2 = new SkillData();
-            skillData2.skillName = "IceSpear";
-            skillData2.level = 1;
-            skillData2.description = $"적에게 얼음으로 이루어진 창 {skillData2.level}개를 발사하여 피해를 입힙니다.";
-
-            SkillData skillData3 = new SkillData();
-            skillData3.skillName = "WaterBall";
-            skillData3.level = 2;
-            skillData3.description = $"적에게 물로 이루어진 벽을 {skillData3.level}개를 발사하여 피해를 입히고 밀어냅니다.";
-
-            SkillData[] options =
-            {
-                skillData1, skillData2, skillData3
-            };
-            inGameUIManager.ShowLevelUpUI(options);
-        }
     }
 
     public void ApplyWave(bool isDay)
