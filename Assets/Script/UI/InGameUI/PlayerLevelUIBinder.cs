@@ -5,6 +5,12 @@ public class PlayerLevelUIBinder : MonoBehaviour
     [SerializeField] private PlayerLevelSystem levelSystem;
     [SerializeField] private InGameUIManager inGameUIManager;
 
+    private void Awake()
+    {
+        if(inGameUIManager != null)
+            inGameUIManager = GetComponent<InGameUIManager>();
+    }
+
     private void OnEnable()
     {
         if (levelSystem == null || inGameUIManager == null)
@@ -21,6 +27,7 @@ public class PlayerLevelUIBinder : MonoBehaviour
     {
         if (levelSystem == null) return;
 
+        levelSystem.OnLevelUp -= HandleLevelUp;
         levelSystem.OnExpChanged -= HandleExpChanged;
     }
 
