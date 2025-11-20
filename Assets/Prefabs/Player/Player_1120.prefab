@@ -312,7 +312,7 @@ MonoBehaviour:
   walkClips:
   - {fileID: 8300000, guid: 1f0199a4c6005ec4abbb302f71bc036d, type: 3}
   runClips:
-  - {fileID: 8300000, guid: ecd647025e0a3c04fbd5829fff509e09, type: 3}
+  - {fileID: 8300000, guid: 3bd1b93317b7a3a49b13011cdaa64d0b, type: 3}
   jumpClip: {fileID: 8300000, guid: 3d8f480d252db9449b2f978284506f8e, type: 3}
   walkDelay: 0.6
   runDelay: 0.35
