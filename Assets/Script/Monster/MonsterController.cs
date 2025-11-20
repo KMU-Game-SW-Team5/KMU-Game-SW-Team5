@@ -15,6 +15,11 @@ public class MonsterController : MonoBehaviour, IDamageable
     public float attackCooldown = 2.0f; 
     public float attackDelay = 0.5f; 
 
+    // [추가] 2연타 공격 설정
+    [Header("Double Attack Settings")]
+    public bool enableDoubleAttack = false; 
+    public float secondAttackDelay = 0.5f;  
+
     private float deathAnimationDuration = 3f;
     private int currentHealth;
     private float lastAttackTime;
@@ -28,10 +33,16 @@ public class MonsterController : MonoBehaviour, IDamageable
     [Header("Audio Settings")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] walkClips; 
-    [SerializeField] private AudioClip attackClip;  
+    [SerializeField] private AudioClip attackClip;       
+    [SerializeField] private AudioClip secondAttackClip; 
     [SerializeField] private AudioClip deathClip;   
 
     private float lastProgress = 0f; 
+    private GameObject currentAttackSoundObject; 
+
+    // ▼▼▼ [추가] 현재 실행 중인 공격 코루틴을 저장할 변수 ▼▼▼
+    private Coroutine runningAttackCoroutine; 
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     void Start()
     {
@@ -42,8 +53,6 @@ public class MonsterController : MonoBehaviour, IDamageable
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
         animator = GetComponentInChildren<Animator>();
-        if (animator == null) Debug.LogError("몬스터: Animator 없음");
-
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
         
         InvokeRepeating("FindPlayer", 0f, 0.5f);
@@ -64,17 +73,24 @@ public class MonsterController : MonoBehaviour, IDamageable
         {
             float distance = Vector3.Distance(transform.position, player.position);
 
+            // 1. 이동 상태
             if (distance <= detectionRange && distance > attackRange)
             {
+                // ▼▼▼ [수정] 이동 시작 시 공격 취소 (애니메이션, 사운드, 데미지 모두 중단) ▼▼▼
+                CancelAttack();
+                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
                 MoveTowardsPlayer();
                 if(animator != null) animator.SetFloat("Speed", 1f);
                 CheckDualFootsteps();
             }
+            // 2. 공격 상태
             else if (distance <= attackRange)
             {
                 AttackPlayer();
                 if(animator != null) animator.SetFloat("Speed", 0f);
             }
+            // 3. 대기 상태
             else
             {
                 if(animator != null) animator.SetFloat("Speed", 0f);
@@ -85,6 +101,31 @@ public class MonsterController : MonoBehaviour, IDamageable
             if (animator != null) animator.SetFloat("Speed", 0f);
         }
     }
+
+    // ▼▼▼ [추가] 공격을 강제로 중단시키는 함수 ▼▼▼
+    void CancelAttack()
+    {
+        // 1. 진행 중인 공격 코루틴(딜레이, 데미지 처리) 강제 종료
+        if (runningAttackCoroutine != null)
+        {
+            StopCoroutine(runningAttackCoroutine);
+            runningAttackCoroutine = null;
+        }
+
+        // 2. 재생 중인 공격 사운드 끄기
+        if (currentAttackSoundObject != null)
+        {
+            Destroy(currentAttackSoundObject);
+            currentAttackSoundObject = null;
+        }
+
+        // 3. 애니메이터의 공격 명령 예약 취소
+        if (animator != null)
+        {
+            animator.ResetTrigger("Attack");
+        }
+    }
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     void CheckDualFootsteps()
     {
@@ -104,29 +145,26 @@ public class MonsterController : MonoBehaviour, IDamageable
         int index = Random.Range(0, walkClips.Length);
         if (walkClips[index] != null)
         {
-            // 걷기는 여전히 3D (거리감 유지) - 볼륨만 좀 크게
             audioSource.pitch = Random.Range(0.8f, 1.1f);
             audioSource.PlayOneShot(walkClips[index], 4.0f);
         }
     }
 
-    // ▼▼▼ [추가] 2D 사운드 재생 전용 함수 (공격용) ▼▼▼
     void Play2DSound(AudioClip clip)
     {
         if (clip == null) return;
+        if (currentAttackSoundObject != null) Destroy(currentAttackSoundObject);
 
-        // 임시 오브젝트 생성
-        GameObject tempGO = new GameObject("Temp2DSound");
-        AudioSource tempSource = tempGO.AddComponent<AudioSource>();
+        currentAttackSoundObject = new GameObject("Temp2DSound");
+        AudioSource tempSource = currentAttackSoundObject.AddComponent<AudioSource>();
         
         tempSource.clip = clip;
-        tempSource.spatialBlend = 0f; // ★ 0으로 하면 완전 2D (거리 상관없이 똑같이 들림) ★
-        tempSource.volume = 1.0f;     // 최대 볼륨
+        tempSource.spatialBlend = 0f; 
+        tempSource.volume = 1.0f;     
         
         tempSource.Play();
-        Destroy(tempGO, clip.length); // 재생 후 자동 삭제
+        Destroy(currentAttackSoundObject, clip.length); 
     }
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     void FindPlayer()
     {
@@ -164,7 +202,8 @@ public class MonsterController : MonoBehaviour, IDamageable
         {
             if (playerScript != null)
             {
-                StartCoroutine(AttackRoutine());
+                // [수정] 코루틴 시작 시 변수에 저장 (취소할 수 있게)
+                runningAttackCoroutine = StartCoroutine(AttackRoutine());
                 lastAttackTime = Time.time;
             }
         }
@@ -172,21 +211,40 @@ public class MonsterController : MonoBehaviour, IDamageable
 
     IEnumerator AttackRoutine()
     {
-        if(animator != null) animator.SetTrigger("Attack");
+        if(animator != null) 
+        {
+            animator.ResetTrigger("Attack");
+            animator.SetTrigger("Attack");
+        }
 
+        // 1타 대기
         yield return new WaitForSeconds(attackDelay);
 
-        // ▼▼▼ [수정] 공격 소리는 이제 2D로 재생! ▼▼▼
-        if (attackClip != null)
-        {
-            Play2DSound(attackClip);
-        }
+        if (attackClip != null) Play2DSound(attackClip);
 
         if (playerScript != null)
         {
-            Debug.Log("몬스터 공격 적중!");
+            Debug.Log("몬스터 1타 적중!");
             playerScript.TakeDamage(attackDamage);
         }
+
+        // 2타 (옵션)
+        if (enableDoubleAttack)
+        {
+            yield return new WaitForSeconds(secondAttackDelay);
+
+            AudioClip clip2 = (secondAttackClip != null) ? secondAttackClip : attackClip;
+            Play2DSound(clip2);
+
+            if (playerScript != null)
+            {
+                Debug.Log("몬스터 2타 적중!");
+                playerScript.TakeDamage(attackDamage);
+            }
+        }
+
+        // 공격이 정상적으로 끝나면 변수 비우기
+        runningAttackCoroutine = null;
     }
 
     public void TakeDamage(int damage)
@@ -203,7 +261,10 @@ public class MonsterController : MonoBehaviour, IDamageable
 
         Debug.Log("몬스터가 쓰러졌습니다.");
         
-        // 사망 소리는 거리가 느껴지게 3D로 유지 (5배 크기)
+        // ▼▼▼ [수정] 죽을 때도 공격 취소! ▼▼▼
+        CancelAttack();
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
         if (deathClip != null)
         {
             AudioSource.PlayClipAtPoint(deathClip, transform.position, 5.0f);
