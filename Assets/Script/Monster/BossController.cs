@@ -28,15 +28,18 @@ public class BossController : MonoBehaviour, IDamageable
 
     [Header("Audio Settings")]
     [SerializeField] private AudioSource audioSource;
-    
-    
     [SerializeField] private AudioClip[] walkClips; 
-
-    
     [SerializeField] private AudioClip[] phase2WalkClips; 
-
     [SerializeField] private AudioClip deathClip;
-    
+
+    // ▼▼▼ [추가] 4가지 공격 사운드 변수 ▼▼▼
+    [Header("Attack Audio Settings")]
+    [SerializeField] private AudioClip basicAttackClip; // 기본 공격
+    [SerializeField] private AudioClip clawAttackClip;  // 할퀴기
+    [SerializeField] private AudioClip flameAttackClip; // 화염
+    [SerializeField] private AudioClip flyAttackClip;   // 비행 공격
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
     private float lastNormalizedTime; 
 
     void Start()
@@ -99,13 +102,11 @@ public class BossController : MonoBehaviour, IDamageable
         lastNormalizedTime = stateInfo.normalizedTime;
     }
 
-    
     void PlayWalkSound()
     {
         if (audioSource == null) return;
 
         AudioClip[] currentClips = hasEnteredPhase2 ? phase2WalkClips : walkClips;
-
         
         if (currentClips == null || currentClips.Length == 0) return;
 
@@ -117,6 +118,18 @@ public class BossController : MonoBehaviour, IDamageable
             audioSource.PlayOneShot(currentClips[index]);
         }
     }
+
+    // ▼▼▼ [추가] 공격 사운드 재생 전용 함수 ▼▼▼
+    void PlayAttackSound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            // 공격 소리는 피치를 살짝만 랜덤하게 주어 타격감을 살림
+            audioSource.pitch = Random.Range(0.95f, 1.05f);
+            audioSource.PlayOneShot(clip);
+        }
+    }
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     void FindPlayer()
     {
@@ -147,26 +160,34 @@ public class BossController : MonoBehaviour, IDamageable
             if (playerScript != null)
             {
                 Debug.Log("보스 공격"); 
+                
+                // ▼▼▼ [수정] 각 공격 조건문마다 사운드 재생 함수 호출 ▼▼▼
                 if(currentHealth > 800) 
                 { 
                     animator.SetTrigger("BasicAttack"); 
+                    PlayAttackSound(basicAttackClip); // 기본 공격 소리
                     playerScript.TakeDamage(attackDamage); 
                 }
                 else if(currentHealth > 600) 
                 { 
                     animator.SetTrigger("ClawAttack"); 
+                    PlayAttackSound(clawAttackClip); // 할퀴기 소리
                     playerScript.TakeDamage(attackDamage*2); 
-                    }
+                }
                 else if(currentHealth > 500) 
                 { 
                     animator.SetTrigger("FlameAttack"); 
+                    PlayAttackSound(flameAttackClip); // 화염 소리
                     playerScript.TakeDamage(attackDamage*3); 
                 }
                 else 
                 { 
                     animator.SetTrigger("FlyAttack"); 
+                    PlayAttackSound(flyAttackClip); // 비행/돌진 소리
                     playerScript.TakeDamage(attackDamage*4); 
                 }
+                
+
                 lastAttackTime = Time.time;
             }
         }
@@ -180,7 +201,7 @@ public class BossController : MonoBehaviour, IDamageable
         if (!hasEnteredPhase2 && currentHealth <= 500 && currentHealth > 0)
         {
             attackRange = 100f;
-            hasEnteredPhase2 = true; // 여기서 true가 되면 발소리가 바뀝니다.
+            hasEnteredPhase2 = true; 
             animator.SetBool("isPhase2", true);
             animator.SetTrigger("startPhase2");
         }
@@ -192,7 +213,6 @@ public class BossController : MonoBehaviour, IDamageable
         if (isDead) return;
         isDead = true;
         
-        // 오디오 소스 컴포넌트가 꺼지거나 하는 상황 대비용 PlayClipAtPoint 사용
         if (deathClip != null)
         {
              AudioSource.PlayClipAtPoint(deathClip, transform.position, 1.0f);

@@ -135,6 +135,10 @@ MonoBehaviour:
   phase2WalkClips:
   - {fileID: 8300000, guid: 4e30cfd97087d884d8d0cb57aae15fa8, type: 3}
   deathClip: {fileID: 8300000, guid: f86d4d44eb7f16c4ba0dc0c337a6f337, type: 3}
+  basicAttackClip: {fileID: 8300000, guid: 41dd7e4be837455449c7c5b0fc75339a, type: 3}
+  clawAttackClip: {fileID: 8300000, guid: 3e4ae2db60690814ea7797ecdc731420, type: 3}
+  flameAttackClip: {fileID: 8300000, guid: aaec5b84af8eec549a50b4196270c2c2, type: 3}
+  flyAttackClip: {fileID: 8300000, guid: aaec5b84af8eec549a50b4196270c2c2, type: 3}
 --- !u!54 &8128215507373097516
 Rigidbody:
   m_ObjectHideFlags: 0
