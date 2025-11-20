@@ -30,14 +30,15 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [Header("Audio Settings")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip moveLoopClip;
-    
-    // [수정] 페이드 효과 지속 시간 (0.5초 동안 서서히 켜지고 꺼짐)
     [SerializeField] private float fadeDuration = 0.5f; 
-    private float originalVolume; // 원래 설정해둔 볼륨 크기 저장용
-    private Coroutine currentFadeCoroutine; // 현재 실행 중인 페이드 코루틴 저장
+    
+    [SerializeField] private AudioClip attack1Clip; // 1페이즈 공격
+    [SerializeField] private AudioClip attack2Clip; // 2페이즈 공격
+    [SerializeField] private AudioClip deathClip;   // 사망
 
+    private float originalVolume; 
+    private Coroutine currentFadeCoroutine; 
     private bool isMovingState = false; 
-    [SerializeField] private AudioClip deathClip;
 
     void Start()
     {
@@ -51,13 +52,12 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
         
-        // 오디오 초기 설정
         audioSource.loop = true;
         audioSource.clip = moveLoopClip;
         audioSource.playOnAwake = false;
         
-        // 원래 볼륨 저장해두고, 시작할 땐 0으로 세팅 (페이드 인을 위해)
-        originalVolume = audioSource.volume; 
+        // 움직이는 소리는 작게 설정 (0.3f)
+        originalVolume = 0.3f; 
         audioSource.volume = 0f;
 
         InvokeRepeating("FindPlayer", 0f, 0.5f);
@@ -83,7 +83,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         {
             float distance = Vector3.Distance(transform.position, player.position);
 
-            // 떨림 방지 로직 (Hysteresis)
             float stopThreshold = attackRange;
             float startThreshold = attackRange + 1.0f; 
 
@@ -121,29 +120,23 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             attackRange = 130f;
         }
 
-        // [수정] 페이드 효과가 적용된 사운드 처리 함수 호출
         HandleFadeSound(currentIsMoving);
     }
 
-    // [핵심] 페이드 인/아웃 관리 함수
     void HandleFadeSound(bool isMoving)
     {
         if (audioSource == null || moveLoopClip == null) return;
 
         if (isMoving)
         {
-            // 움직이는데 소리가 안 나거나, 볼륨이 작다면 -> 페이드 인 (소리 키우기)
             if (!audioSource.isPlaying || audioSource.volume < originalVolume)
             {
-                if (!audioSource.isPlaying) audioSource.Play(); // 일단 재생 시작
-                
-                // 이미 페이드 아웃 중이었다면 멈추고 페이드 인으로 전환
+                if (!audioSource.isPlaying) audioSource.Play(); 
                 StartFade(originalVolume); 
             }
         }
         else
         {
-            // 멈췄는데 소리가 나고 있다면 -> 페이드 아웃 (소리 줄이기)
             if (audioSource.isPlaying && audioSource.volume > 0f)
             {
                 StartFade(0f);
@@ -151,17 +144,12 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         }
     }
 
-    // 코루틴 시작 도우미 함수
     void StartFade(float targetVolume)
     {
-        // 이미 진행 중인 페이드가 있다면 취소 (중복 실행 방지)
         if (currentFadeCoroutine != null) StopCoroutine(currentFadeCoroutine);
-        
-        // 새 페이드 시작
         currentFadeCoroutine = StartCoroutine(FadeAudio(targetVolume));
     }
 
-    // 실제 서서히 볼륨을 조절하는 코루틴
     IEnumerator FadeAudio(float targetVolume)
     {
         float startVolume = audioSource.volume;
@@ -170,19 +158,41 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         while (timer < fadeDuration)
         {
             timer += Time.deltaTime;
-            // lerp를 이용해 부드럽게 볼륨 조절
             audioSource.volume = Mathf.Lerp(startVolume, targetVolume, timer / fadeDuration);
             yield return null;
         }
 
         audioSource.volume = targetVolume;
 
-        // 목표 볼륨이 0이면 (완전히 꺼지면) Stop() 호출해서 리소스 아끼기
         if (targetVolume <= 0.01f)
         {
             audioSource.Stop();
         }
     }
+
+    // ▼▼▼ [새로 만듦] 소리를 2D(전체화면)로 빵빵하게 틀어주는 함수 ▼▼▼
+    void PlayGlobalSound(AudioClip clip)
+    {
+        if (clip == null) return;
+
+        // 임시 게임오브젝트 생성
+        GameObject tempAudio = new GameObject("TempAudio");
+        tempAudio.transform.position = transform.position; // 위치는 보스 위치
+
+        // 오디오 소스 붙이기
+        AudioSource tempSource = tempAudio.AddComponent<AudioSource>();
+        tempSource.clip = clip;
+        
+        // ★ 핵심 설정 ★
+        tempSource.spatialBlend = 0f; // 0으로 하면 2D 사운드가 됨 (거리 상관없이 최대 볼륨!)
+        tempSource.volume = 0.5f;     // 볼륨 최대
+
+        tempSource.Play();
+
+        // 재생 끝나면 자동 삭제
+        Destroy(tempAudio, clip.length);
+    }
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     void FindPlayer()
     {
@@ -223,11 +233,19 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 if (currentHealth > maxHealth / 2)
                 {
                     animator.SetTrigger("Attack1");
+                    
+                    // ▼▼▼ [수정] 새로 만든 함수 사용 ▼▼▼
+                    PlayGlobalSound(attack1Clip);
+                    
                     playerScript.TakeDamage(attackDamage);
                 }
                 else
                 {
                     animator.SetTrigger("Attack2");
+                    
+                    // ▼▼▼ [수정] 새로 만든 함수 사용 ▼▼▼
+                    PlayGlobalSound(attack2Clip);
+
                     playerScript.TakeDamage(attackDamage * 2);
                 }
                 lastAttackTime = Time.time;
@@ -251,16 +269,11 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         Debug.Log("보스 사망");
         
-        // 페이드 아웃 등 방해되는 효과 모두 끄기
         StopAllCoroutines(); 
         if (audioSource != null) audioSource.Stop();
 
-        // [수정] 오디오 소스 컴포넌트를 안 쓰고, 허공에 '임시 스피커'를 만들어서 소리내기 (가장 확실함)
-        if (deathClip != null)
-        {
-            // (클립, 위치, 볼륨)
-            AudioSource.PlayClipAtPoint(deathClip, transform.position, 1.0f);
-        }
+        // ▼▼▼ [수정] 사망 사운드도 이걸로 하면 확실히 들림 ▼▼▼
+        PlayGlobalSound(deathClip);
 
         animator.SetTrigger("Die"); 
         rb.isKinematic = true;

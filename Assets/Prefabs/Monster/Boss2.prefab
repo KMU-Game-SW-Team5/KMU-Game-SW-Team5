@@ -2100,6 +2100,8 @@ MonoBehaviour:
   audioSource: {fileID: 7201269010863472498}
   moveLoopClip: {fileID: 8300000, guid: e62778a5c2136d242b63a4f409ef863e, type: 3}
   fadeDuration: 0.5
+  attack1Clip: {fileID: 8300000, guid: 0fe44e3c21d196c479929d064e87d6d1, type: 3}
+  attack2Clip: {fileID: 8300000, guid: d6f4d646c7715314a868e3aa49a94147, type: 3}
   deathClip: {fileID: 8300000, guid: 036fd6fff66c59e48a68880882ff1e68, type: 3}
 --- !u!82 &7201269010863472498
 AudioSource:
@@ -2121,7 +2123,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 30
+  MinDistance: 50
   MaxDistance: 500
   Pan2D: 0
   rolloffMode: 0
