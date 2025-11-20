@@ -32,9 +32,9 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [SerializeField] private AudioClip moveLoopClip;
     [SerializeField] private float fadeDuration = 0.5f; 
     
-    [SerializeField] private AudioClip attack1Clip; // 1페이즈 공격
-    [SerializeField] private AudioClip attack2Clip; // 2페이즈 공격
-    [SerializeField] private AudioClip deathClip;   // 사망
+    [SerializeField] private AudioClip attack1Clip;
+    [SerializeField] private AudioClip attack2Clip;
+    [SerializeField] private AudioClip deathClip;
 
     private float originalVolume; 
     private Coroutine currentFadeCoroutine; 
@@ -56,7 +56,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         audioSource.clip = moveLoopClip;
         audioSource.playOnAwake = false;
         
-        // 움직이는 소리는 작게 설정 (0.3f)
+        
         originalVolume = 0.3f; 
         audioSource.volume = 0f;
 
@@ -170,29 +170,29 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         }
     }
 
-    // ▼▼▼ [새로 만듦] 소리를 2D(전체화면)로 빵빵하게 틀어주는 함수 ▼▼▼
+    // 전역에서 들리는 사운드
     void PlayGlobalSound(AudioClip clip)
     {
         if (clip == null) return;
 
-        // 임시 게임오브젝트 생성
+        
         GameObject tempAudio = new GameObject("TempAudio");
-        tempAudio.transform.position = transform.position; // 위치는 보스 위치
+        tempAudio.transform.position = transform.position;
 
-        // 오디오 소스 붙이기
+        
         AudioSource tempSource = tempAudio.AddComponent<AudioSource>();
         tempSource.clip = clip;
         
-        // ★ 핵심 설정 ★
-        tempSource.spatialBlend = 0f; // 0으로 하면 2D 사운드가 됨 (거리 상관없이 최대 볼륨!)
-        tempSource.volume = 0.5f;     // 볼륨 최대
+        
+        tempSource.spatialBlend = 0f;
+        tempSource.volume = 0.5f;    
 
         tempSource.Play();
 
         // 재생 끝나면 자동 삭제
         Destroy(tempAudio, clip.length);
     }
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    
 
     void FindPlayer()
     {
@@ -234,7 +234,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 {
                     animator.SetTrigger("Attack1");
                     
-                    // ▼▼▼ [수정] 새로 만든 함수 사용 ▼▼▼
+                    
                     PlayGlobalSound(attack1Clip);
                     
                     playerScript.TakeDamage(attackDamage);
@@ -243,7 +243,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 {
                     animator.SetTrigger("Attack2");
                     
-                    // ▼▼▼ [수정] 새로 만든 함수 사용 ▼▼▼
+                    
                     PlayGlobalSound(attack2Clip);
 
                     playerScript.TakeDamage(attackDamage * 2);
@@ -272,7 +272,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         StopAllCoroutines(); 
         if (audioSource != null) audioSource.Stop();
 
-        // ▼▼▼ [수정] 사망 사운드도 이걸로 하면 확실히 들림 ▼▼▼
+        
         PlayGlobalSound(deathClip);
 
         animator.SetTrigger("Die"); 

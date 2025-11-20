@@ -29,19 +29,24 @@ public class Boss3Controller : MonoBehaviour, IDamageable
     private Rigidbody rb;
     private Animator animator;
 
-    [Header("Ranged Attack")]
+    [Header("Attack Settings")]
     public GameObject bulletPrefab; 
     public Transform muzzleTransform; 
-    public float attack2Delay = 100f; 
     public float spreadAngle = 3f;
+    
+    // ▼▼▼ [추가] Attack 1의 딜레이 시간 설정 변수 ▼▼▼
+    public float attack1Delay = 0.5f; // 기본 0.5초 (인스펙터에서 조절)
+    public float attack2Delay = 0.5f; 
 
     [Header("Audio Settings")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] walkClips; 
-    
-    
-    private float lastProgress = 0f; 
     [SerializeField] private AudioClip deathClip;
+
+    [SerializeField] private AudioClip attack1Clip; 
+    [SerializeField] private AudioClip attack2Clip; 
+
+    private float lastProgress = 0f; 
 
     void Start()
     {
@@ -91,7 +96,6 @@ public class Boss3Controller : MonoBehaviour, IDamageable
                 MoveTowardsPlayer();
                 if(animator != null) animator.SetFloat("Speed", 1f); 
 
-                // [핵심] 2발자국 소리 체크
                 CheckDualFootsteps();
             }
             else if (distance <= attackRange)
@@ -111,26 +115,21 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         }
     }
 
-    // [핵심 수정] 1번 루프에 2번 소리내기 (0% 지점, 50% 지점)
     void CheckDualFootsteps()
     {
         if (animator == null) return;
 
-        // 현재 애니메이션의 진행도 (0.0 ~ 1.0 사이의 값으로 변환)
         float currentProgress = animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1.0f;
 
-        // 1. 루프가 다시 시작될 때 (0.9 -> 0.1 로 넘어가는 순간) -> 첫 번째 발
         if (currentProgress < lastProgress)
         {
             PlayWalkSound();
         }
-        // 2. 중간 지점을 통과할 때 (0.4 -> 0.6 으로 넘어가는 순간) -> 두 번째 발
         else if (lastProgress < 0.5f && currentProgress >= 0.5f)
         {
             PlayWalkSound();
         }
 
-        // 현재 진행도를 저장해서 다음 프레임에 비교
         lastProgress = currentProgress;
     }
 
@@ -141,9 +140,17 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         int index = Random.Range(0, walkClips.Length);
         if (walkClips[index] != null)
         {
-            // 양발이므로 피치를 조금 더 다양하게 줘서 자연스럽게
             audioSource.pitch = Random.Range(0.85f, 1.0f); 
             audioSource.PlayOneShot(walkClips[index]);
+        }
+    }
+
+    void PlayAttackSound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.pitch = Random.Range(0.95f, 1.05f); 
+            audioSource.PlayOneShot(clip);
         }
     }
 
@@ -187,8 +194,7 @@ public class Boss3Controller : MonoBehaviour, IDamageable
             {
                 if (currentHealth > maxHealth / 2)
                 {
-                    animator.SetTrigger("Attack1");
-                    playerScript.TakeDamage(attackDamage);
+                    StartCoroutine(Attack1Routine());
                 }
                 else
                 {
@@ -199,10 +205,31 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         }
     }
 
+    //Attack 1 딜레이 관리
+    IEnumerator Attack1Routine()
+    {
+        
+        animator.SetTrigger("Attack1");
+
+        // 딜레이
+        yield return new WaitForSeconds(attack1Delay);
+
+        // 딜레이 후 소리 재생
+        PlayAttackSound(attack1Clip);
+        
+        if (playerScript != null)
+        {
+            playerScript.TakeDamage(attackDamage);
+        }
+    }
+
     IEnumerator Attack2Routine()
     {
         animator.SetTrigger("Attack2");
+        
         yield return new WaitForSeconds(attack2Delay);
+        
+        PlayAttackSound(attack2Clip);
         ShootBullet();
     }
 
@@ -253,12 +280,12 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         isDead = true;
 
         Debug.Log("보스 3 사망");
-        if (audioSource != null && deathClip != null)
+        
+        if (deathClip != null)
         {
-            
-            audioSource.pitch = 1.0f; 
-            audioSource.PlayOneShot(deathClip);
+            AudioSource.PlayClipAtPoint(deathClip, transform.position, 1.0f);
         }
+        
         animator.SetTrigger("Die"); 
 
         rb.isKinematic = true;
