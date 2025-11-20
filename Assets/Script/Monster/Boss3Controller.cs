@@ -39,8 +39,9 @@ public class Boss3Controller : MonoBehaviour, IDamageable
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] walkClips; 
     
-    // [수정] 애니메이션 진행도(0.0 ~ 1.0)를 저장할 변수
+    
     private float lastProgress = 0f; 
+    [SerializeField] private AudioClip deathClip;
 
     void Start()
     {
@@ -252,6 +253,12 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         isDead = true;
 
         Debug.Log("보스 3 사망");
+        if (audioSource != null && deathClip != null)
+        {
+            
+            audioSource.pitch = 1.0f; 
+            audioSource.PlayOneShot(deathClip);
+        }
         animator.SetTrigger("Die"); 
 
         rb.isKinematic = true;

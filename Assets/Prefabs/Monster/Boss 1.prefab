@@ -132,6 +132,7 @@ MonoBehaviour:
   audioSource: {fileID: 3849158926638702977}
   walkClips:
   - {fileID: 8300000, guid: fddce599cac048e4b8847e207159266d, type: 3}
+  deathClip: {fileID: 8300000, guid: f86d4d44eb7f16c4ba0dc0c337a6f337, type: 3}
 --- !u!54 &8128215507373097516
 Rigidbody:
   m_ObjectHideFlags: 0

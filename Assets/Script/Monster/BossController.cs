@@ -29,6 +29,7 @@ public class BossController : MonoBehaviour, IDamageable
     [Header("Audio Settings")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] walkClips; 
+    [SerializeField] private AudioClip deathClip;
     
     // [핵심] 이전 프레임의 애니메이션 시간 저장용 변수
     private float lastNormalizedTime; 
@@ -173,6 +174,11 @@ public class BossController : MonoBehaviour, IDamageable
     {
         if (isDead) return;
         isDead = true;
+        if (audioSource != null && deathClip != null)
+        {
+            audioSource.pitch = 1.0f; 
+            audioSource.PlayOneShot(deathClip);
+        }
         animator.SetTrigger("Die"); 
         rb.isKinematic = true;
         rb.velocity = Vector3.zero;

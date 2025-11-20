@@ -37,6 +37,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private Coroutine currentFadeCoroutine; // 현재 실행 중인 페이드 코루틴 저장
 
     private bool isMovingState = false; 
+    [SerializeField] private AudioClip deathClip;
 
     void Start()
     {
@@ -246,8 +247,13 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         if (isDead) return;
         isDead = true;
         
-        // 죽을 때도 페이드 아웃으로 부드럽게 끄기
-        StartFade(0f);
+        if (audioSource != null && deathClip != null)
+        {
+            
+            audioSource.pitch = 1.0f;
+            audioSource.PlayOneShot(deathClip);
+        }
+        //StartFade(0f);
 
         animator.SetTrigger("Die"); 
         rb.isKinematic = true;
