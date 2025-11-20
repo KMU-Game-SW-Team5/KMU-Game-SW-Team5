@@ -1,74 +1,126 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic; // List<>를 사용하기 위해 반드시 필요합니다.
+
+
+public enum RoomType {Start, Normal, Boss}
+public enum RoomState {Cleared, Uncleared}
 
 public class RoomManager : MonoBehaviour
 {
-    [Header("MapMaker 컴포넌트")]
-    public MapMaker MapMaker;
+    [Header("방 상태 정보")]
+    public RoomType type; // 방의 종류
+    public RoomState state; // 클리어 여부
 
-    [Header("몬스터 설정")]
-    public GameObject TempMonster;
-    public int monstersPerRoom = 1;
 
-    private int roomSize;
-    private bool clearFlag = false;
-    private bool playerEntered = false; // 스폰 중복 방지
+    [Header("몬스터 정보")]
+    public List<GameObject> liveMonsters = new List<GameObject>();
+    private bool isSpawned = false; // 몬스터가 이미 스폰되어 있는지 확인 확인하는 플래그
+    private BoxCollider roomCollider;           // 플레이어 감지용 콜라이더
 
-    void Start()
+
+    public void Setup (RoomType newType)
     {
-        // BoxCollider 접근
-        BoxCollider triggerCollider = GetComponent<BoxCollider>();
+        type = newType; 
 
-        // MapMaker의 방 크기 정보
-        roomSize = MapMaker.roomSize;
+        // 시작 방은 클리어 상태로 둔다.
+        if(type == RoomType.Start)
+        {   
+            state = RoomState.Cleared;
+        } else
+        {
+            state = RoomState.Uncleared;
+        }
 
-        // 트리거 범위 설정
-        triggerCollider.size = new Vector3(roomSize / 4, 10, roomSize / 4);
-        triggerCollider.center = new Vector3(0, 0, 0);
+        // 디버깅용 색상 변경 (나중에 제거 가능)
+        if (type == RoomType.Start) GetComponent<Renderer>().material.color = Color.green;
+        if (type == RoomType.Boss) GetComponent<Renderer>().material.color = Color.red;
+
+        // Trigger Collider 설정 (방 크기에 맞춰 자동 조절)
+        SetupCollider();
     }
 
-    void OnTriggerEnter(Collider other)
+        void SetupCollider()
     {
-        // 플레이어 아니면 무시
-        if (!other.CompareTag("Player"))
-            return;
+        // 사용자가 프리팹에 이미 넣어둔 BoxCollider를 가져옵니다.
+        roomCollider = GetComponent<BoxCollider>();
+        // 플레이어 감지용이므로 Trigger는 켜줍니다
+        roomCollider.isTrigger = true; 
+    }
 
-        // 이미 스폰했거나 클리어된 방이면 무시
-        if (playerEntered || clearFlag)
-            return;
 
-        // 몬스터 스폰
-        for (int i = 0; i < monstersPerRoom; i++)
+    // Player 방에 입장시 호출 될 함수
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
         {
-            float spawnRadius = (roomSize * 10 / 2) * 0.8f;
+            Debug.Log($"{type} 방 입장! 상태: {state}");
 
-            Vector3 spawnPos = transform.position + new Vector3(
-                Random.Range(-spawnRadius, spawnRadius),
-                10f, // 공중이 아니라 적절한 높이
-                Random.Range(-spawnRadius, spawnRadius)
+            if (!isSpawned && type == RoomType.Normal)  // 방에 몬스터가 스폰된적 없으며, 방이 몬스터가 생성되는 방일때 호출 되는 조건문
+            {
+                SpawnMonsters();
+            }
+        }
+    }
+
+        public void SpawnMonsters()
+    {
+        isSpawned = true;
+
+        // Resources/Monster 폴더 내의 모든 프리팹 로드
+        GameObject[] monsterPrefabs = Resources.LoadAll<GameObject>("Monster");
+
+        int monsterCount = Random.Range(2, 5); // 몬스터 생성되는 숫자 이후에 MapMaker에서 함수 호출시 바꿀 수 있도록 변경하기
+
+        for (int i = 0; i < monsterCount; i++)
+        {
+            // ★ 반복문 안에서 매번 새로운 랜덤 몬스터를 선택합니다.
+            GameObject selectedMonster = monsterPrefabs[Random.Range(0, monsterPrefabs.Length)];
+
+            // 방 scale에 맞춰서 랜덤 생성된다.
+            float range = 4.0f; 
+            Vector3 randomPos = new Vector3(
+                Random.Range(-range, range), 
+                1, 
+                Random.Range(-range, range)
             );
+            
+            // 로컬 좌표를 월드 좌표로 변환
+            Vector3 spawnPos = transform.TransformPoint(randomPos);
 
-            // 몬스터 생성
-            GameObject newMonster = Instantiate(TempMonster, spawnPos, Quaternion.identity);
-            newMonster.name = $"Monster_{gameObject.name}_{i + 1}";
-
-            // 방을 부모로 설정
-            // newMonster.transform.SetParent(transform);
-            newMonster.transform.localScale = new Vector3(roomSize/20, roomSize/20, roomSize/20);
+            GameObject monster = Instantiate(selectedMonster, spawnPos, Quaternion.identity);
+            
+            // 자식으로 등록
+            monster.transform.SetParent(transform);
+            
+            // 몬스터 리스트 추가
+            liveMonsters.Add(monster);
         }
-
-        playerEntered = true;
+        Debug.Log($"{monsterCount}마리의 몬스터 스폰 완료.");
     }
 
-    // 방에 몬스터가 죽을때마 호출되서 몬스터가 모두 죽었는지 확인 
-    public void MonsterKilled()
+    // ★ Step 4 추가: 몬스터가 죽었을 때 호출되는 함수
+    public void NotifyMonsterDied(GameObject monster)
     {
-        foreach (Transform child in transform)
+        if (liveMonsters.Contains(monster))
         {
-            if (child.CompareTag("Monster"))
-                return; // 몬스터가 하나라도 남음
-        }
+            liveMonsters.Remove(monster);
+            Debug.Log($"몬스터 처치! 남은 수: {liveMonsters.Count}");
 
-        clearFlag = true;
-        Debug.Log($"{gameObject.name} 방 클리어!");
+            // 모든 몬스터를 잡았는지 확인
+            if (liveMonsters.Count == 0)
+            {
+                RoomClear();
+            }
+        }
+    }
+
+    void RoomClear()
+    {
+        state = RoomState.Cleared;
+        Debug.Log("★ 방 클리어! 문이 열립니다. ★");
+        
+        // TODO: 다음 단계에서 여기에 문을 여는 로직(UnlockDoors) 추가 예정
+        // GetComponentInChildren<DoorController>()?.OpenAllDoors();
     }
 }

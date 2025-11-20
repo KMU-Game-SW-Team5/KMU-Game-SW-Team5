@@ -171,6 +171,8 @@ public class MonsterController : MonoBehaviour
         rb.velocity = Vector3.zero;
         GetComponent<Collider>().enabled = false; 
 
+        RoomManager room = GetComponentInParent<RoomManager>();
+        room.NotifyMonsterDied(this.gameObject);
         
         Destroy(gameObject, deathAnimationDuration);
     }

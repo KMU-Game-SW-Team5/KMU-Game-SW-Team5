@@ -58,6 +58,21 @@ public class MapMaker : MonoBehaviour
             // 생성 후 부모 설정 (this.transform 사용)
             newFloor.transform.SetParent(transform, true);
 
+            // ★ 추가된 부분: RoomManager 설정 ★
+            RoomManager roomMgr = newFloor.GetComponent<RoomManager>();
+            if (roomMgr != null)
+            {
+                // (0,0,0) 위치면 시작 방, 아니면 일반 방으로 설정
+                if (nowPosition == Vector3.zero)
+                {
+                    roomMgr.Setup(RoomType.Start);
+                }
+                else
+                {
+                    roomMgr.Setup(RoomType.Normal);
+                }
+            }
+
             // 천장 생성
             Vector3 nowCeilingPosition = nowPosition;
             nowCeilingPosition.y = 10 * 20; // 높이 설정 로직 유지
