@@ -239,6 +239,8 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     {
         if (isDead) return; 
         currentHealth -= damage;
+
+        Debug.Log("보스 2 체력: " + currentHealth);
         if (currentHealth <= 0) Die();
     }
 
@@ -246,14 +248,19 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     {
         if (isDead) return;
         isDead = true;
+
+        Debug.Log("보스 사망");
         
-        if (audioSource != null && deathClip != null)
+        // 페이드 아웃 등 방해되는 효과 모두 끄기
+        StopAllCoroutines(); 
+        if (audioSource != null) audioSource.Stop();
+
+        // [수정] 오디오 소스 컴포넌트를 안 쓰고, 허공에 '임시 스피커'를 만들어서 소리내기 (가장 확실함)
+        if (deathClip != null)
         {
-            
-            audioSource.pitch = 1.0f;
-            audioSource.PlayOneShot(deathClip);
+            // (클립, 위치, 볼륨)
+            AudioSource.PlayClipAtPoint(deathClip, transform.position, 1.0f);
         }
-        //StartFade(0f);
 
         animator.SetTrigger("Die"); 
         rb.isKinematic = true;

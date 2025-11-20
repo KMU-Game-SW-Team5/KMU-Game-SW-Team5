@@ -32,8 +32,8 @@ public class Boss3Controller : MonoBehaviour, IDamageable
     [Header("Ranged Attack")]
     public GameObject bulletPrefab; 
     public Transform muzzleTransform; 
-    public float attack2Delay = 0.5f; 
-    public float spreadAngle = 30f;
+    public float attack2Delay = 100f; 
+    public float spreadAngle = 3f;
 
     [Header("Audio Settings")]
     [SerializeField] private AudioSource audioSource;
@@ -67,7 +67,7 @@ public class Boss3Controller : MonoBehaviour, IDamageable
             attackRange = 300f;
             detectionRange = 500f;
             attackDamage = 50; 
-            attackCooldown = 0.5f;
+            attackCooldown = 2f;
             Debug.Log("보스2페이즈");
         }
     }

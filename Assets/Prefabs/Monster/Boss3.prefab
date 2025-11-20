@@ -5855,7 +5855,7 @@ MonoBehaviour:
   maxHealth: 1000
   bulletPrefab: {fileID: 2521581984461153819, guid: 2a988c19fab954740a312c0c48820e68, type: 3}
   muzzleTransform: {fileID: 7156518263253049982}
-  attack2Delay: 9.95
+  attack2Delay: 0.3
   spreadAngle: 3
   audioSource: {fileID: 4281928337261217401}
   walkClips:
