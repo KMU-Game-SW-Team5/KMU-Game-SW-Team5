@@ -2,39 +2,45 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(AudioSource))]
 public class Boss3Controller : MonoBehaviour, IDamageable
 {
-    private float detectionRange = 300f;
-    private float attackRange = 70f;
+    [Header("Stats")]
+    [SerializeField] private float detectionRange = 300f;
+    [SerializeField] private float attackRange = 70f;
     public float moveSpeed = 30f;
     public int maxHealth = 1000;
     private int currentHealth;
 
+    [Header("Combat")]
     private int attackDamage = 10;
     private float attackCooldown = 2f;
     private float lastAttackTime;
 
+    [Header("State")]
     private float deathAnimationDuration = 3f;
     private bool isDead = false;
-    
-    
     private bool isPhase2 = false; 
 
+    [Header("References")]
     private Transform player;
     private Player playerScript;
     private Rigidbody rb;
-
     private Animator animator;
 
-
+    [Header("Ranged Attack")]
     public GameObject bulletPrefab; 
     public Transform muzzleTransform; 
-    
-    
     public float attack2Delay = 0.5f; 
     public float spreadAngle = 30f;
+
+    [Header("Audio Settings")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] walkClips; 
+    
+    // [수정] 애니메이션 진행도(0.0 ~ 1.0)를 저장할 변수
+    private float lastProgress = 0f; 
 
     void Start()
     {
@@ -46,17 +52,17 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
         animator = GetComponentInChildren<Animator>();
+
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+
         InvokeRepeating("FindPlayer", 0f, 0.5f);
     }
     
     void Update()
     {
-        
         if (!isPhase2 && currentHealth <= maxHealth / 2)
         {
             isPhase2 = true;
-            
-            
             attackRange = 300f;
             detectionRange = 500f;
             attackDamage = 50; 
@@ -83,6 +89,9 @@ public class Boss3Controller : MonoBehaviour, IDamageable
             {
                 MoveTowardsPlayer();
                 if(animator != null) animator.SetFloat("Speed", 1f); 
+
+                // [핵심] 2발자국 소리 체크
+                CheckDualFootsteps();
             }
             else if (distance <= attackRange)
             {
@@ -101,6 +110,42 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         }
     }
 
+    // [핵심 수정] 1번 루프에 2번 소리내기 (0% 지점, 50% 지점)
+    void CheckDualFootsteps()
+    {
+        if (animator == null) return;
+
+        // 현재 애니메이션의 진행도 (0.0 ~ 1.0 사이의 값으로 변환)
+        float currentProgress = animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1.0f;
+
+        // 1. 루프가 다시 시작될 때 (0.9 -> 0.1 로 넘어가는 순간) -> 첫 번째 발
+        if (currentProgress < lastProgress)
+        {
+            PlayWalkSound();
+        }
+        // 2. 중간 지점을 통과할 때 (0.4 -> 0.6 으로 넘어가는 순간) -> 두 번째 발
+        else if (lastProgress < 0.5f && currentProgress >= 0.5f)
+        {
+            PlayWalkSound();
+        }
+
+        // 현재 진행도를 저장해서 다음 프레임에 비교
+        lastProgress = currentProgress;
+    }
+
+    void PlayWalkSound()
+    {
+        if (audioSource == null || walkClips == null || walkClips.Length == 0) return;
+
+        int index = Random.Range(0, walkClips.Length);
+        if (walkClips[index] != null)
+        {
+            // 양발이므로 피치를 조금 더 다양하게 줘서 자연스럽게
+            audioSource.pitch = Random.Range(0.85f, 1.0f); 
+            audioSource.PlayOneShot(walkClips[index]);
+        }
+    }
+
     void FindPlayer()
     {
         if (player == null || !player.gameObject.activeInHierarchy)
@@ -110,13 +155,14 @@ public class Boss3Controller : MonoBehaviour, IDamageable
             {
                 player = playerObject.transform;
                 playerScript = playerObject.GetComponent<Player>();
-                
             }
         }
     }
 
     void MoveTowardsPlayer()
     {
+        if (player == null) return; 
+
         Vector3 lookPosition = player.position;
         lookPosition.y = transform.position.y;
         transform.LookAt(lookPosition);
@@ -128,7 +174,6 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         rb.MovePosition(newPos);
     }
 
-    
     void AttackPlayer()
     {
         Vector3 lookPosition = player.position;
@@ -153,28 +198,16 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         }
     }
 
-    // Attack2 지연 발사 코루틴
     IEnumerator Attack2Routine()
     {
         animator.SetTrigger("Attack2");
-        
         yield return new WaitForSeconds(attack2Delay);
-
         ShootBullet();
     }
 
-
     private void ShootBullet()
     {
-        if (bulletPrefab == null || muzzleTransform == null)
-        {
-            return;
-        }
-
-        if (player == null)
-        {
-            return;
-        }
+        if (bulletPrefab == null || muzzleTransform == null || player == null) return;
 
         Vector3 targetPosition = player.position + Vector3.up * 1.0f;
         Vector3 directionToPlayer = (targetPosition - muzzleTransform.position).normalized;
@@ -185,23 +218,20 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         Quaternion leftRotation = centerRotation * Quaternion.Euler(0, -halfSpread, 0);
         Quaternion rightRotation = centerRotation * Quaternion.Euler(0, halfSpread, 0);
         
-        
-        InstantiateBullet(centerRotation); // 중앙 총알
-        InstantiateBullet(leftRotation);   // 왼쪽 총알
-        InstantiateBullet(rightRotation);  // 오른쪽 총알
+        InstantiateBullet(centerRotation); 
+        InstantiateBullet(leftRotation);   
+        InstantiateBullet(rightRotation);  
     }
+
     private void InstantiateBullet(Quaternion rotation)
     {
         GameObject bulletGO = Instantiate(bulletPrefab, muzzleTransform.position, rotation);
-        
         Bullet projectile = bulletGO.GetComponent<Bullet>(); 
-        
         if (projectile != null)
         {
             projectile.Damage = attackDamage; 
         }
     }
-
     
     public void TakeDamage(int damage)
     {
@@ -222,7 +252,6 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         isDead = true;
 
         Debug.Log("보스 3 사망");
-        
         animator.SetTrigger("Die"); 
 
         rb.isKinematic = true;
