@@ -1,5 +1,5 @@
-using UnityEngine;
-// µ¥¹ÌÁö¿¡ ¼³Á¤µÈ °íÁ¤ °ªÀ» ´õÇÏ´Â ÆĞ½Ãºê ½ºÅ³ Å¸ÀÔ
+ï»¿using UnityEngine;
+// ë°ë¯¸ì§€ì— ì„¤ì •ëœ ê³ ì • ê°’ì„ ë”í•˜ëŠ” íŒ¨ì‹œë¸Œ ìŠ¤í‚¬ íƒ€ì…
 [CreateAssetMenu(menuName = "Scriptable Object/HitEffects/AddDamage")]
 public class AddDamageSO : HitEffectSO
 {

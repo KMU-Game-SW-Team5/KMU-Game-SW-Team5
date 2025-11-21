@@ -232,14 +232,25 @@ public class SkillManager : MonoBehaviour
         Vector3 spawnPos;
         Transform targetTransform = null;
 
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, maxSpellDistance, mask, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(origin, direction, out RaycastHit hit,
+                            maxSpellDistance, mask, QueryTriggerInteraction.Collide))
         {
             spawnPos = hit.point;
             targetTransform = hit.transform;
+
+            // 몬스터를 맞췄다면 루트에 붙이도록 보정
+            if (hit.collider.CompareTag("Monster") || hit.collider.CompareTag("Boss"))
+            {
+                targetTransform = hit.transform.root;
+            }
+
+            // 디버그용
+            Debug.Log($"[SkillManager] Raycast hit: {hit.collider.name} (tag: {hit.collider.tag})");
         }
         else
         {
             spawnPos = origin + direction * maxSpellDistance;
+            Debug.Log("[SkillManager] Raycast hit nothing. Anchor at max distance.");
         }
 
         if (skillAnchorPrefab != null)
@@ -247,15 +258,16 @@ public class SkillManager : MonoBehaviour
         else
             anchorObj = new GameObject("SkillAnchor (Fallback)");
 
-
-        // 🔹 Raycast로 맞은 오브젝트가 있다면 직접 부착 처리
-        SkillAnchor anchor = anchorObj.GetComponent<SkillAnchor>();
+        SkillAnchor anchor = anchorObj.GetComponentInChildren<SkillAnchor>();
         if (anchor != null && targetTransform != null)
+        {
             anchor.AttachTo(targetTransform, spawnPos);
+        }
 
         Destroy(anchorObj, anchorLifetime);
         return anchorObj.transform;
     }
+
 
 
     // 스킬 아이콘 업데이트, 스킬 습득시 호출

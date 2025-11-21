@@ -15,12 +15,13 @@ public abstract class ActiveSkillBase : ScriptableObject
     private float lastUseTime = -999f;                    // 마지막 사용 시각
     private float remainingCooldown = 0f;                 // 남은 쿨타임 (초)
 
+    private int star = 1;                   // 성급(획득 횟수)
 
     // 플레이어의 마력 스탯을 가져와서 스킬의 데미지 출력
     public float GetDamage()
     {
         float magicStat = SkillManager.Instance.GetMagicStat();
-        return baseValue + magicStat * coefficient;
+        return (baseValue + magicStat * coefficient) * (1 + 0.2f * (float) (star-1));   // 중복 획득마다 20% 증가
     }
 
     // skill manager에서 초기화함.
@@ -111,6 +112,12 @@ public abstract class ActiveSkillBase : ScriptableObject
     public Sprite GetIcon()
     {
         return icon;
+    }
+
+    // 성급 증가. 중복 획득시 호출
+    public void IncreaseStar()
+    {
+        star++;
     }
 
     // TODO : 스킬 설명 업데이트하는 함수 만들 것

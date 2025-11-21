@@ -146,6 +146,7 @@ GameObject:
   - component: {fileID: 5870162969533730734}
   - component: {fileID: 7336993659141709181}
   - component: {fileID: 5575962236163961505}
+  - component: {fileID: 7370637377697642740}
   m_Layer: 7
   m_Name: Player_1111
   m_TagString: Player
@@ -404,12 +405,37 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9c36d8adedca00c4880c14631beb0eaa, type: 2}
   passiveSkills:
   - {fileID: 11400000, guid: 464f74e8228879246b0d567e7d7da350, type: 2}
+  - {fileID: 11400000, guid: b007423157907b6478a4bf9c73a98631, type: 2}
+  - {fileID: 11400000, guid: 06cc93e0d3845504a80e9a993f12ff03, type: 2}
+  - {fileID: 11400000, guid: 8d3248b03f94b334f88fd273461db41a, type: 2}
+  - {fileID: 11400000, guid: 12bd4f7dbc3015b47b1aef00aa1e4204, type: 2}
   skillKeys: 71000000650000007200000066000000
   aimOffset: {x: 0, y: 0, z: 0}
   magicStat: 10
   skillAnchorPrefab: {fileID: 8333112402990972783, guid: 4f14c3a49e5cfdb40949a31ac4a06bf3, type: 3}
   maxSpellDistance: 1000
   anchorLifetime: 10
+--- !u!95 &7370637377697642740
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 213829557835331773}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: cde414454b038f44e9d2ed6ff0a59afa, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &419385235701768172
 GameObject:
   m_ObjectHideFlags: 0
