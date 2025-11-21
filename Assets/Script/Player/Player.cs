@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,16 +10,23 @@ public class Player : MonoBehaviour
 
     private MoveController moveController;
 
+    // HP 변화 이벤트 -> UI 연결
+    public event Action<int, int> OnHPChanged;
+
     void Start()
     {
         hp = maxHealth;
         moveController = GetComponent<MoveController>();
+
+        OnHPChanged?.Invoke(hp, maxHealth);
     }
 
     public void TakeDamage(int damage)
     {
         hp -= damage;
         Debug.Log("플레이어 체력: " + hp);
+
+        OnHPChanged?.Invoke(hp, maxHealth);
 
         if (hp <= 0)
         {

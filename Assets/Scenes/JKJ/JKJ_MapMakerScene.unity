@@ -134,6 +134,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player_1111
       objectReference: {fileID: 0}
+    - target: {fileID: 4866500790029506916, guid: c8af0fee27bd14dcaa46e8b5daf861f3, type: 3}
+      propertyPath: hp
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4866500790029506916, guid: c8af0fee27bd14dcaa46e8b5daf861f3, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 8353162829283129437, guid: c8af0fee27bd14dcaa46e8b5daf861f3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 48.989906
@@ -268,6 +276,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelSystem: {fileID: 1547043881}
+  inGameUIManager: {fileID: 832308492}
+--- !u!114 &832308498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488956347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f83a8179df207d648b5086efcc3ac7c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 1547043882}
   inGameUIManager: {fileID: 832308492}
 --- !u!1 &1056307277
 GameObject:
@@ -443,6 +465,17 @@ MonoBehaviour:
   startLevel: 1
   baseRequiredExp: 100
   expIncrementPerLevel: 50
+--- !u!114 &1547043882 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4866500790029506916, guid: c8af0fee27bd14dcaa46e8b5daf861f3, type: 3}
+  m_PrefabInstance: {fileID: 53023978}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547043879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79849bac0d3764f0bbb0a2317ae2e937, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1557583931
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,6 +747,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8917923036304510279, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 832308497}
+    - targetCorrespondingSourceObject: {fileID: 8917923036304510279, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 832308498}
   m_SourcePrefab: {fileID: 100100000, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
 --- !u!1 &2077880359
 GameObject:
