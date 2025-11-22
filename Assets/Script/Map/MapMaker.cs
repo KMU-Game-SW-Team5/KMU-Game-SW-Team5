@@ -78,7 +78,7 @@ public class MapMaker : MonoBehaviour
             nowCeilingPosition.y = 10 * 20; // 높이 설정 로직 유지
             Quaternion nowCeilingRotation = Quaternion.Euler(180, 0, 0);
             GameObject newCeiling = Instantiate(ceiling, nowCeilingPosition, nowCeilingRotation);
-            newCeiling.transform.localScale = new Vector3(roomSize, 1, roomSize);
+            // newCeiling.transform.localScale = new Vector3(roomSize, 1, roomSize);
             // 생성 후 부모 설정
             newCeiling.transform.SetParent(transform, true);
 
