@@ -1,4 +1,5 @@
-﻿using Unity.VisualScripting;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class ActiveSkillBase : ScriptableObject
@@ -10,6 +11,17 @@ public abstract class ActiveSkillBase : ScriptableObject
     [SerializeField] protected float baseValue = 10f;     // 기본 수치
     [SerializeField] protected float coefficient = 1.0f;  // (마력) 계수
     [SerializeField] protected float cooldown = 5f;       // 쿨타임 (초)
+
+
+    [Header("시전 시간")]
+    [Tooltip("스킬 버튼을 누르고 실제 효과(Execute)가 발생하기까지의 준비 시간(초)")]
+    [SerializeField] protected float prepareTime = 0f;
+
+    [Tooltip("실제 시전 모션/채널링이 유지되는 시간(초). 필요에 따라 외부에서 사용")]
+    [SerializeField] protected float castTime = 0f;
+
+    [Header("출력될 수 있는 애니메이션들")]
+    [SerializeField] public List<AnimationType> animationTypes = new List<AnimationType>();
 
 
     private float lastUseTime = -999f;                    // 마지막 사용 시각
@@ -41,23 +53,45 @@ public abstract class ActiveSkillBase : ScriptableObject
         }
     }
 
-    // 스킬 사용 시도 — 사용 가능하면 실행
-    public void TryUse(GameObject user, Transform target)
+    // 스킬 사용 시도 — 사용 가능하면 Execute호출 후 true리턴, 실패하면 false리턴
+    public bool TryUse(GameObject user, Transform target)
     {
         // 아직 쿨이면 실행이 안 되고, UI에 쿨이라고 표시 (UI 만들어지면 완성할 것)
         if (!CanUse)
         {
             // TODO : UI에 재사용 대기 중이라고 띄우기
-            return;    
+            return false;    
         }
         lastUseTime = Time.time;        // 사용 시간 기록
         remainingCooldown = cooldown;   // 쿨타임 적용
-        Execute(user, target);                  // 스킬 실행
+
+        // 준비 시간이 지난 뒤에 Execute를 호출하도록 코루틴 실행
+        if (SkillManager.Instance != null)
+             SkillManager.Instance.StartCoroutine(CastRoutine(user, target));
+
+        return true;
     }
 
 
     /// 실제 스킬 효과 구현 (파생 클래스에서 반드시 정의)
     protected abstract void Execute(GameObject user, Transform target);
+    private IEnumerator CastRoutine(GameObject user, Transform target)
+    {
+        // 🔹 준비 시간 대기
+        if (prepareTime > 0f)
+            yield return new WaitForSeconds(prepareTime);
+
+        // 🔹 실제 스킬 효과 발동
+        Execute(user, target);
+
+        // 🔹 castTime은 "시전 유지 시간"으로, 필요 시 외부에서 이 값을 보고
+        //     이동/입력 제한 등을 걸 수 있게 남겨둠.
+        if (castTime > 0f)
+            yield return new WaitForSeconds(castTime);
+
+        // 여기서 castTime이 끝난 뒤에 뭔가를 해야 한다면
+        // (예: 시전 해제, 상태 복구 등) 추후 확장 가능.
+    }
 
 
     /// 기본 수치 + 마력 * 계수 계산
@@ -119,6 +153,24 @@ public abstract class ActiveSkillBase : ScriptableObject
     {
         star++;
     }
+
+    // 스킬 애니메이션 리턴
+    public AnimationType GetSkillAnimation()
+    {
+        if (animationTypes == null || animationTypes.Count == 0)
+        {
+            Debug.LogWarning($"스킬 [{skillName}]에 애니메이션이 할당되지 않았습니다.");
+            return AnimationType.Idle;   // 안전한 기본값
+        }
+
+        int index = Random.Range(0, animationTypes.Count); // 0 ~ Count-1
+        return animationTypes[index];
+    }
+
+
+    // 준비 시간/시전 시간 Getter (원하면 외부에서 참고 가능)
+    public float GetPrepareTime() => prepareTime;
+    public float GetCastTime() => castTime;
 
     // TODO : 스킬 설명 업데이트하는 함수 만들 것
 }

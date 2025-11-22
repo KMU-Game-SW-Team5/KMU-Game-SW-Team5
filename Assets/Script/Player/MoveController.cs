@@ -16,7 +16,7 @@ public class MoveController : MonoBehaviour
     [SerializeField] private float gravity = -20.0f;
 
     [Header("Animator Settings")]
-    [SerializeField] private Animator animator;
+    PlayerAnimation playerAnimation;
 
 
     private CharacterController controller;
@@ -29,6 +29,11 @@ public class MoveController : MonoBehaviour
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+    }
+
+    private void Start()
+    {
+        playerAnimation = GetComponent<PlayerAnimation>();
     }
 
     void Update()
@@ -52,6 +57,10 @@ public class MoveController : MonoBehaviour
 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+
+
+        // 이동 애니메이션 출력
+        UpdateMoveAnimation(moveDirection);
     }
 
     public void SetMoveInput(Vector2 input) => moveInput = input;
@@ -61,7 +70,29 @@ public class MoveController : MonoBehaviour
     {
         if (controller.isGrounded)
         {
+            playerAnimation.SetAnimation(AnimationType.Jump);
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
         }
     }
+
+    private void UpdateMoveAnimation(Vector3 moveDirection)
+    {
+        if (playerAnimation == null) return;
+        if (!controller.isGrounded) return; // 점프 중에는 Jump 애니에 맡김
+
+        // 평면 이동량(좌/우, 앞/뒤)
+        Vector2 planar = new Vector2(moveDirection.x, moveDirection.y);
+
+        if (planar.sqrMagnitude > 0.001f)
+        {
+            playerAnimation.SetAnimation(AnimationType.Run);
+        }
+        else
+        {
+            // 멈춰있으면 Idle
+            playerAnimation.SetAnimation(AnimationType.Idle);
+
+        }
+    }
+
 }

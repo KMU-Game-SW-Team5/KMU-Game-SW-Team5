@@ -1,9 +1,7 @@
-﻿using OpenCover.Framework.Model;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+﻿using System.Collections.Generic;
+using System.Collections;   
 using UnityEngine;
 using TMPro;
-using static UnityEngine.UI.GridLayoutGroup;
 
 
 public class SkillManager : MonoBehaviour
@@ -13,6 +11,20 @@ public class SkillManager : MonoBehaviour
 
     // 플레이어 오브젝트
     public GameObject owner { get; private set; }
+    private PlayerAnimation playerAnimation;
+    [Header("스킬 시전 위치 (플레이어 자식 오브젝트들)")]
+    [SerializeField] private Transform shotPos_Staff;
+    [SerializeField] private Transform shotPos_LeftDown;
+    [SerializeField] private Transform shotPos_Left;
+    [SerializeField] private Transform shotPos_LeftUp;
+    [SerializeField] private Transform shotPos_Up;
+    [SerializeField] private Transform shotPos_RightUp;
+    [SerializeField] private Transform shotPos_Right;
+    [SerializeField] private Transform shotPos_RightDown;
+
+    [Header("플레이어 주변에서 스킬이 나갈 거리")]
+    [SerializeField] public float frontDistance = 2f;
+    [SerializeField] public float radius = 1f;
 
     [Header("장착된 액티브 스킬 목록")]
     [SerializeField] private List<ActiveSkillBase> activeSkills = new List<ActiveSkillBase>();
@@ -48,6 +60,9 @@ public class SkillManager : MonoBehaviour
     List<SkillSlotUI> skillSlots;
     List<TextMeshProUGUI> cooldownTexts;  // 쿨다운 텍스트 배열
 
+    // 시전 중에는 스킬 입력을 막기 위한 플래그
+    private bool isCasting = false;
+
     private void Awake()
     {
         // 싱글톤 기본 코드
@@ -63,6 +78,7 @@ public class SkillManager : MonoBehaviour
 
     private void Start()
     {
+        playerAnimation = GetComponent<PlayerAnimation>();
         foreach (var skill in activeSkills)
         {
             if (skill != null)
@@ -120,21 +136,93 @@ public class SkillManager : MonoBehaviour
         forwardDirection = cam.transform.forward;
     }
 
+    // 스킬 시전 위치 Transform 리턴
+    public Transform GetCastTransform(ShotPositions shotPosition)
+    {
+        switch (shotPosition)
+        {
+            case ShotPositions.Staff:
+                return shotPos_Staff;
+
+            case ShotPositions.LeftDown:
+                return shotPos_LeftDown;
+
+            case ShotPositions.Left:
+                return shotPos_Left;
+
+            case ShotPositions.LeftUp:
+                return shotPos_LeftUp;
+
+            case ShotPositions.Up:
+                return shotPos_Up;
+
+            case ShotPositions.RightUp:
+                return shotPos_RightUp;
+
+            case ShotPositions.Right:
+                return shotPos_Right;
+
+            case ShotPositions.RightDown:
+                return shotPos_RightDown;
+
+            default:
+                return shotPos_Staff;
+        }
+    }
+
+
+
     // 스킬 키 입력시 대응되는 스킬 사용 시도
     private void HandleSkillInput()
     {
+        // 🔹 시전 중이면 모든 스킬 입력 무시
+        if (isCasting) return;
+
         for (int i = 0; i < activeSkills.Count && i < skillKeys.Length; i++)
         {
             if (Input.GetKeyDown(skillKeys[i]))
             {
-                ActiveSkillBase skill = activeSkills[i];
-                if (skill != null)
+                ActiveSkillBase activeSkill = activeSkills[i];
+                if (activeSkill != null)
                 {
-                    skill.TryUse(gameObject, CreateSkillAnchor()); // 플레이어 자신을 user로 전달, 조준한 곳의 첫 번째로 맞은 위치 전달
+                    // 플레이어 자신을 user로 전달, 조준한 곳의 첫 번째로 맞은 위치 전달
+                    bool executed = activeSkill.TryUse(gameObject, CreateSkillAnchor());
+                    if (executed)
+                    {
+                        // 어떤 애니메이션을 쓸지 먼저 뽑고
+                        AnimationType animType = activeSkill.GetSkillAnimation();
+
+                        // Straight는 "시전시간 뒤 자동 off" 버전 사용
+                        if (animType == AnimationType.Straight)
+                        {
+                            float castTime = activeSkill.GetCastTime();
+                            playerAnimation.PlayStraightFor(castTime);
+                        }
+                        else
+                        {
+                            // 나머지는 기존 방식 그대로
+                            playerAnimation.SetAnimation(animType);
+                        }
+
+                        // 🔹 준비시간 + 시전시간 동안 스킬 입력 잠금
+                        float lockDuration = activeSkill.GetPrepareTime() + activeSkill.GetCastTime();
+                        if (lockDuration > 0f)
+                            StartCoroutine(LockSkillInputCoroutine(lockDuration));
+                    }
                 }
             }
         }
     }
+
+
+    // 시전 중 일정 시간 동안 스킬 입력을 잠그는 코루틴
+    private IEnumerator LockSkillInputCoroutine(float duration)
+    {
+        isCasting = true;
+        yield return new WaitForSeconds(duration);
+        isCasting = false;
+    }
+
 
     // 액티브 스킬 추가
     public void AddActiveSkill(ActiveSkillBase newSkill)
@@ -297,6 +385,48 @@ public class SkillManager : MonoBehaviour
 
 
     // ===============================================테스트 함수들======================================================
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        // 플레이 모드가 아닐 때만
+        if (!Application.isPlaying)
+        {
+            // 기준 방향: 플레이어 기준 (원하면 카메라 기준으로 바꿀 수도 있음)
+            Vector3 forward = Camera.main.transform.forward;
+            Vector3 right = Camera.main.transform.right;
+            Vector3 up = Camera.main.transform.up;
+
+            // 기준점: 플레이어 위치에서 forward로 frontDistance만큼 나간 지점
+            Vector3 center = transform.position + forward * frontDistance;
+
+            // Staff는 직접 손으로 맞출 수 있게 두고
+            // 나머지 7개는 frontDistance + radius로 자동 배치
+
+            if (shotPos_LeftDown != null)
+                shotPos_LeftDown.position = center + (-right - up).normalized * radius;
+
+            if (shotPos_Left != null)
+                shotPos_Left.position = center + (-right) * radius;
+
+            if (shotPos_LeftUp != null)
+                shotPos_LeftUp.position = center + (-right + up).normalized * radius;
+
+            if (shotPos_Up != null)
+                shotPos_Up.position = center + (up) * radius;
+
+            if (shotPos_RightUp != null)
+                shotPos_RightUp.position = center + (right + up).normalized * radius;
+
+            if (shotPos_Right != null)
+                shotPos_Right.position = center + (right) * radius;
+
+            if (shotPos_RightDown != null)
+                shotPos_RightDown.position = center + (right - up).normalized * radius;
+        }
+    }
+#endif
+
+
     // Start()에서 호출되어야 하는 테스트 함수들의 집합
     public void TestMethodsInStart()
     {
