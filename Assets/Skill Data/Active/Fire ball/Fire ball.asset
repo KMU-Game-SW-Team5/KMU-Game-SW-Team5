@@ -12,12 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 308b2936cbe43b945885bc09b72d2cec, type: 3}
   m_Name: Fire ball
   m_EditorClassIdentifier: 
-  skillName: 
+  skillName: "\uD30C\uC774\uC5B4\uBCFC"
   icon: {fileID: 21300000, guid: 9f69b220176e6964fbd87f5f158d45e3, type: 3}
   describe: 
   baseValue: 10
   coefficient: 1
   cooldown: 2
+  prepareTime: 0.25
+  castTime: 0
+  animationTypes: 07000000
   projectilePrefab: {fileID: 5099431166652583641, guid: 18fd82d41bb8c5f4da5c6b40dffc6b3f, type: 3}
   projectileSpeed: 100
   lifeTime: 5
@@ -25,9 +28,10 @@ MonoBehaviour:
   projectileMotion: {fileID: 11400000, guid: cbd820820019a854f8f6484d84dc0813, type: 2}
   motionSpeed: 1
   distanceOffset: 10
-  branchCount: 10
-  burstCount: 11
+  branchCount: 3
+  burstCount: 2
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4
   decayK: 0.4
+  shotPositions: 0000000001000000020000000300000004000000050000000600000007000000

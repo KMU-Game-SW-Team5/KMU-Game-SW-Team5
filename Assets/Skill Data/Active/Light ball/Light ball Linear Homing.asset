@@ -18,20 +18,20 @@ MonoBehaviour:
   baseValue: 10
   coefficient: 1
   cooldown: 5
-  prepareTime: 0
-  castTime: 0
-  animationTypes: 
-  projectilePrefab: {fileID: 0}
+  prepareTime: 0.25
+  castTime: 3
+  animationTypes: 03000000
+  projectilePrefab: {fileID: 2089860787992684173, guid: 3d53bec11ec83cb47bcd20a7eb615632, type: 3}
   projectileSpeed: 20
   lifeTime: 5
   penetrable: 0
-  projectileMotion: {fileID: 0}
-  motionSpeed: 1
+  projectileMotion: {fileID: 11400000, guid: 05dbd8165b79bb54b85e2e551d2ecb85, type: 2}
+  motionSpeed: 50
   distanceOffset: 10
-  branchCount: 1
-  burstCount: 1
+  branchCount: 3
+  burstCount: 72
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4
   decayK: 0.4
-  shotPositions: 
+  shotPositions: 01000000020000000300000004000000050000000600000007000000

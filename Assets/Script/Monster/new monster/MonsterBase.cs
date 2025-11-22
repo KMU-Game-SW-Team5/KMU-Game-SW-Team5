@@ -63,6 +63,10 @@ public abstract class MonsterBase : MonoBehaviour
     private Color[] originalColors;
     private bool originalColorsCached = false;
 
+    [Header("=== UI ===")]
+    [Tooltip("데미지 텍스트가 기준으로 삼을 머리 위치. 비워두면 transform.position 기준.")]
+    [SerializeField] private Transform damageTextAnchor;
+
 
 
     protected virtual void Awake()
@@ -170,10 +174,14 @@ public abstract class MonsterBase : MonoBehaviour
     {
         if (isDead) return;
 
-        currentHealth -= dmg * (1f + additionalDamageRate);
-        // 데미지 제대로 들어가는지 로그
-        //Debug.Log($"{name} took {dmg} damage");
-        //Debug.Log($"{name}'s current HP : {currentHealth}");
+        float finalDamage = dmg * (1f + additionalDamageRate);
+        currentHealth -= finalDamage;
+
+        // 🔹 데미지 텍스트
+        CombatUIManager.Instance?.ShowDamageText(finalDamage, GetDamageTextAnchor(), false);
+
+        // 🔹 에임 포인터에 타격 효과 전달
+        CombatUIManager.Instance?.aimPointer.OnDealDamage(finalDamage);
 
         OnHit(attacker);
 
@@ -217,13 +225,21 @@ public abstract class MonsterBase : MonoBehaviour
     private System.Collections.IEnumerator DOTCoroutine(float dps, float duration)
     {
         float timer = 0f;
+        float tickInterval = 1f;   // 1초마다 한 번씩 타격
+
+        // duration 동안 1초마다 반복
         while (timer < duration && IsAlive)
         {
-            TakeDamage(dps * Time.deltaTime);
-            timer += Time.deltaTime;
-            yield return null;
+            // 1) 데미지 1틱 적용
+            TakeDamage(dps);   // ⚠️ 여기서 dps는 "1초마다 들어갈 피해량" 의미로 쓰는 거야
+
+            // 2) 다음 틱까지 대기
+            float wait = Mathf.Min(tickInterval, duration - timer);
+            yield return new WaitForSeconds(wait);
+            timer += wait;
         }
     }
+
 
     // ---------------------------
     // 상태 업데이트
@@ -440,4 +456,13 @@ public abstract class MonsterBase : MonoBehaviour
             r.material.color = originalColors[i];
         }
     }
+
+
+    // 데미지 텍스트 기준 위치 반환 (없으면 자기 transform)
+    public Transform GetDamageTextAnchor()
+    {
+        return damageTextAnchor != null ? damageTextAnchor : this.transform;
+    }
+
+
 }
