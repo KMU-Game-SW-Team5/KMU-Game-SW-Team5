@@ -22,7 +22,7 @@ public class SkillManager : MonoBehaviour
     [SerializeField] private Transform shotPos_Right;
     [SerializeField] private Transform shotPos_RightDown;
 
-    [Header("플레이어 주변에서 스킬이 나갈 거리")]
+    [Header("스킬 시전 위치 조절")]
     [SerializeField] public float frontDistance = 2f;
     [SerializeField] public float radius = 1f;
 
@@ -38,8 +38,23 @@ public class SkillManager : MonoBehaviour
     [Header("스킬 발동 키 설정")]
     [SerializeField] private KeyCode[] skillKeys = { KeyCode.Q, KeyCode.E, KeyCode.R, KeyCode.F };
 
-    [Header("에임 오프셋")]
-    [SerializeField] public Vector3 aimOffset;  // 스킬이 시전되는 위치의 공통 오프셋
+    [Header("기본 공격")]
+    [SerializeField] private ActiveSkillBase basicAttackSkill; // 기본 공격에 사용할 액티브 스킬
+    [SerializeField, Tooltip("초당 몇 번까지 기본 공격 가능한지")]
+    private float basicAttackRate = 1f;  
+
+    // 내부용: 마지막 기본 공격 시각
+    private float lastBasicAttackTime = -999f;
+
+    // rate → 쿨타임(초) 변환
+    private float BasicAttackCooldown
+    {
+        get
+        {
+            if (basicAttackRate <= 0f) return 99999f;
+            return 1f / basicAttackRate;
+        }
+    }
 
     [Header("스탯")]
     [SerializeField] public float magicStat = 10f;  // 마력 스탯 
@@ -115,6 +130,7 @@ public class SkillManager : MonoBehaviour
         UpdateSkillsCooldown();
 
         // 입력 처리 
+        HandleBasicAttackInput();
         HandleSkillInput();
     }
 
@@ -170,6 +186,54 @@ public class SkillManager : MonoBehaviour
         }
     }
 
+
+    // 🔸 기본 공격 입력 처리 (좌클릭)
+    private void HandleBasicAttackInput()
+    {
+        // 시전 중에는 기본 공격도 막기
+        if (isCasting) return;
+
+        // 기본 공격 스킬이 없으면 패스
+        if (basicAttackSkill == null) return;
+
+        // 공격 속도 설정이 0 이하이면 사용 불가
+        if (basicAttackRate <= 0f) return;
+
+        // 좌클릭 (꾹 누르고 있으면 자동 공격처럼 동작)
+        if (!Input.GetMouseButton(0))
+            return;
+
+        // 공격 속도(초당 횟수)에 따른 쿨타임 체크
+        if (Time.time < lastBasicAttackTime + BasicAttackCooldown)
+            return;
+
+        // 실제로 스킬 사용 시도 (기존 액티브 스킬 로직 재사용)
+        bool executed = basicAttackSkill.TryUse(gameObject, CreateSkillAnchor());
+
+        if (executed)
+        {
+            lastBasicAttackTime = Time.time;
+
+            // 어떤 애니메이션 쓸지 뽑기
+            AnimationType animType = basicAttackSkill.GetSkillAnimation();
+
+            // Straight는 시전시간 동안 유지해서 끄는 버전
+            if (animType == AnimationType.Straight)
+            {
+                float castTime = basicAttackSkill.GetCastTime();
+                playerAnimation.PlayStraightFor(castTime);
+            }
+            else
+            {
+                playerAnimation.SetAnimation(animType);
+            }
+
+            // 준비시간 + 시전시간 동안 다른 스킬 입력 잠금
+            float lockDuration = basicAttackSkill.GetPrepareTime() + basicAttackSkill.GetCastTime();
+            if (lockDuration > 0f)
+                StartCoroutine(LockSkillInputCoroutine(lockDuration));
+        }
+    }
 
 
     // 스킬 키 입력시 대응되는 스킬 사용 시도

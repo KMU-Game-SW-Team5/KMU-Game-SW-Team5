@@ -23,8 +23,24 @@ public class CombatUIManager : MonoBehaviour
     {
         if (damageTextPrefab == null || target == null) return;
 
+        // 1) 카메라 확보
+        Camera cam = SkillManager.cam != null ? SkillManager.cam : Camera.main;
+        if (cam == null) return;
+
+        // 2) 몬스터가 화면 안에 있는지 체크
+        Vector3 viewportPos = cam.WorldToViewportPoint(target.position);
+
+        // z <= 0 이면 카메라 뒤쪽
+        if (viewportPos.z <= 0f)
+            return;
+
+        // 화면 밖(좌/우/위/아래)이면 표시 안 함
+        if (viewportPos.x < 0f || viewportPos.x > 1f ||
+            viewportPos.y < 0f || viewportPos.y > 1f)
+            return;
+
         Transform canvasT = GetComponentInParent<Canvas>().transform;
-        GameObject go = Instantiate(damageTextPrefab, canvasT);
+        GameObject go = ObjectPooler.Instance.SpawnInParent(damageTextPrefab, canvasT);
 
         DamageTextUI ui = go.GetComponent<DamageTextUI>();
         if (ui != null)

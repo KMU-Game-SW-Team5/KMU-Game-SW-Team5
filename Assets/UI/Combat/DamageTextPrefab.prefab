@@ -149,6 +149,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 1912419575940059384}
   lifeTime: 0.7
+  DamageTextObjectRef: {fileID: 2112914933767844937}
   screenJitterRadius: 40
   floatUpPixels: 40
   alphaCurve:

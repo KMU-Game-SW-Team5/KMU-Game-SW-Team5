@@ -45,9 +45,6 @@ public class PlayerAnimation : MonoBehaviour
                 SetBaseRun();
                 break;
 
-            case AnimationType.Jump:
-                PlayJump();
-                break;
 
             // =====================
             // Action Layer (지팡이 액션 등)
@@ -85,10 +82,15 @@ public class PlayerAnimation : MonoBehaviour
                 break;
 
             // =====================
-            // Add Layer (피격 등)
+            // Add Layer (피격, 점프 등)
             // =====================
             case AnimationType.Hit:
                 animator.SetTrigger(HashHit);
+                break;
+
+            case AnimationType.Jump:
+                SetBaseIdle();
+                PlayJump();
                 break;
         }
     }
@@ -107,9 +109,6 @@ public class PlayerAnimation : MonoBehaviour
     {
         if (animator == null) return;
         currentBaseLayerState = AnimationType.Run;
-
-        // ※ AnimationType은 Run이지만
-        //    Animator 파라미터 이름은 "Running"이라고 가정
         animator.SetBool(HashRunning, true);
     }
 

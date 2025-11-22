@@ -5,6 +5,8 @@ public class DamageTextUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private float lifeTime = 0.7f;
+    [SerializeField] private GameObject DamageTextObjectRef;
+
 
     [Header("스크린 좌표에서 상하좌우 랜덤 오프셋 범위 (픽셀)")]
     [SerializeField] private float screenJitterRadius = 40f;    // 좌우/상하 랜덤
@@ -78,7 +80,7 @@ public class DamageTextUI : MonoBehaviour
 
         if (t >= 1f)
         {
-            Destroy(gameObject);
+            Despawn();
             return;
         }
 
@@ -110,5 +112,10 @@ public class DamageTextUI : MonoBehaviour
             c.a = alphaCurve != null ? alphaCurve.Evaluate(t) : (1f - t);
             text.color = c;
         }
+    }
+
+    private void Despawn()
+    {
+        ObjectPooler.Instance.Despawn(DamageTextObjectRef, gameObject);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
 public abstract class MonsterBase : MonoBehaviour
 {
     [Header("=== HP ===")]
@@ -32,7 +31,7 @@ public abstract class MonsterBase : MonoBehaviour
     [Header("=== Animation & Physics ===")]
     public float deathAnimationDuration = 3f;
 
-    protected Rigidbody rb;
+    [SerializeField] protected Rigidbody rb;
     protected Animator animator;
 
     [Header("=== Target ===")]

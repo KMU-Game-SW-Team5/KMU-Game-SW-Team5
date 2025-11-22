@@ -13,6 +13,7 @@ public class ProjectileComponent : MonoBehaviour
 
     private GameObject projectilePrefabRef; // 오브젝트 풀링 키
     private SkillManager skillManager;      // 싱글톤 SkillManager
+    private TrailRenderer trailRenderer;
 
 
     // ---------------------------------------------------------------------
@@ -28,6 +29,8 @@ public class ProjectileComponent : MonoBehaviour
 
         // 싱글톤 SkillManager 가져오기
         skillManager = SkillManager.Instance;
+
+        trailRenderer = GetComponent<TrailRenderer>();
     }
 
     private void OnEnable()
@@ -37,6 +40,8 @@ public class ProjectileComponent : MonoBehaviour
 
     private void ResetState()
     {
+        if (trailRenderer != null)
+            trailRenderer.Clear();
         lifetime = Mathf.Max(lifetime, 0f);
     }
 
