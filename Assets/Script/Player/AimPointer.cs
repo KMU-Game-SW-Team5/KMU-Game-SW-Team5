@@ -17,6 +17,7 @@ public class AimPointer : MonoBehaviour
 
     void OnGUI()
     {
+        if(Time.timeScale == 0f) return;
         float x = Screen.width / 2f - pointerSize / 2f;
         float y = Screen.height / 2f - pointerSize / 2f;
 
