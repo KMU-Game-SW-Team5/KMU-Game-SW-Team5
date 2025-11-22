@@ -6,14 +6,20 @@ public class MapMaker : MonoBehaviour
 {
     [Header("방의 개수")]
     public int roomCount = 10;              // 생성할 방의 개수
+
     [Header("방의 크기(기본 40)")]
     public int roomSize = 1;        // 방 크기
+
     [Header("맵관련 프리팹")] 
     public GameObject floor;        // 바닥 프리팹
     public GameObject wall;         // 벽 프리팹 
     public GameObject wallDoor;     // 문이 있는 벽 프리팹 
     public GameObject ceiling;      // 천장 프리팹
     public GameObject boss;         // 보스몹 프리팹
+
+    [Header("몬스터 수")]
+    public int monsterMin = 15;
+    public int monsterMax = 15;
 
     private HashSet<Vector3> TempSet = new HashSet<Vector3>();
     private HashSet<Vector3> PositionSet = new HashSet<Vector3>();
@@ -65,11 +71,11 @@ public class MapMaker : MonoBehaviour
                 // (0,0,0) 위치면 시작 방, 아니면 일반 방으로 설정
                 if (nowPosition == Vector3.zero)
                 {
-                    roomMgr.Setup(RoomType.Start);
+                    roomMgr.Setup(RoomType.Start, monsterMin, monsterMax);
                 }
                 else
                 {
-                    roomMgr.Setup(RoomType.Normal);
+                    roomMgr.Setup(RoomType.Normal, monsterMin, monsterMax);
                 }
             }
 

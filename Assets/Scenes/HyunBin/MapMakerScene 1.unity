@@ -578,6 +578,8 @@ MonoBehaviour:
   wallDoor: {fileID: 7891159075151969132, guid: 27f0420f6fb56753696ccb3b35815626, type: 3}
   ceiling: {fileID: 8368730452213065613, guid: 4ff4717d98446913fb05bebeab1f30f9, type: 3}
   boss: {fileID: 3734514952603696834, guid: 93e940917986146a1be4fa243e74d77c, type: 3}
+  monsterMin: 25
+  monsterMax: 25
 --- !u!4 &1557583933
 Transform:
   m_ObjectHideFlags: 0
