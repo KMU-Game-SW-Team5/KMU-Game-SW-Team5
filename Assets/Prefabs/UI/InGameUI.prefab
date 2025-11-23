@@ -5832,6 +5832,8 @@ MonoBehaviour:
   bossNameUI: {fileID: 805468292458031067}
   levelUpUI: {fileID: 5314786556007207523}
   levelUpPanel: {fileID: 7305229872717196550}
+  endingUI: {fileID: 0}
+  endingPanel: {fileID: 0}
   skillSlots: []
   skillKeysTexts: []
   cooldownTexts: []

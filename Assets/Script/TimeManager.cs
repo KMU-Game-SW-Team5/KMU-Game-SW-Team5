@@ -16,6 +16,8 @@ public class TimeManager : MonoBehaviour
     double elapsed; // 누적 시간
     bool isDay = true;
 
+    public double Elapsed => elapsed;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)

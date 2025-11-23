@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 [RequireComponent(typeof(Rigidbody))] 
 public class MonsterController : MonoBehaviour
@@ -169,9 +170,11 @@ public class MonsterController : MonoBehaviour
         
         rb.isKinematic = true; // 사망 시 물리 정지
         rb.velocity = Vector3.zero;
-        GetComponent<Collider>().enabled = false; 
+        GetComponent<Collider>().enabled = false;
 
-        
+        // Kill Counter 반영
+        KillCounter.Instance.AddMonsterKill();
+
         Destroy(gameObject, deathAnimationDuration);
     }
 }

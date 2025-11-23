@@ -5,17 +5,10 @@ using UnityEngine;
 public class BossUIBinder : MonoBehaviour
 {
     private BossController boss;
-    [SerializeField] private InGameUIManager inGameUIManager;
-
-    private void Awake()
-    {
-        if (inGameUIManager == null)
-            inGameUIManager = GetComponent<InGameUIManager>();
-    }
 
     private void OnEnable()
     {
-        if (inGameUIManager == null || BossManager.Instance == null)
+        if (BossManager.Instance == null)
         {
             Debug.LogWarning("BossUIBinder: 참조가 비어 있습니다.");
             return;
@@ -33,18 +26,18 @@ public class BossUIBinder : MonoBehaviour
 
     private void HandleHPChanged(int currentHP, int maxHP)
     {
-        inGameUIManager.UpdateBossHPUI((float)currentHP, (float)maxHP);
+        InGameUIManager.Instance.UpdateBossHPUI((float)currentHP, (float)maxHP);
     }
 
     private void HandleBossAppeared(int currentHP, int maxHP)
     {
         // string bossName = boss.bossName; // 필요한 경우 호출 후, 아래함수의 매개변수로 삽입
-        inGameUIManager.AppearBossUI((float)currentHP, (float)maxHP);
+        InGameUIManager.Instance.AppearBossUI((float)currentHP, (float)maxHP);
     }
 
     private void HandleBossDisappeared()
     {
-        inGameUIManager.DisappearBossUI();
+        InGameUIManager.Instance.DisappearBossUI();
     }
 
     private void HandleBossSpawned(BossController newBoss)
@@ -62,6 +55,6 @@ public class BossUIBinder : MonoBehaviour
         boss.OnAppeared -= HandleBossAppeared;
         boss.OnDisappeared -= HandleBossDisappeared;
 
-        inGameUIManager.DisappearBossUI();
+        InGameUIManager.Instance.DisappearBossUI();
     }
 }

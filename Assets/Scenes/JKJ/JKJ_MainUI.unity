@@ -707,9 +707,33 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1948408728844398609, guid: 1cad41233ce031f49bdb39a4cc8cb070, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5867533068480925210, guid: 1cad41233ce031f49bdb39a4cc8cb070, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6357022119646244510, guid: 1cad41233ce031f49bdb39a4cc8cb070, type: 3}
       propertyPath: m_Name
       value: MainUIRoot
+      objectReference: {fileID: 0}
+    - target: {fileID: 6868833778946991805, guid: 1cad41233ce031f49bdb39a4cc8cb070, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7094563574022458457, guid: 1cad41233ce031f49bdb39a4cc8cb070, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7094563574022458457, guid: 1cad41233ce031f49bdb39a4cc8cb070, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7094563574022458457, guid: 1cad41233ce031f49bdb39a4cc8cb070, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -37,6 +37,7 @@ public class Player : MonoBehaviour
     void Die()
     {
         Debug.Log("플레이어가 쓰러졌습니다.");
+        GameManager.Instance.EndGame(false);
         Time.timeScale = 0f;
     }
 

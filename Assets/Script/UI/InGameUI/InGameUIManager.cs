@@ -18,6 +18,9 @@ public class InGameUIManager : MonoBehaviour
     [Header("LevelUp UI")]
     [SerializeField] LevelUpUI levelUpUI;
     [SerializeField] GameObject levelUpPanel;
+    [Header("Ending UI")]
+    [SerializeField] EndingUI endingUI;
+    [SerializeField] GameObject endingPanel;
     [Header("Etc")]
     [HideInInspector] public List<SkillSlotUI> skillSlots = new List<SkillSlotUI>();    // 동적 List
     [HideInInspector] public List<TextMeshProUGUI> skillKeysTexts = new List<TextMeshProUGUI>();  // 동적 List
@@ -132,4 +135,18 @@ public class InGameUIManager : MonoBehaviour
     // About Minimap
     // -----------------------------
     // public void UpdateMinimap(Sprite newMinimap) { minimapUI.SetMinimap(newMinimap); }
+
+    // -----------------------------
+    // About EndingUI
+    // -----------------------------
+    public void ShowEndingUI(GameResult gameResult)
+    {
+        endingPanel.SetActive(true);
+        endingUI.SetRecordValue(gameResult);
+    }
+
+    public void HideEndingUI()
+    {
+        endingPanel.SetActive(false);
+    }
 }

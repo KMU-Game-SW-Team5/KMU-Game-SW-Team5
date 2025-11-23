@@ -8,8 +8,13 @@ public class BossManager : MonoBehaviour
     public event Action<BossController> OnBossSpawned;
     public event Action<BossController> OnBossDied;
 
-    void Awake()
+    private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
     }
 
