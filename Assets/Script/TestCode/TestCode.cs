@@ -27,7 +27,7 @@ public class TestCode : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.W)) inGameUIManager.UpdatePlayerHPUI(5,100);
 
         // e: 보스 등장
-        if (Input.GetKeyDown(KeyCode.E)) inGameUIManager.AppearBossUI(980, "ABC");
+        if (Input.GetKeyDown(KeyCode.E)) inGameUIManager.AppearBossUI(980, 980, "ABC");
 
         // r: 보스 사라짐
         if (Input.GetKeyDown(KeyCode.R)) inGameUIManager.UpdateBossHPUI(500, 980);

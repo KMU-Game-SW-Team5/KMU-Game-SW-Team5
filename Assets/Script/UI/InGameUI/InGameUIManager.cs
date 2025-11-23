@@ -58,11 +58,11 @@ public class InGameUIManager : MonoBehaviour
     // -----------------------------
     // About BossMonster
     // -----------------------------
-    public void AppearBossUI(float maxHP, string bossName = "BossMonster")
+    public void AppearBossUI(float newHP, float maxHP, string bossName = "BossMonster")
     {
         bossStatusPanel.SetActive(true);
         bossNameUI.text = bossName;
-        UpdateBossHPUI(maxHP, maxHP);
+        UpdateBossHPUI(newHP, maxHP);
     }
     public void DisappearBossUI() { bossStatusPanel.SetActive(false); }
     public void UpdateBossHPUI(float newHP, float maxHP) { bossHPUI.SetPointUI(newHP, maxHP); }

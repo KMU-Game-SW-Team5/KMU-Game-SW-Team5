@@ -291,6 +291,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 1547043882}
   inGameUIManager: {fileID: 832308492}
+--- !u!114 &832308503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488956347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cf36e19ab50f5144a2496739de58ee8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boss: {fileID: 0}
+  inGameUIManager: {fileID: 832308492}
 --- !u!1 &1056307277
 GameObject:
   m_ObjectHideFlags: 0
@@ -750,6 +764,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8917923036304510279, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 832308498}
+    - targetCorrespondingSourceObject: {fileID: 8917923036304510279, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 832308503}
   m_SourcePrefab: {fileID: 100100000, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
 --- !u!1 &2077880359
 GameObject:

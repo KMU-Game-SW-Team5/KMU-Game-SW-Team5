@@ -7,7 +7,7 @@ public class PlayerLevelUIBinder : MonoBehaviour
 
     private void Awake()
     {
-        if(inGameUIManager != null)
+        if(inGameUIManager == null)
             inGameUIManager = GetComponent<InGameUIManager>();
     }
 

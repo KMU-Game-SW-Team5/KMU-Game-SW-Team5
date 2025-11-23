@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -24,11 +25,17 @@ public class BossController : MonoBehaviour
 
     private Animator animator;
 
+    // [UI 연결] HP 변화 이벤트 
+    private bool isPlayerDetected = false;
+    public event Action<int, int> OnHPChanged;
+    public event Action<int, int> OnAppeared;
+    public event Action OnDisappeared;
+
     void Start()
     {
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody>();
-        
+
         animator = GetComponentInChildren<Animator>();
         if (animator == null)
         {
@@ -55,6 +62,7 @@ public class BossController : MonoBehaviour
             if (distance <= detectionRange && distance > attackRange)
             {
                 MoveTowardsPlayer();
+                HandlePlayerDetected();
                 animator.SetFloat("Speed", 1f); 
             }
             else if (distance <= attackRange)
@@ -64,6 +72,7 @@ public class BossController : MonoBehaviour
             }
             else
             {
+                HandlePlayerLost();
                 animator.SetFloat("Speed", 0f);
             }
         }
@@ -147,6 +156,9 @@ public class BossController : MonoBehaviour
         currentHealth -= damage;
         Debug.Log("보스 체력: " + currentHealth);
 
+        // UI 연결
+        OnHPChanged?.Invoke(currentHealth, maxHealth);
+
         if (!hasEnteredPhase2 && currentHealth <= 500 && currentHealth > 0)
         {
             attackRange = 100f;
@@ -169,13 +181,42 @@ public class BossController : MonoBehaviour
         isDead = true;
 
         Debug.Log("보스가 쓰러졌습니다.");
-        
+
+        // UI 연결
+        HandlePlayerLost();
+
         animator.SetTrigger("Die"); 
 
         rb.isKinematic = true;
         rb.velocity = Vector3.zero;
         GetComponent<Collider>().enabled = false;
 
+        // UI 관련 이벤트 함수 제거를 위한 보스 사라짐 알림
+        BossManager.Instance.UnregisterBoss(this);
+
         Destroy(gameObject, deathAnimationDuration);
+    }
+
+    // UI 연결
+    void HandlePlayerDetected()
+    {
+        if (isPlayerDetected)
+        {
+            // 이미 감지 된 경우
+            return;
+        }
+        else
+        {
+            // 새롭게 감지된 경우
+            OnAppeared?.Invoke(currentHealth, maxHealth);
+            isPlayerDetected = true;
+        }
+    }
+
+    // UI 연결
+    void HandlePlayerLost()
+    {
+        isPlayerDetected = false;
+        OnDisappeared?.Invoke();
     }
 }
