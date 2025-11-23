@@ -13,14 +13,9 @@ public class Debuff_AdditionalDamageEffect : IHitEffect
 
     public void Apply(HitContext ctx)
     {
-        if (ctx.target.TryGetComponent<NormalMonster>(out var monster))
+        if (ctx.target.TryGetComponent<MonsterBase>(out var monster))
         {
             monster.TakeDebuff_AdditionalDamage(rate, duration);
-
-        }
-        else if (ctx.target.TryGetComponent<BossMonster>(out var boss))
-        {
-            boss.TakeDebuff_AdditionalDamage(rate, duration);
         }
     }
 }

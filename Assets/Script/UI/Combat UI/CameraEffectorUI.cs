@@ -31,6 +31,14 @@ public class CameraEffectorUI : MonoBehaviour
     private Coroutine blinkRoutine;
     private Coroutine hitFlashRoutine;
 
+
+    [SerializeField] private Transform camTransform;
+    [SerializeField] private float defaultShakeIntensity = 0.5f;
+    [SerializeField] private float defaultShakeDuration = 0.2f;
+
+    private Coroutine shakeCo;
+    private Vector3 originalLocalPos;
+
     private void Awake()
     {
         if (lowHpCanvas != null)
@@ -41,6 +49,11 @@ public class CameraEffectorUI : MonoBehaviour
 
         if (lowHpImage != null)
             GenerateVignette(lowHpImage);
+    }
+
+    private void Start()
+    {
+        camTransform = Camera.main.transform;
     }
 
     private void GenerateVignette(Image targetImage)
@@ -158,6 +171,38 @@ public class CameraEffectorUI : MonoBehaviour
 
         hitFlashCanvas.alpha = 0f;
         hitFlashRoutine = null;
+    }
+
+
+
+    public void StartCameraShake(float intensity, float duration)
+    {
+        if (shakeCo != null)
+            StopCoroutine(shakeCo);
+        shakeCo = StartCoroutine(ShakeRoutine(intensity, duration));
+    }
+
+    private System.Collections.IEnumerator ShakeRoutine(float intensity, float duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            // 점점 줄어드는 진폭
+            float current = intensity * (1f - t);
+
+            Vector3 offset = Random.insideUnitSphere * current;
+            offset.z = 0f; // 필요하면 Z는 고정
+
+            camTransform.localPosition = originalLocalPos + offset;
+
+            yield return null;
+        }
+
+        camTransform.localPosition = originalLocalPos;
+        shakeCo = null;
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 public class CombatUIManager : MonoBehaviour
 {
     public static CombatUIManager Instance { get; private set; }
@@ -10,12 +11,34 @@ public class CombatUIManager : MonoBehaviour
     [SerializeField] private GameObject damageTextPrefab;
 
     [Header("Screen Effects")]
-    [SerializeField] private CameraEffectorUI cameraEffector; // 🔹 여기 하나만 참조
+    [SerializeField] private CameraEffectorUI cameraEffector;
 
+    [Header("Skill Panel")]
+    [SerializeField] private GameObject skillPanel;
+
+    [Header("Stat Panel")]
+    [SerializeField] private TextMeshProUGUI magicStatText;
+    [SerializeField] private TextMeshProUGUI attackSpeedText;
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+    }
+
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.Tab))
+        {
+            skillPanel.SetActive(true);
+        }
+        else
+        {
+            skillPanel.SetActive(false);
+        }
+
+        // 추후 최적화 할 것
+        magicStatText.text = SkillManager.Instance.GetMagicStat().ToString();
+        attackSpeedText.text = SkillManager.Instance.GetAttackSpeed().ToString();
     }
 
     // 적이 받은 피해 표시(MonsterBase.TakeDamage()에서 호출)
@@ -67,6 +90,13 @@ public class CombatUIManager : MonoBehaviour
     public void PlayHitEffect(float intensity01 = 1f)
     {
         cameraEffector?.PlayHitFlash(intensity01);
+    }
+
+
+    // 카메라 진동 효과
+    public void PlayCameraShake(float intensity, float duration)
+    {
+        cameraEffector?.StartCameraShake(intensity, duration);
     }
 }
 

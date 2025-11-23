@@ -16,7 +16,7 @@ public class SlowEffect : IHitEffect
     {
 
         // MonsterBase 기반 몬스터인지 확인
-        if (ctx.target.TryGetComponent<NormalMonster>(out var monster))
+        if (ctx.target.TryGetComponent<MonsterBase>(out var monster))
         {
             monster.TakeSlow(1 - slowRate, slowDuration);
         }

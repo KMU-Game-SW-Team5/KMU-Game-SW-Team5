@@ -21,7 +21,7 @@ public class DotDamageEffect : IHitEffect
             monster.TakeDOT(dps, duration);
         }
         // 보스 몬스터는 데미지 반으로 감소
-        else if (ctx.target.TryGetComponent<BossMonster>(out var boss))
+        else if (ctx.target.TryGetComponent<BossDragon>(out var boss))
         {
             boss.TakeDOT(dps*0.5f, duration);
         }

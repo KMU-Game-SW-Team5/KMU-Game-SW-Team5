@@ -16,14 +16,16 @@ public class AimPointerUI : MonoBehaviour
     [SerializeField] private Color normalColor = Color.white;          // 평소 색
     [SerializeField] private Color hitColor = new Color(1f, 0.2f, 0.2f); // 강타시 붉은색
 
-    [Header("데미지 → 강도 변환")]
-    [SerializeField] private float damageScaleK = 100f; // 클수록 더 천천히 강해짐
-
     [Header("이펙트 시간 / 커브")]
     [SerializeField] private float effectDuration = 0.15f;
     [SerializeField]
     private AnimationCurve intensityCurve =
         AnimationCurve.EaseInOut(0f, 1f, 1f, 0f); // 처음 강하고 점점 줄어드는 형태
+
+    [Header("시그모이드 강도 곡선")]
+    [SerializeField] private float sigmoidMidDamage = 100f;   // 변곡점이 되는 데미지 (여기서 intensity ≒ 0.5)
+    [SerializeField] private float sigmoidMaxSlope = 0.02f;   // 변곡점에서의 최대 기울기(근사). 클수록 더 급격하게 올라감
+
 
     private Coroutine effectCo;
     private float currentIntensity = 0f;   // 0~1, 이번 히트의 “세기”
@@ -43,13 +45,21 @@ public class AimPointerUI : MonoBehaviour
     // 데미지를 넣을 때마다 호출. 반복 호출되면 강도만 갱신하여 재시작.
     public void OnDealDamage(float damage)
     {
-        // 1) 데미지를 0~1 사이 강도로 압축 (포화 함수)
-        //    t = damage / (damage + k)
-        float t = damage / (damage + damageScaleK);
+        // 음수 방지
+        damage = Mathf.Max(0f, damage);
+
+        // 1) 로지스틱 시그모이드 파라미터 계산
+        //    표준형: s(x) = 1 / (1 + exp(-k(x - x0)))
+        //    이때 x0 = 변곡점(sigmoidMidDamage), s'(x0) = k/4 ≒ sigmoidMaxSlope
+        float maxSlope = Mathf.Max(0.0001f, sigmoidMaxSlope);
+        float k = maxSlope * 4f; // 내부 steepness
+
+        float x = damage - sigmoidMidDamage;
+        float t = 1f / (1f + Mathf.Exp(-k * x)); // 0~1 사이 시그모이드
+
         float newIntensity = Mathf.Clamp01(t);
 
-        // 2) 이미 이펙트가 돌고 있다면,
-        //    기존 intensity와 비교해서 더 강한 쪽을 사용 (연속 히트 대비)
+        // 2) 이미 돌고 있던 이펙트랑 합성 (더 강한 쪽 우선)
         currentIntensity = Mathf.Max(currentIntensity, newIntensity);
 
         // 3) 코루틴 다시 시작해서 효과 리셋 (짧은 타격감이 계속 이어지게)

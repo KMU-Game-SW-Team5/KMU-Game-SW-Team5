@@ -28,6 +28,13 @@ public class AS_ProjectType : ActiveSkillBase
 
     private Transform target;   // 목표 위치
 
+    public override void Initialize()
+    {
+        base.Initialize();
+        branchCount = 1;
+        burstCount = 1;
+    }
+
     // ============================================================
     // 스킬 사용 실행
     // ============================================================

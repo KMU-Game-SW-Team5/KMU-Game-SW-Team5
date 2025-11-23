@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: 
   icon: {fileID: 21300000, guid: e5f8e29c0eb39d74e9509b0469b5204c, type: 3}
-  describe: 
+  descriptionTemplate: Throw Dark Ball {damage}
   baseValue: 10
   coefficient: 1
   cooldown: 5
@@ -28,8 +28,8 @@ MonoBehaviour:
   projectileMotion: {fileID: 11400000, guid: 4fde45d831405db46bbec451aae91804, type: 2}
   motionSpeed: 5
   distanceOffset: 10
-  branchCount: 3
-  burstCount: 2
+  branchCount: 21
+  burstCount: 20
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4

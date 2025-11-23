@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: 
   icon: {fileID: 0}
-  describe: 
+  descriptionTemplate: shot light ball linearlly ({damage})
   baseValue: 10
   coefficient: 1
   cooldown: 5

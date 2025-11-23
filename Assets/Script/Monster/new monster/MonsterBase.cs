@@ -67,6 +67,11 @@ public abstract class MonsterBase : MonoBehaviour
     [SerializeField] private Transform damageTextAnchor;
 
 
+    [Header("=== CC Immunity ===")]
+    [SerializeField] protected bool isCCImmune = false;
+    protected float ccImmuneTimer = 0f;
+
+
 
     protected virtual void Awake()
     {
@@ -191,6 +196,7 @@ public abstract class MonsterBase : MonoBehaviour
     // 2) 슬로우 처리
     public virtual void TakeSlow(float multiplier, float duration)
     {
+        if (isDead || isCCImmune) return;
         if (multiplier < slowMultiplier) // 더 강한 슬로우만 반영
         {
             slowMultiplier = multiplier;
@@ -201,6 +207,7 @@ public abstract class MonsterBase : MonoBehaviour
     // 3) 스턴 처리
     public virtual void TakeStun(float duration)
     {
+        if (isDead || isCCImmune) return;
         isStunned = true;
         stunTimer = duration;
         ApplyColor(Color_Frozen);
@@ -462,6 +469,50 @@ public abstract class MonsterBase : MonoBehaviour
     {
         return damageTextAnchor != null ? damageTextAnchor : this.transform;
     }
+
+    // 비행 모드 전환 
+    protected void SetFlyingMode(bool flying)
+    {
+        isFlying = flying;
+
+        if (rb != null)
+        {
+            rb.useGravity = !isFlying;
+
+            if (isFlying)
+            {
+                // 중력 끄면서 이상한 낙하 속도 남지 않도록
+                rb.velocity = Vector3.zero;
+            }
+        }
+    }
+
+    // CC 해제 + 일정 시간 CC 면역
+    // immunityDuration <= 0이면 그냥 CC만 해제하고, 면역은 안 줌
+    protected void ClearCrowdControl(float immunityDuration = 0f)
+    {
+        // 스턴/슬로우 전부 해제
+        isStunned = false;
+        stunTimer = 0f;
+
+        slowMultiplier = 1f;
+        slowDuration = 0f;
+
+        // 애니메이션 속도 원상 복구
+        UpdateAnimatorSpeed();
+
+        // 색도 원래대로 (빙결 색 같은 것 복원)
+        RestoreOriginalColor();
+
+        // 입력된 시간 동안 CC 면역
+        if (immunityDuration > 0f)
+        {
+            isCCImmune = true;
+            ccImmuneTimer = immunityDuration;
+        }
+    }
+
+
 
 
 }
