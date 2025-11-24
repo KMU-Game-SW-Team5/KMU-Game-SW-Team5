@@ -5,6 +5,7 @@ using UnityEngine;
 public class BossUIBinder : MonoBehaviour
 {
     private BossController boss;
+    private BossMonsterBase boss_1;
     private Boss2Controller boss2;
     private Boss3Controller boss3;
 
@@ -24,6 +25,9 @@ public class BossUIBinder : MonoBehaviour
 
         BossManager.Instance.OnBoss3Spawned += HandleBossSpawned;
         BossManager.Instance.OnBoss3Died += HandleBossDied;
+
+        BossManager.Instance.OnBossMonsterSpawned += HandleBossSpawned;
+        BossManager.Instance.OnBossMonsterDied += HandleBossDied;
     }
 
     private void OnDisable()
@@ -36,6 +40,9 @@ public class BossUIBinder : MonoBehaviour
 
         BossManager.Instance.OnBoss3Spawned -= HandleBossSpawned;
         BossManager.Instance.OnBoss3Died -= HandleBossDied;
+
+        BossManager.Instance.OnBossMonsterSpawned -= HandleBossSpawned;
+        BossManager.Instance.OnBossMonsterDied -= HandleBossDied;
     }
 
     private void HandleHPChanged(int currentHP, int maxHP)
@@ -51,6 +58,24 @@ public class BossUIBinder : MonoBehaviour
 
     private void HandleBossDisappeared()
     {
+        InGameUIManager.Instance.DisappearBossUI();
+    }
+
+    private void HandleBossSpawned(BossMonsterBase newBoss)
+    {
+        boss_1 = newBoss;
+
+        boss_1.OnHPChanged += HandleHPChanged;
+        boss_1.OnAppeared += HandleBossAppeared;
+        boss_1.OnDisappeared += HandleBossDisappeared;
+    }
+
+    private void HandleBossDied(BossMonsterBase deadBoss)
+    {
+        boss_1.OnHPChanged -= HandleHPChanged;
+        boss_1.OnAppeared -= HandleBossAppeared;
+        boss_1.OnDisappeared -= HandleBossDisappeared;
+
         InGameUIManager.Instance.DisappearBossUI();
     }
 

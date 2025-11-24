@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public abstract class BossMonsterBase : MonsterBase
 {
@@ -6,6 +7,13 @@ public abstract class BossMonsterBase : MonsterBase
     [SerializeField] protected bool hasEnteredPhase2 = false;
     [SerializeField] protected float phase2Threshold = 500f; // 이 값은 보스별로 인스펙터에서 조절
     [SerializeField] protected float phase2AttackRange = 100f; // 2페이즈 공격 사거리
+
+    // [UI 연결] HP 변화 이벤트 
+    private bool isPlayerDetected = false;
+    public event Action<int, int> OnHPChanged;
+    public event Action<int, int> OnAppeared;
+    public event Action OnDisappeared;
+
 
     protected override void Awake()
     {
@@ -43,6 +51,7 @@ public abstract class BossMonsterBase : MonsterBase
         if (distance <= detectionRange && distance > attackRange)
         {
             MoveBossTowards(player.position);   // ★ 여기로 변경
+            HandlePlayerDetected();
             SetMoveAnimation(true);
         }
         // 공격 범위 안 → 공격 패턴 실행
@@ -53,6 +62,7 @@ public abstract class BossMonsterBase : MonsterBase
         }
         else
         {
+            HandlePlayerLost();
             SetMoveAnimation(false);
         }
     }
@@ -77,6 +87,9 @@ public abstract class BossMonsterBase : MonsterBase
         if (isDead) return;
 
         base.TakeDamage(dmg, attacker); // HP 감소 + 0 이하 시 Die 호출
+
+        // UI 연결
+        OnHPChanged?.Invoke((int)currentHealth, maxHealth);
 
         // 이미 죽었으면 추가 로직 안 타도록
         if (isDead) return;
@@ -156,11 +169,42 @@ public abstract class BossMonsterBase : MonsterBase
     {
         // 기본 보스는 맞았을 때 특별히 아무것도 안 함
         // 자식 클래스에서 animator.SetTrigger("Hit") 같이 덮어써도 됨
+        // UI 연결
+        OnHPChanged?.Invoke((int)currentHealth, maxHealth);
     }
 
     protected override void OnDeath(GameObject killer)
     {
         // 기본 보스는 여기서 특별한 연출 없음
         // 자식 클래스에서 보스 전용 드랍, 포탈 생성, 클리어 UI 등 구현
+        // UI 연결
+        HandlePlayerLost();
+        // UI 관련 이벤트 함수 제거를 위한 보스 사라짐 알림
+        BossManager.Instance.UnregisterBoss(this);
+        // Kill Counter 반영
+        KillCounter.Instance.AddBossKill();
+    }
+
+    // UI 연결
+    void HandlePlayerDetected()
+    {
+        if (isPlayerDetected)
+        {
+            // 이미 감지 된 경우
+            return;
+        }
+        else
+        {
+            // 새롭게 감지된 경우
+            OnAppeared?.Invoke((int)currentHealth, maxHealth);
+            isPlayerDetected = true;
+        }
+    }
+
+    // UI 연결
+    void HandlePlayerLost()
+    {
+        isPlayerDetected = false;
+        OnDisappeared?.Invoke();
     }
 }

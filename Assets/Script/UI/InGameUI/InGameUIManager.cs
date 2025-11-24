@@ -32,7 +32,6 @@ public class InGameUIManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        waveTimerUI.SetRatio(TimeManager.Instance.DayRatio);
         skillSlots = new List<SkillSlotUI>(GetComponentsInChildren<SkillSlotUI>());
         skillKeysTexts = new List<TextMeshProUGUI>(GetComponentsInChildren<TextMeshProUGUI>());
         FilterSkillKeyTexts();
@@ -40,10 +39,17 @@ public class InGameUIManager : MonoBehaviour
         FilterCooldownTexts();
     }
 
+    private void Start()
+    {
+        waveTimerUI.SetRatio(TimeManager.Instance.DayRatio);
+        TimeManager.Instance.OnCycleProgress += waveTimerUI.UpdateRotation;
+        TimeManager.Instance.OnDayRatioChanged += waveTimerUI.SetRatio;
+    }
+
     void OnEnable()
     {
-        TimeManager.Instance.OnCycleProgress += waveTimerUI.UpdateRotation; 
-        TimeManager.Instance.OnDayRatioChanged += waveTimerUI.SetRatio;
+        //TimeManager.Instance.OnCycleProgress += waveTimerUI.UpdateRotation; 
+        //TimeManager.Instance.OnDayRatioChanged += waveTimerUI.SetRatio;
     }
     void OnDisable()
     {

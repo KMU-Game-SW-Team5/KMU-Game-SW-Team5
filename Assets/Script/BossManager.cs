@@ -5,6 +5,9 @@ public class BossManager : MonoBehaviour
 {
     public static BossManager Instance { get; private set; }
 
+    public event Action<BossMonsterBase> OnBossMonsterSpawned;
+    public event Action<BossMonsterBase> OnBossMonsterDied;
+
     public event Action<BossController> OnBossSpawned;
     public event Action<BossController> OnBossDied;
 
@@ -23,15 +26,26 @@ public class BossManager : MonoBehaviour
         Instance = this;
     }
 
+    public void RegisterBoss(BossMonsterBase boss)
+    {
+        OnBossMonsterSpawned?.Invoke(boss);
+    }
+
+    public void UnregisterBoss(BossMonsterBase boss)
+    {
+        OnBossMonsterDied?.Invoke(boss);
+    }
+
     public void RegisterBoss(BossController boss)
     {
         OnBossSpawned?.Invoke(boss);
-    }
+    }    
 
     public void UnregisterBoss(BossController boss)
     {
         OnBossDied?.Invoke(boss);
     }
+    
 
     public void RegisterBoss(Boss2Controller boss)
     {

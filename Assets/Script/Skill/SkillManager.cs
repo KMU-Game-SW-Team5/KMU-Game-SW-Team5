@@ -178,6 +178,7 @@ public class SkillManager : MonoBehaviour
     // 캠 위치 리턴하는 클래스 함수
     public static Vector3 GetCameraPosition()
     {
+        if (cam == null) cam = Camera.main;
         return cam.transform.position;
     }
 
