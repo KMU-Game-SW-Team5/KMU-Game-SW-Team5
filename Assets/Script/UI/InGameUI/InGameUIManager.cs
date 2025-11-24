@@ -18,18 +18,21 @@ public class InGameUIManager : MonoBehaviour
     [Header("LevelUp UI")]
     [SerializeField] LevelUpUI levelUpUI;
     [SerializeField] GameObject levelUpPanel;
+    [Header("Ending UI")]
+    [SerializeField] EndingUI endingUI;
+    [SerializeField] GameObject endingPanel;
     [Header("Etc")]
     [HideInInspector] public List<SkillSlotUI> skillSlots = new List<SkillSlotUI>();    // 동적 List
     [HideInInspector] public List<TextMeshProUGUI> skillKeysTexts = new List<TextMeshProUGUI>();  // 동적 List
     [HideInInspector] public List<TextMeshProUGUI> cooldownTexts = new List<TextMeshProUGUI>();  // 동적 List
     [SerializeField] MinimapUI minimapUI;
     [SerializeField] WaveTimerUI waveTimerUI;
-    [SerializeField] TimeManager timeManager;
+    //[SerializeField] TimeManager timeManager;
 
     void Awake()
     {
         Instance = this;
-        waveTimerUI.SetRatio(timeManager.DayRatio);
+        waveTimerUI.SetRatio(TimeManager.Instance.DayRatio);
         skillSlots = new List<SkillSlotUI>(GetComponentsInChildren<SkillSlotUI>());
         skillKeysTexts = new List<TextMeshProUGUI>(GetComponentsInChildren<TextMeshProUGUI>());
         FilterSkillKeyTexts();
@@ -39,13 +42,13 @@ public class InGameUIManager : MonoBehaviour
 
     void OnEnable()
     {
-        timeManager.OnCycleProgress += waveTimerUI.UpdateRotation; 
-        timeManager.OnDayRatioChanged += waveTimerUI.SetRatio;
+        TimeManager.Instance.OnCycleProgress += waveTimerUI.UpdateRotation; 
+        TimeManager.Instance.OnDayRatioChanged += waveTimerUI.SetRatio;
     }
     void OnDisable()
     {
-        timeManager.OnCycleProgress -= waveTimerUI.UpdateRotation;
-        timeManager.OnDayRatioChanged -= waveTimerUI.SetRatio;
+        TimeManager.Instance.OnCycleProgress -= waveTimerUI.UpdateRotation;
+        TimeManager.Instance.OnDayRatioChanged -= waveTimerUI.SetRatio;
     }
 
     // -----------------------------
@@ -58,11 +61,11 @@ public class InGameUIManager : MonoBehaviour
     // -----------------------------
     // About BossMonster
     // -----------------------------
-    public void AppearBossUI(float maxHP, string bossName = "BossMonster")
+    public void AppearBossUI(float newHP, float maxHP, string bossName = "BossMonster")
     {
         bossStatusPanel.SetActive(true);
         bossNameUI.text = bossName;
-        UpdateBossHPUI(maxHP, maxHP);
+        UpdateBossHPUI(newHP, maxHP);
     }
     public void DisappearBossUI() { bossStatusPanel.SetActive(false); }
     public void UpdateBossHPUI(float newHP, float maxHP) { bossHPUI.SetPointUI(newHP, maxHP); }
@@ -132,4 +135,18 @@ public class InGameUIManager : MonoBehaviour
     // About Minimap
     // -----------------------------
     // public void UpdateMinimap(Sprite newMinimap) { minimapUI.SetMinimap(newMinimap); }
+
+    // -----------------------------
+    // About EndingUI
+    // -----------------------------
+    public void ShowEndingUI(GameResult gameResult)
+    {
+        endingPanel.SetActive(true);
+        endingUI.SetRecordValue(gameResult);
+    }
+
+    public void HideEndingUI()
+    {
+        endingPanel.SetActive(false);
+    }
 }

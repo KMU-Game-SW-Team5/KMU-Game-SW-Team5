@@ -4152,6 +4152,7 @@ GameObject:
   - component: {fileID: 7502711054128473299}
   - component: {fileID: 1533887216022376462}
   - component: {fileID: 6005667815165334090}
+  - component: {fileID: 1319096417957916734}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Monster
@@ -4216,10 +4217,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.095216796
+  m_Radius: 0.19820519
   m_Height: 1.7634228
   m_Direction: 1
-  m_Center: {x: -0.008507541, y: 0.914349, z: 0.019255145}
+  m_Center: {x: 0.0071910857, y: 0.914349, z: 0.019255161}
 --- !u!114 &1533887216022376462
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4238,7 +4239,6 @@ MonoBehaviour:
   maxHealth: 1000
   attackDamage: 2
   attackCooldown: 1
-  deathAnimationDuration: 2
 --- !u!54 &6005667815165334090
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4247,8 +4247,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5691873227718448165}
   serializedVersion: 4
-  m_Mass: 10000
-  m_Drag: 1
+  m_Mass: 1
+  m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -4264,8 +4264,31 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 116
+  m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!136 &1319096417957916734
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5691873227718448165}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.19820519
+  m_Height: 1.7634228
+  m_Direction: 1
+  m_Center: {x: 0.0071910857, y: 0.914349, z: 0.019255161}
 --- !u!1 &5899605428103565905
 GameObject:
   m_ObjectHideFlags: 0

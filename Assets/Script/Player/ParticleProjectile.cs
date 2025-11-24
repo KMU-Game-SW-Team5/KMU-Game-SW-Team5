@@ -41,9 +41,24 @@ public class ParticleProjectile : MonoBehaviour
         // 몬스터 충돌 체크
         if (other.CompareTag("Monster") || root.CompareTag("Monster"))
         {
-            Debug.Log($"[Particle] Monster hit detected on {other.name}");
+            
+            
+            MonsterController monster = other.GetComponentInParent<MonsterController>();
+            if (monster != null)
+            {
+                
+                monster.TakeDamage(Damage); 
+                
+            }
+            else
+            {
+                
+                
+            }
+
             EventManager.MonsterHit();
-            targetHit = true;
+            Destroy(gameObject);
+            return;
         }
         // 보스 충돌 체크
         else if (other.CompareTag("Boss") || root.CompareTag("Boss"))

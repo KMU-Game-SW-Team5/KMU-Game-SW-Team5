@@ -258,6 +258,9 @@ public class MapMaker : MonoBehaviour
     {
         bossPosition.y += 20;
         GameObject newfloor = Instantiate(boss, bossPosition, Quaternion.identity);
+
+        BossController bossController = newfloor.GetComponent<BossController>();
+        BossManager.Instance.RegisterBoss(bossController);
     }
 
 
