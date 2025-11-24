@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(AudioSource))]
 public class MoveController : MonoBehaviour
 {
     [Header("Rotation Settings")]
@@ -19,21 +20,38 @@ public class MoveController : MonoBehaviour
     private PlayerAnimation playerAnimation;
 
     [Header("Skill Move Settings")]
-    [SerializeField] private bool isSkillMoving = false;   // ½ºÅ³ Æ¯¼ö ÀÌµ¿ ÁßÀÎÁö
-    [SerializeField] private bool skillUsesGravity = true; // Æ¯¼ö ÀÌµ¿¿¡µµ Áß·ÂÀ» Àû¿ëÇÒÁö
-    private Vector3 skillVelocity;                         // Æ¯¼ö ÀÌµ¿ ¼Óµµ
-    private float skillMoveRemaining = 0f;                 // ³²Àº Æ¯¼ö ÀÌµ¿ ½Ã°£
+    [SerializeField] private bool isSkillMoving = false;   // ï¿½ï¿½Å³ Æ¯ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    [SerializeField] private bool skillUsesGravity = true; // Æ¯ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    private Vector3 skillVelocity;                         // Æ¯ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½Óµï¿½
+    private float skillMoveRemaining = 0f;                 // ï¿½ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½Ã°ï¿½
 
     private CharacterController controller;
-    private Vector3 velocity;      // ÀÏ¹İ ÀÌµ¿¿ë ¼öÁ÷ ¼Óµµ(y) µî
+    private Vector3 velocity;      // ï¿½Ï¹ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½(y) ï¿½ï¿½
     private Vector2 moveInput;
     private Vector2 lookInput;
     private bool isRunning;
     private float xRotation = 0f;
 
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] walkClips; // ê±·ëŠ” ì†Œë¦¬ (ì—¬ëŸ¬ ê°œ ë„£ì–´ì„œ ëœë¤ ì¬ìƒ)
+    [SerializeField] private AudioClip[] runClips;  // ë›°ëŠ” ì†Œë¦¬
+    [SerializeField] private AudioClip jumpClip;    // ì í”„ ì†Œë¦¬
+
+
+    [Range(0.1f, 2.0f)] 
+    [SerializeField] private float walkDelay = 0.6f; // ê±·ì„ ë•Œ ì†Œë¦¬ ê°„ê²© (ì´ˆ)
+    
+    [Range(0.1f, 2.0f)] 
+    [SerializeField] private float runDelay = 0.35f; // ë›¸ ë•Œ ì†Œë¦¬ ê°„ê²© (ì´ˆ)
+    private float stepTimer = 0f;
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+        if (audioSource == null) 
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
     }
 
     private void Start()
@@ -43,7 +61,7 @@ public class MoveController : MonoBehaviour
 
     void Update()
     {
-        // ¸¶¿ì½º È¸Àü(½Ã¾ß)Àº Æ¯¼ö ÀÌµ¿ Áß¿¡µµ ±×´ë·Î À¯Áö
+        // ï¿½ï¿½ï¿½ì½º È¸ï¿½ï¿½(ï¿½Ã¾ï¿½)ï¿½ï¿½ Æ¯ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ß¿ï¿½ï¿½ï¿½ ï¿½×´ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         transform.Rotate(Vector3.up * lookInput.x * lookSensitivity * Time.deltaTime);
 
         xRotation -= lookInput.y * lookSensitivity * Time.deltaTime;
@@ -51,14 +69,14 @@ public class MoveController : MonoBehaviour
         if (cameraMount != null)
             cameraMount.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-        // 1) ½ºÅ³ Æ¯¼ö ÀÌµ¿ ÁßÀÌ¸é ¿©±â¼­¸¸ ÀÌµ¿ Ã³¸®ÇÏ°í Á¾·á
+        // 1) ï¿½ï¿½Å³ Æ¯ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½â¼­ï¿½ï¿½ ï¿½Ìµï¿½ Ã³ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (isSkillMoving)
         {
             UpdateSkillMove();
             return;
         }
 
-        // 2) ÀÏ¹İ ÀÌµ¿ ·ÎÁ÷ (¿ø·¡ ÄÚµå)
+        // 2) ï¿½Ï¹ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½)
         if (controller.isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
@@ -66,28 +84,31 @@ public class MoveController : MonoBehaviour
 
         float currentSpeed = isRunning ? runSpeed : walkSpeed;
         Vector3 moveDirection = (transform.right * moveInput.x + transform.forward * moveInput.y).normalized;
+
         controller.Move(moveDirection * currentSpeed * Time.deltaTime);
+
+        HandleFootstepsWithDelay();
 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
 
-        // ÀÌµ¿ ¾Ö´Ï¸ŞÀÌ¼Ç Ãâ·Â
+        // ï¿½Ìµï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½
         UpdateMoveAnimation(moveDirection);
     }
 
-    // ¿ÜºÎ(½ºÅ³)¿¡¼­ È£ÃâÇÒ Æ¯¼ö ÀÌµ¿ ½ÃÀÛ ÇÔ¼ö
+    // ï¿½Üºï¿½(ï¿½ï¿½Å³)ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
     public void StartSkillMove(Vector3 worldDirection, float horizontalSpeed, 
         float upwardSpeed, float duration, bool useGravity = true)
     {
         if (controller == null) return;
 
-        // ¹æÇâ Á¤¸®
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         worldDirection.y = 0f;
         if (worldDirection.sqrMagnitude < 0.0001f)
             worldDirection = transform.forward;
         worldDirection.Normalize();
 
-        // Æ¯¼ö ÀÌµ¿ ¼Óµµ ¼³Á¤
+        // Æ¯ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
         skillVelocity = worldDirection * horizontalSpeed;
         skillVelocity.y = upwardSpeed;
 
@@ -95,18 +116,18 @@ public class MoveController : MonoBehaviour
         skillUsesGravity = useGravity;
         isSkillMoving = true;
 
-        // ÀÏ¹İ ÀÌµ¿ »óÅÂ ÃÊ±âÈ­(¿É¼ÇÀÌÁö¸¸ °ÅÀÇ ÇÊ¼ö)
+        // ï¿½Ï¹ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­(ï¿½É¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¼ï¿½)
         moveInput = Vector2.zero;
         velocity = Vector3.zero;
 
-        // ¾Ö´Ï¸ŞÀÌ¼Çµµ ¿©±â¼­ Á¡ÇÁ/´ë½Ã °°Àº °É ÄÑÁÙ ¼ö ÀÖÀ½
+        // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼Çµï¿½ ï¿½ï¿½ï¿½â¼­ ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (playerAnimation != null)
         {
             playerAnimation.SetAnimation(AnimationType.Jump);
         }
     }
 
-    // Æ¯¼ö ÀÌµ¿ ¾÷µ¥ÀÌÆ®
+    // Æ¯ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     private void UpdateSkillMove()
     {
         if (controller == null)
@@ -115,24 +136,24 @@ public class MoveController : MonoBehaviour
             return;
         }
 
-        // ¼öÆò ÀÌµ¿
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
         Vector3 horizontal = new Vector3(skillVelocity.x, 0f, skillVelocity.z);
         controller.Move(horizontal * Time.deltaTime);
 
-        // ¼öÁ÷ ÀÌµ¿
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
         if (skillUsesGravity)
         {
             skillVelocity.y += gravity * Time.deltaTime;
         }
         controller.Move(Vector3.up * skillVelocity.y * Time.deltaTime);
 
-        // ÀÜ¿© ½Ã°£ °¨¼Ò
+        // ï¿½Ü¿ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½
         skillMoveRemaining -= Time.deltaTime;
 
-        // ¾Ö´Ï¸ŞÀÌ¼Ç °»½Å (Áö»ó/°øÁß ¿©ºÎ´Â ÇÔ¼ö¿¡¼­ Ã¼Å©)
+        // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î´ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©)
         UpdateMoveAnimation(horizontal);
 
-        // Á¾·á Á¶°Ç: ½Ã°£ ´Ù µÊ ¶Ç´Â ¹Ù´Ú¿¡ ÂøÁöÇÏ¸é¼­ ³»·Á°¡´Â Áß
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: ï¿½Ã°ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½Ù´Ú¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸é¼­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
         if (skillMoveRemaining <= 0f || (controller.isGrounded && skillVelocity.y <= 0f))
         {
             isSkillMoving = false;
@@ -146,7 +167,7 @@ public class MoveController : MonoBehaviour
 
     public void Jump()
     {
-        // Æ¯¼ö ÀÌµ¿ Áß¿¡´Â Á¡ÇÁ ¸·±â
+        // Æ¯ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ß¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (isSkillMoving) return;
 
         if (controller.isGrounded)
@@ -155,13 +176,57 @@ public class MoveController : MonoBehaviour
                 playerAnimation.SetAnimation(AnimationType.Jump);
 
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+            
+            audioSource.pitch = 1.0f;
+            audioSource.PlayOneShot(jumpClip);
+        }
+    }
+
+    private void HandleFootstepsWithDelay()
+    {
+        
+        if (moveInput == Vector2.zero) 
+        {
+            stepTimer = 0f;
+            return;
+        }
+
+        stepTimer += Time.deltaTime;
+
+        
+        float currentDelay = isRunning ? runDelay : walkDelay;
+
+        
+        if (stepTimer >= currentDelay)
+        {
+            PlayFootstepAudio();
+            stepTimer = 0f;
+        }
+    }
+
+    // ì˜¤ë””ì˜¤ ì¬ìƒ í•¨ìˆ˜
+    private void PlayFootstepAudio()
+    {
+        if (audioSource == null) return;
+        AudioClip[] clips = isRunning ? runClips : walkClips;
+        
+        if (clips != null && clips.Length > 0)
+        {
+            int index = Random.Range(0, clips.Length);
+            
+            if (clips[index] != null)
+            {
+                Debug.Log($"[Sound] ë°œì†Œë¦¬ ì¬ìƒ! (ì‹œê°„: {Time.time:F2}ì´ˆ / íŒŒì¼ëª…: {clips[index].name})");
+                audioSource.pitch = Random.Range(0.9f, 1.1f);
+                audioSource.PlayOneShot(clips[index]);
+            }
         }
     }
 
     private void UpdateMoveAnimation(Vector3 moveDirection)
     {
         if (playerAnimation == null) return;
-        if (!controller.isGrounded) return; // Á¡ÇÁ/µµ¾à Áß¿¡´Â Jump ¾Ö´Ï¸ŞÀÌ¼Ç¿¡ ¸Ã±è
+        if (!controller.isGrounded) return; // ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½ß¿ï¿½ï¿½ï¿½ Jump ï¿½Ö´Ï¸ï¿½ï¿½Ì¼Ç¿ï¿½ ï¿½Ã±ï¿½
 
         Vector2 planar = new Vector2(moveDirection.x, moveDirection.z);
 

@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IDamageable
 {
     public int maxHealth = 100;
     public int hp = 100;
@@ -16,11 +18,16 @@ public class Player : MonoBehaviour
     private bool isInvincible = false;
     private Coroutine invincibleCo;
 
+    // HP 변화 이벤트 -> UI 연결
+    public event Action<int, int> OnHPChanged;
+
     void Start()
     {
         hp = maxHealth;
         moveController = GetComponent<MoveController>();
         playerAnimation = GetComponent<PlayerAnimation>();
+
+        OnHPChanged?.Invoke(hp, maxHealth);
     }
 
     public void TakeDamage(int damage)
@@ -34,6 +41,7 @@ public class Player : MonoBehaviour
         CombatUIManager.Instance?.PlayHitEffect();
         LowHPEffect();
         playerAnimation.SetAnimation(AnimationType.Hit);
+        OnHPChanged?.Invoke(hp, maxHealth);
 
         if (hp <= 0)
         {
@@ -62,6 +70,7 @@ public class Player : MonoBehaviour
     void Die()
     {
         Debug.Log("플레이어가 쓰러졌습니다.");
+        GameManager.Instance.EndGame(false);
         Time.timeScale = 0f;
     }
 

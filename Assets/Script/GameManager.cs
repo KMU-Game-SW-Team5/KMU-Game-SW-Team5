@@ -7,6 +7,12 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private LayerMask ignoreLayerMaskWithRay;  // 스킬 타겟팅에서 무시할 레이어
 
+    // Ending을 위한 필드
+    [SerializeField] private InGameUIManager inGameUIManager;
+    [SerializeField] private TimeManager timeManager;
+    [SerializeField] private PlayerLevelSystem playerLevelSystem;
+    [SerializeField] private KillCounter killCounter;
+
     private void Awake()
     {
         // 싱글톤 중복 방지
@@ -43,4 +49,24 @@ public class GameManager : MonoBehaviour
         return ignoreLayerMaskWithRay;
     }
 
+    /// <summary>
+    /// 게임 종료 시 호출 (매개변수는 bool값이며, true : Clear, false : Game Over)
+    /// </summary>
+    public void EndGame(bool isClear)
+    {
+        if (timeManager == null || playerLevelSystem == null || killCounter == null)
+        {
+            Debug.LogError("GameManager : 참조 null");
+            return;
+        }
+
+        GameResult result = new GameResult(
+            isClear,
+            (float)timeManager.Elapsed,
+            playerLevelSystem.Level,
+            killCounter.TotalKills
+        );
+
+        inGameUIManager.ShowEndingUI(result);
+    }
 }

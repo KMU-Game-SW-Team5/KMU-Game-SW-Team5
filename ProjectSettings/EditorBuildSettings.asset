@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MapMakerScene.unity
     guid: 83383591cdf5b604a963994436f0113f
+  - enabled: 1
+    path: Assets/Scenes/JKJ/JKJ_MapMakerScene.unity
+    guid: ba35dda720bacba42b58c7bc42c9574f
   m_configObjects: {}
