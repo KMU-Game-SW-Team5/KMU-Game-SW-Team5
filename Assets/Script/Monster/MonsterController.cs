@@ -40,9 +40,9 @@ public class MonsterController : MonoBehaviour, IDamageable
     private float lastProgress = 0f; 
     private GameObject currentAttackSoundObject; 
 
-    // ▼▼▼ [추가] 현재 실행 중인 공격 코루틴을 저장할 변수 ▼▼▼
+    
     private Coroutine runningAttackCoroutine; 
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    
 
     void Start()
     {
@@ -73,24 +73,21 @@ public class MonsterController : MonoBehaviour, IDamageable
         {
             float distance = Vector3.Distance(transform.position, player.position);
 
-            // 1. 이동 상태
+            
             if (distance <= detectionRange && distance > attackRange)
             {
-                // ▼▼▼ [수정] 이동 시작 시 공격 취소 (애니메이션, 사운드, 데미지 모두 중단) ▼▼▼
                 CancelAttack();
-                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+                
 
                 MoveTowardsPlayer();
                 if(animator != null) animator.SetFloat("Speed", 1f);
                 CheckDualFootsteps();
             }
-            // 2. 공격 상태
             else if (distance <= attackRange)
             {
                 AttackPlayer();
                 if(animator != null) animator.SetFloat("Speed", 0f);
             }
-            // 3. 대기 상태
             else
             {
                 if(animator != null) animator.SetFloat("Speed", 0f);
@@ -102,30 +99,28 @@ public class MonsterController : MonoBehaviour, IDamageable
         }
     }
 
-    // ▼▼▼ [추가] 공격을 강제로 중단시키는 함수 ▼▼▼
     void CancelAttack()
     {
-        // 1. 진행 중인 공격 코루틴(딜레이, 데미지 처리) 강제 종료
         if (runningAttackCoroutine != null)
         {
             StopCoroutine(runningAttackCoroutine);
             runningAttackCoroutine = null;
         }
 
-        // 2. 재생 중인 공격 사운드 끄기
+        
         if (currentAttackSoundObject != null)
         {
             Destroy(currentAttackSoundObject);
             currentAttackSoundObject = null;
         }
 
-        // 3. 애니메이터의 공격 명령 예약 취소
+        
         if (animator != null)
         {
             animator.ResetTrigger("Attack");
         }
     }
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    
 
     void CheckDualFootsteps()
     {
@@ -261,10 +256,8 @@ public class MonsterController : MonoBehaviour, IDamageable
 
         Debug.Log("몬스터가 쓰러졌습니다.");
         
-        // ▼▼▼ [수정] 죽을 때도 공격 취소! ▼▼▼
         CancelAttack();
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-
+        
         if (deathClip != null)
         {
             AudioSource.PlayClipAtPoint(deathClip, transform.position, 5.0f);
@@ -275,6 +268,9 @@ public class MonsterController : MonoBehaviour, IDamageable
         rb.isKinematic = true; 
         rb.velocity = Vector3.zero;
         GetComponent<Collider>().enabled = false; 
+
+        // Kill Counter 반영
+        KillCounter.Instance.AddMonsterKill();
 
         Destroy(gameObject, deathAnimationDuration);
     }

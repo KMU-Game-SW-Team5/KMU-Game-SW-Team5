@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(AudioSource))]
@@ -37,7 +38,13 @@ public class BossController : MonoBehaviour, IDamageable
     [SerializeField] private AudioClip basicAttackClip; 
     [SerializeField] private AudioClip clawAttackClip;  
     [SerializeField] private AudioClip flameAttackClip; 
-    [SerializeField] private AudioClip flyAttackClip;   
+    [SerializeField] private AudioClip flyAttackClip; 
+
+    // [UI 연결] HP 변화 이벤트 
+    private bool isPlayerDetected = false;
+    public event Action<int, int> OnHPChanged;
+    public event Action<int, int> OnAppeared;
+    public event Action OnDisappeared;  
 
     private float lastNormalizedTime; 
 
@@ -106,11 +113,11 @@ public class BossController : MonoBehaviour, IDamageable
         
         if (currentClips == null || currentClips.Length == 0) return;
 
-        int index = Random.Range(0, currentClips.Length);
+        int index = UnityEngine.Random.Range(0, currentClips.Length);
         
         if (currentClips[index] != null)
         {
-            audioSource.pitch = Random.Range(0.8f, 0.95f);
+            audioSource.pitch = UnityEngine.Random.Range(0.8f, 0.95f);
             audioSource.PlayOneShot(currentClips[index]);
         }
     }
@@ -121,7 +128,7 @@ public class BossController : MonoBehaviour, IDamageable
         if (audioSource != null && clip != null)
         {
             
-            audioSource.pitch = Random.Range(0.95f, 1.05f);
+            audioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
             audioSource.PlayOneShot(clip);
         }
     }
@@ -195,6 +202,9 @@ public class BossController : MonoBehaviour, IDamageable
     {
         if (isDead) return; 
         currentHealth -= damage;
+
+        // UI 연결
+        OnHPChanged?.Invoke(currentHealth, maxHealth);
         
         if (!hasEnteredPhase2 && currentHealth <= 500 && currentHealth > 0)
         {
@@ -210,6 +220,11 @@ public class BossController : MonoBehaviour, IDamageable
     {
         if (isDead) return;
         isDead = true;
+
+        Debug.Log("보스 사망");
+
+        // UI 연결
+        HandlePlayerLost();
         
         if (deathClip != null)
         {
@@ -220,6 +235,34 @@ public class BossController : MonoBehaviour, IDamageable
         rb.isKinematic = true;
         rb.velocity = Vector3.zero;
         GetComponent<Collider>().enabled = false;
+
+        // UI 관련 이벤트 함수 제거를 위한 보스 사라짐 알림
+        BossManager.Instance.UnregisterBoss(this);
+        // Kill Counter 반영
+        KillCounter.Instance.AddBossKill();
+
         Destroy(gameObject, deathAnimationDuration);
+    }
+    // UI 연결
+    void HandlePlayerDetected()
+    {
+        if (isPlayerDetected)
+        {
+            // 이미 감지 된 경우
+            return;
+        }
+        else
+        {
+            // 새롭게 감지된 경우
+            OnAppeared?.Invoke(currentHealth, maxHealth);
+            isPlayerDetected = true;
+        }
+    }
+
+    // UI 연결
+    void HandlePlayerLost()
+    {
+        isPlayerDetected = false;
+        OnDisappeared?.Invoke();
     }
 }

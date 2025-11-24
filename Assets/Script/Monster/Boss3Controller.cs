@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(AudioSource))]
@@ -34,8 +35,8 @@ public class Boss3Controller : MonoBehaviour, IDamageable
     public Transform muzzleTransform; 
     public float spreadAngle = 3f;
     
-    // ▼▼▼ [추가] Attack 1의 딜레이 시간 설정 변수 ▼▼▼
-    public float attack1Delay = 0.5f; // 기본 0.5초 (인스펙터에서 조절)
+    
+    public float attack1Delay = 0.5f;
     public float attack2Delay = 0.5f; 
 
     [Header("Audio Settings")]
@@ -44,7 +45,13 @@ public class Boss3Controller : MonoBehaviour, IDamageable
     [SerializeField] private AudioClip deathClip;
 
     [SerializeField] private AudioClip attack1Clip; 
-    [SerializeField] private AudioClip attack2Clip; 
+    [SerializeField] private AudioClip attack2Clip;
+
+    // [UI 연결] HP 변화 이벤트 
+    private bool isPlayerDetected = false;
+    public event Action<int, int> OnHPChanged;
+    public event Action<int, int> OnAppeared;
+    public event Action OnDisappeared;  
 
     private float lastProgress = 0f; 
 
@@ -137,10 +144,10 @@ public class Boss3Controller : MonoBehaviour, IDamageable
     {
         if (audioSource == null || walkClips == null || walkClips.Length == 0) return;
 
-        int index = Random.Range(0, walkClips.Length);
+        int index = UnityEngine.Random.Range(0, walkClips.Length);
         if (walkClips[index] != null)
         {
-            audioSource.pitch = Random.Range(0.85f, 1.0f); 
+            audioSource.pitch = UnityEngine.Random.Range(0.85f, 1.0f); 
             audioSource.PlayOneShot(walkClips[index]);
         }
     }
@@ -149,7 +156,7 @@ public class Boss3Controller : MonoBehaviour, IDamageable
     {
         if (audioSource != null && clip != null)
         {
-            audioSource.pitch = Random.Range(0.95f, 1.05f); 
+            audioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f); 
             audioSource.PlayOneShot(clip);
         }
     }
@@ -266,6 +273,9 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         if (isDead) return; 
 
         currentHealth -= damage;
+
+        // UI 연결
+        OnHPChanged?.Invoke(currentHealth, maxHealth);
         Debug.Log("보스 3 체력: " + currentHealth);
 
         if (currentHealth <= 0)
@@ -280,6 +290,9 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         isDead = true;
 
         Debug.Log("보스 3 사망");
+
+        // UI 연결
+        HandlePlayerLost();
         
         if (deathClip != null)
         {
@@ -292,6 +305,32 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         rb.velocity = Vector3.zero;
         GetComponent<Collider>().enabled = false;
 
+        // UI 관련 이벤트 함수 제거를 위한 보스 사라짐 알림
+        BossManager.Instance.UnregisterBoss(this);
+
         Destroy(gameObject, deathAnimationDuration);
+    }
+
+    // UI 연결
+    void HandlePlayerDetected()
+    {
+        if (isPlayerDetected)
+        {
+            // 이미 감지 된 경우
+            return;
+        }
+        else
+        {
+            // 새롭게 감지된 경우
+            OnAppeared?.Invoke(currentHealth, maxHealth);
+            isPlayerDetected = true;
+        }
+    }
+
+    // UI 연결
+    void HandlePlayerLost()
+    {
+        isPlayerDetected = false;
+        OnDisappeared?.Invoke();
     }
 }
