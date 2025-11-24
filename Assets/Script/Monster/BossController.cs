@@ -1,39 +1,62 @@
+using System;
 using UnityEngine;
+using System;
 
 [RequireComponent(typeof(Rigidbody))]
-public class BossController : MonoBehaviour
+[RequireComponent(typeof(AudioSource))]
+public class BossController : MonoBehaviour, IDamageable
 {
-    public float detectionRange = 300f;
-    private float attackRange = 50f;
-    public float moveSpeed = 2f;
+    [Header("Stats")]
+    public float detectionRange = 150f;
+    public float attackRange = 30f;
+    public float moveSpeed = 30f;
     public int maxHealth = 1000;
     private int currentHealth;
 
-    private bool hasEnteredPhase2 = false;
-
+    [Header("Combat")]
     public int attackDamage = 10;
     public float attackCooldown = 2f;
     private float lastAttackTime;
 
+    [Header("State")]
+    private bool hasEnteredPhase2 = false;
     private float deathAnimationDuration = 3f;
     private bool isDead = false;
     
     private Transform player;
     private Player playerScript;
     private Rigidbody rb;
-
     private Animator animator;
+
+    [Header("Audio Settings")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] walkClips; 
+    [SerializeField] private AudioClip[] phase2WalkClips; 
+    [SerializeField] private AudioClip deathClip;
+
+    
+    [Header("Attack Audio Settings")]
+    [SerializeField] private AudioClip basicAttackClip; 
+    [SerializeField] private AudioClip clawAttackClip;  
+    [SerializeField] private AudioClip flameAttackClip; 
+    [SerializeField] private AudioClip flyAttackClip; 
+
+    // [UI 연결] HP 변화 이벤트 
+    private bool isPlayerDetected = false;
+    public event Action<int, int> OnHPChanged;
+    public event Action<int, int> OnAppeared;
+    public event Action OnDisappeared;  
+
+    private float lastNormalizedTime; 
 
     void Start()
     {
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody>();
-        
+
         animator = GetComponentInChildren<Animator>();
-        if (animator == null)
-        {
-            Debug.LogError("보스: 자식 오브젝트에서 Animator 컴포넌트를 찾을 수 없습니다!");
-        }
+        
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
 
         InvokeRepeating("FindPlayer", 0f, 0.5f);
     }
@@ -55,7 +78,10 @@ public class BossController : MonoBehaviour
             if (distance <= detectionRange && distance > attackRange)
             {
                 MoveTowardsPlayer();
+                HandlePlayerDetected();
                 animator.SetFloat("Speed", 1f); 
+                
+                CheckAnimationLoopAndPlaySound();
             }
             else if (distance <= attackRange)
             {
@@ -64,16 +90,57 @@ public class BossController : MonoBehaviour
             }
             else
             {
+                HandlePlayerLost();
                 animator.SetFloat("Speed", 0f);
             }
         }
         else
         {
-            if(animator != null)
-                animator.SetFloat("Speed", 0f);
+            if(animator != null) animator.SetFloat("Speed", 0f);
         }
     }
 
+    void CheckAnimationLoopAndPlaySound()
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        if ((int)stateInfo.normalizedTime > (int)lastNormalizedTime)
+        {
+            PlayWalkSound();
+        }
+
+        lastNormalizedTime = stateInfo.normalizedTime;
+    }
+
+    void PlayWalkSound()
+    {
+        if (audioSource == null) return;
+
+        AudioClip[] currentClips = hasEnteredPhase2 ? phase2WalkClips : walkClips;
+        
+        if (currentClips == null || currentClips.Length == 0) return;
+
+        int index = UnityEngine.Random.Range(0, currentClips.Length);
+        
+        if (currentClips[index] != null)
+        {
+            audioSource.pitch = UnityEngine.Random.Range(0.8f, 0.95f);
+            audioSource.PlayOneShot(currentClips[index]);
+        }
+    }
+
+    // 공격 사운드 재생
+    void PlayAttackSound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            
+            audioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
+            audioSource.PlayOneShot(clip);
+        }
+    }
+    
+    // 플레이어 찾기
     void FindPlayer()
     {
         if (player == null || !player.gameObject.activeInHierarchy)
@@ -83,15 +150,11 @@ public class BossController : MonoBehaviour
             {
                 player = playerObject.transform;
                 playerScript = playerObject.GetComponent<Player>();
-                
-                if (playerScript == null)
-                {
-                    Debug.LogError("보스: 'Player' 태그를 가진 오브젝트를 찾았지만, Player.cs 없음");
-                }
             }
         }
     }
 
+    // 플레이어에게 이동
     void MoveTowardsPlayer()
     {
         transform.LookAt(player);
@@ -99,6 +162,7 @@ public class BossController : MonoBehaviour
         rb.MovePosition(targetPosition);
     }
 
+    // 플레이어 공격
     void AttackPlayer()
     {
         transform.LookAt(player);
@@ -108,34 +172,35 @@ public class BossController : MonoBehaviour
             if (playerScript != null)
             {
                 Debug.Log("보스 공격"); 
-                if(currentHealth > 800)
-                {
-                    animator.SetTrigger("BasicAttack");
-                    playerScript.TakeDamage(attackDamage);
+                
+                
+                if(currentHealth > 800) 
+                { 
+                    animator.SetTrigger("BasicAttack"); 
+                    PlayAttackSound(basicAttackClip); // 기본 공격
+                    playerScript.TakeDamage(attackDamage); 
                 }
                 else if(currentHealth > 600) 
-                {
-                    animator.SetTrigger("ClawAttack");
-                    playerScript.TakeDamage(attackDamage*2);
+                { 
+                    animator.SetTrigger("ClawAttack"); 
+                    PlayAttackSound(clawAttackClip);
+                    playerScript.TakeDamage(attackDamage*2); 
                 }
-                else if(currentHealth > 500)
-                {
-                    animator.SetTrigger("FlameAttack");
-                    playerScript.TakeDamage(attackDamage*3);
+                else if(currentHealth > 500) 
+                { 
+                    animator.SetTrigger("FlameAttack"); 
+                    PlayAttackSound(flameAttackClip);
+                    playerScript.TakeDamage(attackDamage*3); 
                 }
-                else
-                {
-                    animator.SetTrigger("FlyAttack");
-                    playerScript.TakeDamage(attackDamage*4);
+                else 
+                { 
+                    animator.SetTrigger("FlyAttack"); 
+                    PlayAttackSound(flyAttackClip);
+                    playerScript.TakeDamage(attackDamage*4); 
                 }
-
-
+                
 
                 lastAttackTime = Time.time;
-            }
-            else
-            {
-                Debug.LogWarning("보스: 공격하려 했으나 playerScript 없음");
             }
         }
     }
@@ -143,24 +208,19 @@ public class BossController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         if (isDead) return; 
-
         currentHealth -= damage;
-        Debug.Log("보스 체력: " + currentHealth);
+
+        // UI 연결
+        OnHPChanged?.Invoke(currentHealth, maxHealth);
 
         if (!hasEnteredPhase2 && currentHealth <= 500 && currentHealth > 0)
         {
             attackRange = 100f;
-            hasEnteredPhase2 = true;
+            hasEnteredPhase2 = true; 
             animator.SetBool("isPhase2", true);
-            animator.SetTrigger("startPhase2"); // 2페이즈 즉시 돌입 트리거 발동
-            Debug.Log("보스: 2페이즈");
+            animator.SetTrigger("startPhase2");
         }
-
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
+        if (currentHealth <= 0) Die();
     }
 
     void Die()
@@ -168,14 +228,49 @@ public class BossController : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        Debug.Log("보스가 쓰러졌습니다.");
-        
-        animator.SetTrigger("Die"); 
+        Debug.Log("보스 사망");
 
+        // UI 연결
+        HandlePlayerLost();
+        
+        if (deathClip != null)
+        {
+             AudioSource.PlayClipAtPoint(deathClip, transform.position, 1.0f);
+        }
+
+        animator.SetTrigger("Die"); 
         rb.isKinematic = true;
         rb.velocity = Vector3.zero;
         GetComponent<Collider>().enabled = false;
 
+        // UI 관련 이벤트 함수 제거를 위한 보스 사라짐 알림
+        BossManager.Instance.UnregisterBoss(this);
+        // Kill Counter 반영
+        KillCounter.Instance.AddBossKill();
+
         Destroy(gameObject, deathAnimationDuration);
+    }
+
+    // UI 연결
+    void HandlePlayerDetected()
+    {
+        if (isPlayerDetected)
+        {
+            // 이미 감지 된 경우
+            return;
+        }
+        else
+        {
+            // 새롭게 감지된 경우
+            OnAppeared?.Invoke(currentHealth, maxHealth);
+            isPlayerDetected = true;
+        }
+    }
+
+    // UI 연결
+    void HandlePlayerLost()
+    {
+        isPlayerDetected = false;
+        OnDisappeared?.Invoke();
     }
 }

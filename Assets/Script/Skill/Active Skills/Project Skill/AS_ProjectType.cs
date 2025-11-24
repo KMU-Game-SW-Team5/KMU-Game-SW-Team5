@@ -1,7 +1,8 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Scriptable Object/Active Skills/Project Type")]
+[CreateAssetMenu(menuName = "Scriptable Object/Active Skill/Project Type")]
 public class AS_ProjectType : ActiveSkillBase
 {
     [Header("투사체 설정")]
@@ -21,7 +22,18 @@ public class AS_ProjectType : ActiveSkillBase
     [Range(0.05f, 1f)][SerializeField] private float maxInterval = 0.4f;
     [SerializeField] private float decayK = 0.4f;
 
-    private Transform target;
+    [Header("발사 위치")]
+    [SerializeField] List<ShotPositions> shotPositions = new List<ShotPositions>();
+    private int shotPosIdx = 0;
+
+    private Transform target;   // 목표 위치
+
+    public override void Initialize()
+    {
+        base.Initialize();
+        branchCount = 1;
+        burstCount = 1;
+    }
 
     // ============================================================
     // 스킬 사용 실행
@@ -61,7 +73,8 @@ public class AS_ProjectType : ActiveSkillBase
         {
             // 시전할 때마다 플레이어 시점 갱신
             forward = SkillManager.GetForwardDirection();
-            spawnPos = SkillManager.GetCameraPosition() + forward * distanceOffset;
+            //spawnPos = SkillManager.GetCameraPosition() + forward * distanceOffset;
+            spawnPos = SkillManager.Instance.GetCastTransform(GetCurrentShotPos()).position;
             baseRot = Quaternion.LookRotation(forward);
 
 
@@ -103,6 +116,22 @@ public class AS_ProjectType : ActiveSkillBase
                 yield return new WaitForSeconds(interval);
         }
     }
+
+    // 발사 위치 리턴 (기본값 : 지팡이, 여러 곳 : 돌아가면서 발사
+    public ShotPositions GetCurrentShotPos()
+    {
+        // 🔹 리스트가 없거나 비어 있으면 기본값 Staff
+        if (shotPositions == null || shotPositions.Count == 0)
+            return ShotPositions.Staff;
+
+        // 🔹 끝까지 돌았으면 0으로 되감기
+        if (shotPosIdx >= shotPositions.Count)
+            shotPosIdx = 0;
+
+        // 🔹 현재 인덱스 값 리턴 후 인덱스 증가
+        return shotPositions[shotPosIdx++];
+    }
+
 
     // ============================================================
     // 패턴 조절 함수

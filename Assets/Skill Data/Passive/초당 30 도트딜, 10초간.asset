@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59622cc7cf0630646956bda3ca8e3d2a, type: 3}
+  m_Name: "\uCD08\uB2F9 30 \uB3C4\uD2B8\uB51C, 10\uCD08\uAC04"
+  m_EditorClassIdentifier: 
+  skillName: Hemorrhaging
+  icon: {fileID: 21300000, guid: 137adc4b5a4bdb84587af37f8855a33b, type: 3}
+  description: For each stack, the target is dealt 30 per seconds over 10 second
+  hitEffects:
+  - {fileID: 11400000, guid: fe3ea714e7b4c6e45888c8ae2761522f, type: 2}

@@ -1,11 +1,17 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PassiveSkillBase : ScriptableObject
 {
-    [Header("½ºÅ³ Á¤º¸")]
-    [SerializeField] private string skillName;            // ½ºÅ³ ÀÌ¸§
-    [SerializeField] private Sprite icon;                 // ½ºÅ³ ¾ÆÀÌÄÜ
-    [SerializeField] private string describe;             // ½ºÅ³ ¼³¸í
+    [Header("ìŠ¤í‚¬ ì •ë³´")]
+    [SerializeField] private string skillName;            // ìŠ¤í‚¬ ì´ë¦„
+    [SerializeField] private Sprite icon;                 // ìŠ¤í‚¬ ì•„ì´ì½˜
+    [SerializeField] private string description;             // ìŠ¤í‚¬ ì„¤ëª…
+
+    // ìŠ¤í‚¬ ì •ë³´ì˜ getterë“¤
+    public Sprite GetIcon() => icon;
+    public string GetSkillName() => skillName;
+    public string GetSkillDescription() => description;
 }

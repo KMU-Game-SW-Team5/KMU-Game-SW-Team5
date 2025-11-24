@@ -13,6 +13,7 @@ public class ProjectileComponent : MonoBehaviour
 
     private GameObject projectilePrefabRef; // 오브젝트 풀링 키
     private SkillManager skillManager;      // 싱글톤 SkillManager
+    private TrailRenderer trailRenderer;
 
 
     // ---------------------------------------------------------------------
@@ -28,6 +29,8 @@ public class ProjectileComponent : MonoBehaviour
 
         // 싱글톤 SkillManager 가져오기
         skillManager = SkillManager.Instance;
+
+        trailRenderer = GetComponent<TrailRenderer>();
     }
 
     private void OnEnable()
@@ -37,6 +40,8 @@ public class ProjectileComponent : MonoBehaviour
 
     private void ResetState()
     {
+        if (trailRenderer != null)
+            trailRenderer.Clear();
         lifetime = Mathf.Max(lifetime, 0f);
     }
 
@@ -79,7 +84,6 @@ public class ProjectileComponent : MonoBehaviour
         motionType?.SetVariables(this.transform, _target, _velocity, _motionSpeed);
     }
 
-
     // ---------------------------------------------------------------------
     // 충돌 처리
     // ---------------------------------------------------------------------
@@ -87,8 +91,14 @@ public class ProjectileComponent : MonoBehaviour
     {
         Transform root = other.transform.root;
 
-        // 🔹 Tag 기반 몬스터 판별
-        if (other.CompareTag("Monster") || root.CompareTag("Monster"))
+        // 🔹 Tag 기반 판별: 일반 몬스터("Monster") + 보스("Boss") 모두 포함
+        bool isMonsterTag =
+            other.CompareTag("Monster") ||
+            root.CompareTag("Monster") ||
+            other.CompareTag("Boss") ||
+            root.CompareTag("Boss");
+
+        if (isMonsterTag)
         {
             // 🔹 MonsterBase 찾기 (자식 콜라이더 고려)
             if (other.TryGetComponent<MonsterBase>(out var monster) ||
@@ -115,6 +125,7 @@ public class ProjectileComponent : MonoBehaviour
 
         Bomb();
     }
+
 
 
     // ---------------------------------------------------------------------

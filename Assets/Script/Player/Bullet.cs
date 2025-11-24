@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    public float speed = 5f; // 총알 속도
+    public float speed = 5f; 
     public int Damage = 10;
 
     void Start()
@@ -19,53 +19,22 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        
-        var root = other.transform.root;
-        
+        IDamageable target = other.GetComponentInParent<IDamageable>();
 
-        
-        if (other.CompareTag("Monster") || root.CompareTag("Monster"))
+        if (target != null)
         {
             
+            target.TakeDamage(Damage);
             
-            MonsterController monster = other.GetComponentInParent<MonsterController>();
-            if (monster != null)
-            {
-                
-                monster.TakeDamage(Damage); 
-                
-            }
-            else
-            {
-                
-                
-            }
-
-            EventManager.MonsterHit();
+            
+            
+            
             Destroy(gameObject);
-            return;
         }
-
-        
-        if (other.CompareTag("Boss") || root.CompareTag("Boss"))
+        else if (!other.isTrigger)
         {
-
-         
-            BossController boss = other.GetComponentInParent<BossController>();
-            if (boss != null)
-            {
-                boss.TakeDamage(Damage); // 데미지 적용
-         
-            }
-            else
-            {
-         
-            }
-            EventManager.MonsterHit();
-
             Destroy(gameObject);
-            return;
         }
-
+        
     }
 }

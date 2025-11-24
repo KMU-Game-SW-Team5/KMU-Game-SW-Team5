@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4245980379259938598}
   - component: {fileID: 8172608003119919607}
+  - component: {fileID: 5056676164037862872}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -47,3 +48,19 @@ MonoBehaviour:
   ignoreLayerMaskWithRay:
     serializedVersion: 2
     m_Bits: 256
+  inGameUIManager: {fileID: 0}
+  timeManager: {fileID: 0}
+  playerLevelSystem: {fileID: 0}
+  killCounter: {fileID: 5056676164037862872}
+--- !u!114 &5056676164037862872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6715187939246912484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4d57528885e758488338a1f635d2684, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -294,8 +294,10 @@ public class MapMaker : MonoBehaviour
     void BossRoomMaker()
     {
         bossPosition.y += 20;
-        GameObject newBoss = Instantiate(boss, bossPosition, Quaternion.identity);
-        // 생성 후 부모 설정
-        newBoss.transform.SetParent(transform, true);
+        GameObject newfloor = Instantiate(boss, bossPosition, Quaternion.identity);
+
+        //BossController bossController = newfloor.GetComponent<BossController>();
+        BossMonsterBase bossController = newfloor.GetComponent<BossMonsterBase>();
+        BossManager.Instance.RegisterBoss(bossController);
     }
 }
