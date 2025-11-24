@@ -5849,14 +5849,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b875b4380be34ae0a219b7e74036753, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRange: 300
+  detectionRange: 200
   attackRange: 70
   moveSpeed: 30
   maxHealth: 1000
   bulletPrefab: {fileID: 2521581984461153819, guid: 2a988c19fab954740a312c0c48820e68, type: 3}
   muzzleTransform: {fileID: 7156518263253049982}
-  attack2Delay: 0.3
   spreadAngle: 3
+  attack1Delay: 0.5
+  attack2Delay: 0.3
   audioSource: {fileID: 4281928337261217401}
   walkClips:
   - {fileID: 8300000, guid: fddce599cac048e4b8847e207159266d, type: 3}
