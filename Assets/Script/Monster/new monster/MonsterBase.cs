@@ -156,7 +156,7 @@ public abstract class MonsterBase : MonoBehaviour
     }
 
     // 0) 플레이어 찾기 (공통)
-    protected void FindPlayer()
+    virtual protected void FindPlayer()
     {
         if (player != null && player.gameObject.activeInHierarchy) return;
 

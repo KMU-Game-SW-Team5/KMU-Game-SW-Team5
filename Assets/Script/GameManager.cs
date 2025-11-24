@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
     {
         if (timeManager == null || playerLevelSystem == null || killCounter == null)
         {
-            Debug.LogError("GameManager : 참조 null");
+            Debug.LogError("GameManager : 참조 null");    
             return;
         }
 
