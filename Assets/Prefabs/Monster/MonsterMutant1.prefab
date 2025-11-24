@@ -5454,17 +5454,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ef4896fd77744d8c84ae2d0e61cc17b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRange: 200
+  detectionRange: 10000
   attackRange: 30
   moveSpeed: 30
   maxHealth: 1000
   attackDamage: 10
   attackCooldown: 2
   attackDelay: 1
+  enableDoubleAttack: 0
+  secondAttackDelay: 0.5
   audioSource: {fileID: 7466852107650783805}
   walkClips:
   - {fileID: 8300000, guid: 7c518e8469a403b4c981664ecb28a79a, type: 3}
   attackClip: {fileID: 8300000, guid: 7ce1b3f097fe6dd4380d393b87e1f044, type: 3}
+  secondAttackClip: {fileID: 0}
   deathClip: {fileID: 8300000, guid: f86d4d44eb7f16c4ba0dc0c337a6f337, type: 3}
 --- !u!82 &7466852107650783805
 AudioSource:
