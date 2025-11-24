@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(AudioSource))]
@@ -267,7 +268,7 @@ public class MonsterController : MonoBehaviour, IDamageable
 
         rb.isKinematic = true; 
         rb.velocity = Vector3.zero;
-        GetComponent<Collider>().enabled = false; 
+        GetComponent<Collider>().enabled = false;
 
         // Kill Counter 반영
         KillCounter.Instance.AddMonsterKill();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,6 +26,8 @@ public class Player : MonoBehaviour, IDamageable
     {
         hp -= damage;
         Debug.Log("플레이어 체력: " + hp);
+
+        OnHPChanged?.Invoke(hp, maxHealth);
 
         if (hp <= 0)
         {

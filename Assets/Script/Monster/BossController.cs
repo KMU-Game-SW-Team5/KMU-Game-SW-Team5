@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System;
 
@@ -52,6 +53,7 @@ public class BossController : MonoBehaviour, IDamageable
     {
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody>();
+
         animator = GetComponentInChildren<Animator>();
         
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
@@ -76,6 +78,7 @@ public class BossController : MonoBehaviour, IDamageable
             if (distance <= detectionRange && distance > attackRange)
             {
                 MoveTowardsPlayer();
+                HandlePlayerDetected();
                 animator.SetFloat("Speed", 1f); 
                 
                 CheckAnimationLoopAndPlaySound();
@@ -85,7 +88,11 @@ public class BossController : MonoBehaviour, IDamageable
                 AttackPlayer();
                 animator.SetFloat("Speed", 0f);
             }
-            else animator.SetFloat("Speed", 0f);
+            else
+            {
+                HandlePlayerLost();
+                animator.SetFloat("Speed", 0f);
+            }
         }
         else
         {
@@ -205,7 +212,7 @@ public class BossController : MonoBehaviour, IDamageable
 
         // UI 연결
         OnHPChanged?.Invoke(currentHealth, maxHealth);
-        
+
         if (!hasEnteredPhase2 && currentHealth <= 500 && currentHealth > 0)
         {
             attackRange = 100f;
@@ -243,6 +250,7 @@ public class BossController : MonoBehaviour, IDamageable
 
         Destroy(gameObject, deathAnimationDuration);
     }
+
     // UI 연결
     void HandlePlayerDetected()
     {
