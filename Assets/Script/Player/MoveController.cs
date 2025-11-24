@@ -17,11 +17,16 @@ public class MoveController : MonoBehaviour
     [SerializeField] private float gravity = -20.0f;
 
     [Header("Animator Settings")]
-    [SerializeField] private Animator animator;
+    private PlayerAnimation playerAnimation;
 
+    [Header("Skill Move Settings")]
+    [SerializeField] private bool isSkillMoving = false;   // ��ų Ư�� �̵� ������
+    [SerializeField] private bool skillUsesGravity = true; // Ư�� �̵����� �߷��� ��������
+    private Vector3 skillVelocity;                         // Ư�� �̵� �ӵ�
+    private float skillMoveRemaining = 0f;                 // ���� Ư�� �̵� �ð�
 
     private CharacterController controller;
-    private Vector3 velocity;
+    private Vector3 velocity;      // �Ϲ� �̵��� ���� �ӵ�(y) ��
     private Vector2 moveInput;
     private Vector2 lookInput;
     private bool isRunning;
@@ -49,16 +54,29 @@ public class MoveController : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        playerAnimation = GetComponent<PlayerAnimation>();
+    }
+
     void Update()
     {
+        // ���콺 ȸ��(�þ�)�� Ư�� �̵� �߿��� �״�� ����
         transform.Rotate(Vector3.up * lookInput.x * lookSensitivity * Time.deltaTime);
 
         xRotation -= lookInput.y * lookSensitivity * Time.deltaTime;
-        
         xRotation = Mathf.Clamp(xRotation, minLookAngle, maxLookAngle);
-        
-        cameraMount.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        if (cameraMount != null)
+            cameraMount.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
+        // 1) ��ų Ư�� �̵� ���̸� ���⼭�� �̵� ó���ϰ� ����
+        if (isSkillMoving)
+        {
+            UpdateSkillMove();
+            return;
+        }
+
+        // 2) �Ϲ� �̵� ���� (���� �ڵ�)
         if (controller.isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
@@ -73,15 +91,90 @@ public class MoveController : MonoBehaviour
 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+
+        // �̵� �ִϸ��̼� ���
+        UpdateMoveAnimation(moveDirection);
+    }
+
+    // �ܺ�(��ų)���� ȣ���� Ư�� �̵� ���� �Լ�
+    public void StartSkillMove(Vector3 worldDirection, float horizontalSpeed, 
+        float upwardSpeed, float duration, bool useGravity = true)
+    {
+        if (controller == null) return;
+
+        // ���� ����
+        worldDirection.y = 0f;
+        if (worldDirection.sqrMagnitude < 0.0001f)
+            worldDirection = transform.forward;
+        worldDirection.Normalize();
+
+        // Ư�� �̵� �ӵ� ����
+        skillVelocity = worldDirection * horizontalSpeed;
+        skillVelocity.y = upwardSpeed;
+
+        skillMoveRemaining = Mathf.Max(0f, duration);
+        skillUsesGravity = useGravity;
+        isSkillMoving = true;
+
+        // �Ϲ� �̵� ���� �ʱ�ȭ(�ɼ������� ���� �ʼ�)
+        moveInput = Vector2.zero;
+        velocity = Vector3.zero;
+
+        // �ִϸ��̼ǵ� ���⼭ ����/��� ���� �� ���� �� ����
+        if (playerAnimation != null)
+        {
+            playerAnimation.SetAnimation(AnimationType.Jump);
+        }
+    }
+
+    // Ư�� �̵� ������Ʈ
+    private void UpdateSkillMove()
+    {
+        if (controller == null)
+        {
+            isSkillMoving = false;
+            return;
+        }
+
+        // ���� �̵�
+        Vector3 horizontal = new Vector3(skillVelocity.x, 0f, skillVelocity.z);
+        controller.Move(horizontal * Time.deltaTime);
+
+        // ���� �̵�
+        if (skillUsesGravity)
+        {
+            skillVelocity.y += gravity * Time.deltaTime;
+        }
+        controller.Move(Vector3.up * skillVelocity.y * Time.deltaTime);
+
+        // �ܿ� �ð� ����
+        skillMoveRemaining -= Time.deltaTime;
+
+        // �ִϸ��̼� ���� (����/���� ���δ� �Լ����� üũ)
+        UpdateMoveAnimation(horizontal);
+
+        // ���� ����: �ð� �� �� �Ǵ� �ٴڿ� �����ϸ鼭 �������� ��
+        if (skillMoveRemaining <= 0f || (controller.isGrounded && skillVelocity.y <= 0f))
+        {
+            isSkillMoving = false;
+            skillVelocity = Vector3.zero;
+        }
     }
 
     public void SetMoveInput(Vector2 input) => moveInput = input;
     public void SetLookInput(Vector2 input) => lookInput = input;
     public void SetRunning(bool running) => isRunning = running;
+
     public void Jump()
     {
+        // Ư�� �̵� �߿��� ���� ����
+        if (isSkillMoving) return;
+
         if (controller.isGrounded)
         {
+            if (playerAnimation != null)
+                playerAnimation.SetAnimation(AnimationType.Jump);
+
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
             
             audioSource.pitch = 1.0f;
@@ -129,5 +222,21 @@ public class MoveController : MonoBehaviour
             }
         }
     }
-    
+
+    private void UpdateMoveAnimation(Vector3 moveDirection)
+    {
+        if (playerAnimation == null) return;
+        if (!controller.isGrounded) return; // ����/���� �߿��� Jump �ִϸ��̼ǿ� �ñ�
+
+        Vector2 planar = new Vector2(moveDirection.x, moveDirection.z);
+
+        if (planar.sqrMagnitude > 0.001f)
+        {
+            playerAnimation.SetAnimation(AnimationType.Run);
+        }
+        else
+        {
+            playerAnimation.SetAnimation(AnimationType.Idle);
+        }
+    }
 }

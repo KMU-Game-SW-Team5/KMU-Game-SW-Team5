@@ -52,6 +52,14 @@ public class ObjectPooler : MonoBehaviour
         return obj;
     }
 
+    public GameObject SpawnInParent(GameObject prefab, Transform parent)
+    {
+        var go = Spawn(prefab, Vector3.zero, Quaternion.identity);
+        go.transform.SetParent(parent, false);
+        return go;
+    }
+
+
     public void Despawn(GameObject prefab, GameObject instance)
     {
         if (prefab == null || instance == null) return;
