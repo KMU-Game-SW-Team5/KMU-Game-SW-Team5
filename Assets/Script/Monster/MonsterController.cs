@@ -273,6 +273,9 @@ public class MonsterController : MonoBehaviour, IDamageable
         // Kill Counter 반영
         KillCounter.Instance.AddMonsterKill();
 
+        RoomManager room = GetComponentInParent<RoomManager>();
+        room.NotifyMonsterDied(this.gameObject);
+        
         Destroy(gameObject, deathAnimationDuration);
     }
 }
