@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 7336993659141709181}
   - component: {fileID: 5575962236163961505}
   - component: {fileID: 6435384755813668975}
+  - component: {fileID: 1462122246942147925}
   m_Layer: 7
   m_Name: Player_1111
   m_TagString: Player
@@ -257,8 +258,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79849bac0d3764f0bbb0a2317ae2e937, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 5000
-  hp: 5000
+  maxHealth: 100
+  hp: 100
 --- !u!114 &7794229215977846267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -515,6 +516,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1462122246942147925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 213829557835331773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65545a743806aa34f95df4b6dbf8d822, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startLevel: 1
+  baseRequiredExp: 100
+  expIncrementPerLevel: 50
 --- !u!1 &419385235701768172
 GameObject:
   m_ObjectHideFlags: 0
