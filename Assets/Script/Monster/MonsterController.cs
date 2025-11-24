@@ -138,10 +138,10 @@ public class MonsterController : MonoBehaviour, IDamageable
     {
         if (audioSource == null || walkClips == null || walkClips.Length == 0) return;
 
-        int index = Random.Range(0, walkClips.Length);
+        int index = UnityEngine.Random.Range(0, walkClips.Length);
         if (walkClips[index] != null)
         {
-            audioSource.pitch = Random.Range(0.8f, 1.1f);
+            audioSource.pitch = UnityEngine.Random.Range(0.8f, 1.1f);
             audioSource.PlayOneShot(walkClips[index], 4.0f);
         }
     }

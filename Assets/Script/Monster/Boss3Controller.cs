@@ -308,6 +308,9 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         // UI 관련 이벤트 함수 제거를 위한 보스 사라짐 알림
         BossManager.Instance.UnregisterBoss(this);
 
+        // Kill Counter 반영
+        KillCounter.Instance.AddBossKill();
+
         Destroy(gameObject, deathAnimationDuration);
     }
 
