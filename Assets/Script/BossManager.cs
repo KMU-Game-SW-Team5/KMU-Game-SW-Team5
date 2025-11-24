@@ -8,7 +8,6 @@ public class BossManager : MonoBehaviour
     public event Action<BossController> OnBossSpawned;
     public event Action<BossController> OnBossDied;
 
-
     public event Action<Boss2Controller> OnBoss2Spawned;
     public event Action<Boss2Controller> OnBoss2Died;
 
