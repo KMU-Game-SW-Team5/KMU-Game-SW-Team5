@@ -5718,7 +5718,7 @@ GameObject:
   - component: {fileID: 2608372564843981163}
   - component: {fileID: 3141457540799673612}
   m_Layer: 5
-  m_Name: InGameUI Skill Updated
+  m_Name: InGameUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5824,20 +5824,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4f478448085f9f4eb6780a79d001895, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerHPUI: {fileID: 0}
-  playerEXPUI: {fileID: 0}
-  playerLVUI: {fileID: 0}
-  bossStatusPanel: {fileID: 0}
-  bossHPUI: {fileID: 0}
-  bossNameUI: {fileID: 0}
-  levelUpUI: {fileID: 0}
-  levelUpPanel: {fileID: 0}
+  playerHPUI: {fileID: 2535408678401594746}
+  playerEXPUI: {fileID: 4981291885831094368}
+  playerLVUI: {fileID: 5071851090864140106}
+  bossStatusPanel: {fileID: 5452426071565279002}
+  bossHPUI: {fileID: 1553882290920294829}
+  bossNameUI: {fileID: 805468292458031067}
+  levelUpUI: {fileID: 5314786556007207523}
+  levelUpPanel: {fileID: 7305229872717196550}
+  endingUI: {fileID: 0}
+  endingPanel: {fileID: 0}
   skillSlots: []
   skillKeysTexts: []
   cooldownTexts: []
-  minimapUI: {fileID: 0}
+  minimapUI: {fileID: 4156474049815453657}
   waveTimerUI: {fileID: 6819308364777854763}
-  timeManager: {fileID: 0}
 --- !u!1 &9003721985258051323
 GameObject:
   m_ObjectHideFlags: 0
