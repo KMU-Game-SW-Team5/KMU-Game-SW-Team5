@@ -15,6 +15,12 @@ public class BossDragon : BossMonsterBase
     [SerializeField] private float deathGravityMultiplier = 3f; // 기본 중력의 몇 배로 더 끌어당길지
     private Coroutine deathGravityCo;
 
+    [Header("Boss Death Rotation")]
+    [SerializeField] private Vector3 deathTorqueAxis = new Vector3(1f, 0f, 0f);  // 회전 축 (방향)
+    [SerializeField] private float deathTorqueMagnitude = 50f;                   // 회전 강도
+    [SerializeField] private float groundCheckDistance = 3f;                     // “공중인가?” 판정용 아래 체크 거리
+
+
     [Header("Landing Effect")]
     [SerializeField] private GameObject landingDustPrefab;     // 먼지 파티클 프리팹
     [SerializeField] private Transform landingEffectPoint;     // 발 위치 기준 포인트
@@ -157,8 +163,11 @@ public class BossDragon : BossMonsterBase
 
             rb.freezeRotation = false;
 
-            // 처음에 쾅 내려주기
-            rb.AddForce(Vector3.down * deathFallSpeed, ForceMode.VelocityChange);
+            // ★ 공중에서 죽었으면 회전 토크 추가
+            if (!IsNearGround())
+            {
+                ApplyDeathRotationTorque();
+            }
 
             // 추가 중력 코루틴 시작
             if (deathGravityCo != null)
@@ -168,6 +177,29 @@ public class BossDragon : BossMonsterBase
 
         Destroy(gameObject, deathAnimationDuration + 10f);
     }
+
+    private bool IsNearGround()
+    {
+        Ray ray = new Ray(transform.position, Vector3.down);
+        bool hit = Physics.Raycast(ray, groundCheckDistance, groundLayer, QueryTriggerInteraction.Ignore);
+        return hit;
+    }
+
+    private void ApplyDeathRotationTorque()
+    {
+        if (rb == null) return;
+        Vector3 localAxis = deathTorqueAxis.sqrMagnitude > 0.0001f
+            ? deathTorqueAxis.normalized
+            : Vector3.right; // 기본값: 로컬 X축(앞으로 고꾸라지는 피치 회전에 쓰기 좋음)
+
+        // 로컬 축을 월드 축으로 변환
+        Vector3 worldAxis = transform.TransformDirection(localAxis);
+
+        Vector3 torque = worldAxis * deathTorqueMagnitude;
+        rb.AddTorque(torque, ForceMode.VelocityChange);
+    }
+
+
 
     private IEnumerator DeathExtraGravityRoutine()
     {

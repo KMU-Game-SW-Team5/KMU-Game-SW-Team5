@@ -12,6 +12,10 @@ public class Player : MonoBehaviour
     private MoveController moveController;
     private PlayerAnimation playerAnimation;
 
+    [Header("무적 상태 관련")]
+    private bool isInvincible = false;
+    private Coroutine invincibleCo;
+
     void Start()
     {
         hp = maxHealth;
@@ -21,6 +25,9 @@ public class Player : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+
+        if (isInvincible) return; // 무적 상태라면 데미지 입지 않음.
+
         hp -= damage;
         Debug.Log("플레이어 체력: " + hp);
 
@@ -56,6 +63,21 @@ public class Player : MonoBehaviour
     {
         Debug.Log("플레이어가 쓰러졌습니다.");
         Time.timeScale = 0f;
+    }
+
+    public void SetInvincibleFor(float duration)
+    {
+        if (invincibleCo != null)
+            StopCoroutine(invincibleCo);
+        invincibleCo = StartCoroutine(InvincibleRoutine(duration));
+    }
+
+    private IEnumerator InvincibleRoutine(float duration)
+    {
+        isInvincible = true;
+        yield return new WaitForSeconds(duration);
+        isInvincible = false;
+        invincibleCo = null;
     }
 
 }

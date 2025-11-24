@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Scriptable Object/Active Skills/Project Type")]
+[CreateAssetMenu(menuName = "Scriptable Object/Active Skill/Project Type")]
 public class AS_ProjectType : ActiveSkillBase
 {
     [Header("투사체 설정")]

@@ -67,6 +67,14 @@ public class SkillManager : MonoBehaviour
     [Header("스탯")]
     [SerializeField] public float magicStat = 10f;  // 마력 스탯 
     public float GetMagicStat() { return magicStat; }
+    public void AddMagicStat(float value)
+    {
+        magicStat += value;
+    }
+    public void AddMagicStatPercent(float percent)
+    {
+        magicStat *= 1 + percent;
+    }
 
     [Header("스킬 시전용 앵커 프리팹")]
     [Tooltip("스킬 타겟용 앵커 프리팹 (없으면 기본 빈 오브젝트 생성)")]
