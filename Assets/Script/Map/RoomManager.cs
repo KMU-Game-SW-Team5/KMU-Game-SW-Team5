@@ -44,9 +44,6 @@ public class RoomManager : MonoBehaviour
 
         // 문 찾기 및 초기화
         FindLocalDoors();
-
-        // Trigger Collider 설정
-        SetupCollider();
     }
 
     // 방 생성 시 초기 문의 상태를 열어둔 상태로 설정 및 문 찾기
@@ -56,22 +53,32 @@ public class RoomManager : MonoBehaviour
 
         Collider[] allColliders = GetComponentsInChildren<Collider>(true);
 
-        // ★ 수정된 부분: allColliders 배열을 순회해야 합니다.
         foreach (Collider col in allColliders)
         {
             // 방 자체의 콜라이더(자기 자신)는 제외
-            if (col == roomCollider) continue;
+            // if (col == roomCollider) continue;
 
             // 태그가 "Door"인 콜라이더만 리스트에 추가
             if (col.CompareTag("Door"))
             {   
-                Debug.Log("Door 콜라이더 추가");
                 doorColliders.Add(col);
             }
         }
 
-        // 초기 상태: 문 열기
-        UnlockDoors();
+        // Start 방의 경우 포탈 비활성화
+        if(state == RoomState.Cleared)
+        {
+            UnlockDoors();
+        }
+        // UnCleared 방의 경우 포탈 활성화
+        else
+        {
+            foreach(Collider col in doorColliders)
+            {
+                col.isTrigger = true;
+                SetPortalActive(col, true);
+            }
+        }
     }
 
 
@@ -80,10 +87,8 @@ public class RoomManager : MonoBehaviour
     {
         foreach (Collider col in doorColliders)
         {
-            if (col != null) 
-            {
-                col.isTrigger = false; // 물리적 벽 (잠금)
-            }
+            col.isTrigger = false; // 물리적 벽 (잠금)
+            SetPortalActive(col, true);
         }
     }
 
@@ -92,28 +97,46 @@ public class RoomManager : MonoBehaviour
     {
         foreach (Collider col in doorColliders)
         {
-            if (col != null) 
+            col.isTrigger = true; // 통과 가능 (해제)
+            SetPortalActive(col, false);
+        }
+    }
+
+    void SetPortalActive(Collider doorCol, bool isActive)
+    {
+        // 문(Door)의 자식들을 순회하며 MagicFortal을 찾습니다.
+        foreach (Transform child in doorCol.transform)
+        {
+            // 이름에 "MagicFortal"이 포함되어 있으면 (MagicFortal (1) 등도 포함)
+            if (child.name.Contains("MagicFortal"))
             {
-                col.isTrigger = true; // 통과 가능 (해제)
+                child.gameObject.SetActive(isActive);
+                
+                // 혹시 파티클이 꺼져있을 수 있으니 확실하게 재생/정지 (선택사항)
+                if (isActive)
+                {
+                    var ps = child.GetComponent<ParticleSystem>();
+                    if (ps != null && !ps.isPlaying) ps.Play();
+                }
             }
         }
     }
 
-    void SetupCollider()
-    {
-        roomCollider = GetComponent<BoxCollider>();
+    // void SetupCollider()
+    // {
+    //     roomCollider = GetComponent<BoxCollider>();
         
-        // 콜라이더가 없다면 생성
-        if (roomCollider == null)
-        {
-            roomCollider = gameObject.AddComponent<BoxCollider>();
-            roomCollider.size = new Vector3(10, 10, 10); 
-            roomCollider.center = new Vector3(0, 5, 0);
-        }
+    //     // 콜라이더가 없다면 생성
+    //     if (roomCollider == null)
+    //     {
+    //         roomCollider = gameObject.AddComponent<BoxCollider>();
+    //         roomCollider.size = new Vector3(10, 10, 10); 
+    //         roomCollider.center = new Vector3(0, 5, 0);
+    //     }
         
-        // 플레이어 감지용이므로 Trigger는 켜줍니다
-        roomCollider.isTrigger = true; 
-    }
+    //     // 플레이어 감지용이므로 Trigger는 켜줍니다
+    //     roomCollider.isTrigger = true; 
+    // }
 
     // Player 방에 입장 시 호출 될 함수
     private void OnTriggerEnter(Collider other)
@@ -171,9 +194,9 @@ public class RoomManager : MonoBehaviour
     public void NotifyMonsterDied(GameObject monster)
     {
         if (liveMonsters.Contains(monster))
-        {
+        {   
+            // 남은 몬스터에서 현재 제거된 몬스터를 삭제
             liveMonsters.Remove(monster);
-            Debug.Log($"몬스터 처치! 남은 수: {liveMonsters.Count}");
 
             // 모든 몬스터를 잡았는지 확인
             if (liveMonsters.Count == 0)
@@ -187,8 +210,6 @@ public class RoomManager : MonoBehaviour
     void RoomClear()
     {
         state = RoomState.Cleared;
-        Debug.Log("★ 방 클리어! 문이 열립니다. ★");
-
         UnlockDoors();
     }
 }
