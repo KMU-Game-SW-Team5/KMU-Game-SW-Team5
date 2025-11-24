@@ -27,19 +27,45 @@ public class MapMaker : MonoBehaviour
     private Queue<Vector3> PositionQueue = new Queue<Vector3>();
     private Vector3 nextPosition;   // 새로 생성될 방 위치
     private Vector3 bossPosition;
+    private int bossRoomCount;
 
     // mapHolder 변수 제거됨 (this.transform 사용)
 
     void Start()
     {
-        // 별도의 초기화 필요 없음
 
+        ApplyDifficulty();
         FloorAndCeilingMaker();
         WallMaker();
         BossRoomMaker();
 
         // 맵 생성이 모두 끝난 시점
         Debug.Log("맵 생성 완료!");
+    }
+
+    void ApplyDifficulty()
+    {   
+        // SettingService 클래스가 프로젝트에 존재하며 해당 클래스가 정적으로 선언되어 멤버에 접근
+        int difficulty = SettingsService.GameDifficulty;
+
+        switch (difficulty)
+        {
+            case 0: // easy 
+                monsterMin -= 5;
+                monsterMax -= 5;
+                bossRoomCount = 1;
+                break;
+            case 1: // Normal (보통)
+                monsterMin += 0;
+                monsterMax += 0;
+                bossRoomCount = 2;
+                break;
+            case 2: // Hard (어려움)
+                monsterMin += 5;
+                monsterMax += 5;
+                bossRoomCount = 3;
+                break;
+        }   
     }
 
     void FloorAndCeilingMaker()
@@ -66,7 +92,11 @@ public class MapMaker : MonoBehaviour
 
             // ★ 추가된 부분: RoomManager 설정 ★
             RoomManager roomMgr = newFloor.GetComponent<RoomManager>();
-            if (roomMgr != null)
+            if (PositionQueue.Count + 1 <= bossRoomCount)   // 현재 방이 보스방이 생성되어야할 방일때 
+            {
+                roomMgr.Setup(RoomType.Boss, 0, 0);
+            }
+            else
             {
                 // (0,0,0) 위치면 시작 방, 아니면 일반 방으로 설정
                 if (nowPosition == Vector3.zero)
@@ -76,7 +106,7 @@ public class MapMaker : MonoBehaviour
                 else
                 {
                     roomMgr.Setup(RoomType.Normal, monsterMin, monsterMax);
-                }
+                }   
             }
 
             // 천장 생성
@@ -296,7 +326,6 @@ public class MapMaker : MonoBehaviour
         bossPosition.y += 20;
         GameObject newfloor = Instantiate(boss, bossPosition, Quaternion.identity);
 
-        //BossController bossController = newfloor.GetComponent<BossController>();
         BossMonsterBase bossController = newfloor.GetComponent<BossMonsterBase>();
         BossManager.Instance.RegisterBoss(bossController);
     }

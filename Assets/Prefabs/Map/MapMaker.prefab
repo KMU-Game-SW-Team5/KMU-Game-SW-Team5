@@ -44,10 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b899dfb1e5142bc04a182b3ed284a00a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  n: 20
+  roomCount: 20
   roomSize: 40
   floor: {fileID: 8368730452213065613, guid: f2472ab0bab8c2091a3256d67e1b90f7, type: 3}
   wall: {fileID: 3098698459111696107, guid: 9365670580c6b0f7f94ac7642fe2d6bc, type: 3}
   wallDoor: {fileID: 7891159075151969132, guid: 27f0420f6fb56753696ccb3b35815626, type: 3}
   ceiling: {fileID: 8368730452213065613, guid: 4ff4717d98446913fb05bebeab1f30f9, type: 3}
-  boss: {fileID: 8591019436512848637, guid: 1dbce9339d2d04b6684100211eacf162, type: 3}
+  boss: {fileID: 6072527696459845188, guid: 5994ca917e5b2e94b8dbcd745e4a7c6a, type: 3}
+  monsterMin: 15
+  monsterMax: 15

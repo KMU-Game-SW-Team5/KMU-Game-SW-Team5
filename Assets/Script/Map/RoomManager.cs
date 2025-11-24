@@ -38,12 +38,29 @@ public class RoomManager : MonoBehaviour
             state = RoomState.Uncleared;
         }
 
-        // 디버깅용 색상 변경 (나중에 제거 가능)
-        if (type == RoomType.Start) GetComponent<Renderer>().material.color = Color.green;
-        if (type == RoomType.Boss) GetComponent<Renderer>().material.color = Color.red;
+        // 몬스터 나오는 방에만 방 모듈 적용
+        if (type == RoomType.Normal)
+        {
+            SpawnMapModule();
+        }
 
         // 문 찾기 및 초기화
         FindLocalDoors();
+    }
+
+    // 방 구조물 랜덤 생성 함수
+    void SpawnMapModule()
+    {
+        // Resources/MapModule 폴더의 모든 프리팹 로드
+        GameObject[] modules = Resources.LoadAll<GameObject>("MapModule");
+
+        // 방모듈중에서 방을 무작위로 선택한다.
+        int randomIndex = Random.Range(0, modules.Length);
+        GameObject selectedModule = modules[randomIndex];
+
+        // 방모듈을 Plane의 자식 오브젝트로 설정
+        GameObject instance = Instantiate(selectedModule, transform.position, Quaternion.identity);
+        instance.transform.SetParent(transform);
     }
 
     // 방 생성 시 초기 문의 상태를 열어둔 상태로 설정 및 문 찾기
@@ -111,6 +128,25 @@ public class RoomManager : MonoBehaviour
             if (child.name.Contains("MagicFortal"))
             {
                 child.gameObject.SetActive(isActive);
+
+                // 포탈이 활성화될 때 방 타입이 Boss라면 색상 변경 
+                if (isActive && type == RoomType.Boss)
+                {
+                    // 1. 파티클 시스템 색상 변경
+                    ParticleSystem ps = child.GetComponent<ParticleSystem>();
+                    if (ps != null)
+                    {
+                        var main = ps.main;
+                        main.startColor = Color.red; // 빨간색으로 변경
+                    }
+
+                    // 2. (선택사항) 자식에 있는 Light 색상도 변경 (더 붉은 분위기 연출)
+                    Light portalLight = child.GetComponentInChildren<Light>();
+                    if (portalLight != null)
+                    {
+                        portalLight.color = Color.red;
+                    }
+                }
                 
                 // 혹시 파티클이 꺼져있을 수 있으니 확실하게 재생/정지 (선택사항)
                 if (isActive)
