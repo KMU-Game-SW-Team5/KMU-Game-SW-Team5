@@ -11,7 +11,7 @@ public class KillCountUI : MonoBehaviour
         {
             KillCounter.Instance.OnKillCountChanged += HandleKillChanged;
             
-            // ÃÊ±â µ¿±âÈ­
+            // ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½È­
             HandleKillChanged(KillCounter.Instance.TotalKills);
         }
     }
@@ -24,6 +24,7 @@ public class KillCountUI : MonoBehaviour
 
     private void HandleKillChanged(int totalKills)
     {
-        textKillCount.text = $"Ã³Ä¡ ¼ö: {totalKills}";
+        Debug.Log($"KillCountUI: Kill count updated to {totalKills}");
+        textKillCount.text = $"Ã³Ä¡ ï¿½ï¿½: {totalKills}";
     }
 }

@@ -321,7 +321,8 @@ public abstract class MonsterBase : MonoBehaviour
         {
             col.enabled = false;
         }
-
+        KillCounter.Instance.AddMonsterKill();
+        Debug.Log("몬스터가 쓰러졌습니다.");
         // 사망 모션 재생 후 삭제
         Destroy(gameObject, deathAnimationDuration);
     }

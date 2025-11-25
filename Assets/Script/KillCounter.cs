@@ -10,7 +10,7 @@ public class KillCounter : MonoBehaviour
 
     public int TotalKills => TotalMonsterKills + TotalBossKills;
 
-    // ÃÑ Å³ ¼ö°¡ º¯ÇÒ ¶§¸¶´Ù È£Ãâ
+    // ï¿½ï¿½ Å³ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½
     public event Action<int> OnKillCountChanged;
 
     private void Awake()
@@ -26,6 +26,7 @@ public class KillCounter : MonoBehaviour
     public void AddMonsterKill()
     {
         TotalMonsterKills++;
+        Debug.Log("KillCounter: Monster killed. TotalMonsterKills = " + TotalMonsterKills);
         OnKillCountChanged?.Invoke(TotalKills);
     }
 
