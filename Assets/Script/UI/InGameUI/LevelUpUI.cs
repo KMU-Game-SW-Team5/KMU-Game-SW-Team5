@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,7 +28,7 @@ public class LevelUpUI : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // æ÷¥œ∏ﬁ¿Ãº« Ω√¿€
+        // Ïï†ÎãàÎ©îÏù¥ÏÖò ÏãúÏûë
         PlayPopAnim();
     }
 
@@ -40,26 +40,25 @@ public class LevelUpUI : MonoBehaviour
         Cursor.visible = false;
     }
 
-    public void Show(SkillData[] options)
+    public void ShowCards()
     {
         for (int i = 0; i < cards.Length; i++)
         {
-            cards[i].SetSkill(options[i], HandleCardSelected);
+            Debug.Log($"Show i :: {i}");
+            cards[i].gameObject.SetActive(true);
         }
     }
 
-    private void HandleCardSelected(SkillCard card)
+    public void CloseSkillChoiceUI()
     {
-        // æÓ∂≤ Ω∫≈≥¿Œ¡ˆ »Æ¿Œ
-        SkillData selectedSkill = card.Data;
-        int skillLevel = card.Level;
-
-        // øπΩ√: skillSystem.LearnSkill(selectedSkill);
-
-        Close();
+        for (int i = 0; i < cards.Length; i++)
+        {
+            cards[i].GetComponent<SkillCard>().Close();
+        }
+        gameObject.SetActive(false);
     }
 
-    public void PlayPopAnim()
+    private void PlayPopAnim()
     {
         if (animRoutine != null)
             StopCoroutine(animRoutine);
@@ -73,8 +72,8 @@ public class LevelUpUI : MonoBehaviour
         rectTransform.localScale = startScale;
         canvasGroup.alpha = 0f;
 
-        // 1¥‹∞Ë: startScale °Ê overshootScale
-        float half = animDuration * 0.6f; // 60% ±∏∞£
+        // 1Îã®Í≥Ñ: startScale ‚Üí overshootScale
+        float half = animDuration * 0.6f; // 60% Íµ¨Í∞Ñ
         while (t < half)
         {
             t += Time.unscaledDeltaTime;
@@ -86,7 +85,7 @@ public class LevelUpUI : MonoBehaviour
             yield return null;
         }
 
-        // 2¥‹∞Ë: overshoot °Ê 1.0¿∏∑Œ ªÏ¬¶ µ«µπæ∆ø¿±‚ (≈∫º∫ ¡ŸæÓµÂ¥¬ ¥¿≥¶)
+        // 2Îã®Í≥Ñ: overshoot ‚Üí 1.0ÏúºÎ°ú ÏÇ¥Ïßù ÎêòÎèåÏïÑÏò§Í∏∞ (ÌÉÑÏÑ± Ï§ÑÏñ¥ÎìúÎäî ÎäêÎÇå)
         float t2 = 0f;
         float tail = animDuration - half;
         Vector3 from = Vector3.one * overshootScale;
@@ -109,10 +108,5 @@ public class LevelUpUI : MonoBehaviour
     private float EaseOutQuad(float x)
     {
         return 1f - (1f - x) * (1f - x);
-    }
-
-    public void Close()
-    {
-        gameObject.SetActive(false);
-    }
+    }    
 }

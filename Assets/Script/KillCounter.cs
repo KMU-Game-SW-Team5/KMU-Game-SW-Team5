@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 
 public class KillCounter : MonoBehaviour
@@ -10,8 +10,10 @@ public class KillCounter : MonoBehaviour
 
     public int TotalKills => TotalMonsterKills + TotalBossKills;
 
-    // �� ų ���� ���� ������ ȣ��
+    // KillCountUI와 연결(킬 수 변경 시 알림)
     public event Action<int> OnKillCountChanged;
+    // KillCountUI와 연결(KillCounter 싱글톤 생성 시 알림)
+    public static event Action<KillCounter> OnCreated;
 
     private void Awake()
     {
@@ -21,6 +23,7 @@ public class KillCounter : MonoBehaviour
             return;
         }
         Instance = this;
+        OnCreated?.Invoke(this);
     }
 
     public void AddMonsterKill()

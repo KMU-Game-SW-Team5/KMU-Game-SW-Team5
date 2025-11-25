@@ -1,29 +1,30 @@
-using System;
+ï»¿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerLevelSystem : MonoBehaviour
 {
-    [Header("ÃÊ±â ¼³Á¤")]
+    [Header("ì´ˆê¸° ì„¤ì •")]
     [SerializeField] private int startLevel = 1;
 
-    [Header("°æÇèÄ¡ Áõ°¡ ±ÔÄ¢")]
-    [SerializeField] private float baseRequiredExp = 100f;   // 1 -> 2 ÇÊ¿ä °æÇèÄ¡
-    [SerializeField] private float expIncrementPerLevel = 50f; // ·¹º§´ç Ãß°¡ °æÇèÄ¡
+    [Header("ê²½í—˜ì¹˜ ì¦ê°€ ê·œì¹™")]
+    [SerializeField] private float baseRequiredExp = 100f;   // 1 -> 2 í•„ìš” ê²½í—˜ì¹˜
+    [SerializeField] private float expIncrementPerLevel = 50f; // ë ˆë²¨ë‹¹ ì¶”ê°€ ê²½í—˜ì¹˜
 
     public int Level { get; private set; }
     public float CurrentExp { get; private set; }
 
-    /// <summary>´ÙÀ½ ·¹º§±îÁö ÇÊ¿äÇÑ °æÇèÄ¡</summary>
+    /// <summary>ë‹¤ìŒ ë ˆë²¨ê¹Œì§€ í•„ìš”í•œ ê²½í—˜ì¹˜</summary>
     public float RequiredExp
     {
         get => baseRequiredExp + (Level - 1) * expIncrementPerLevel;
     }
 
-    // UI³ª ´Ù¸¥ ½Ã½ºÅÛÀÌ ±¸µ¶ÇÒ ÀÌº¥Æ®
-    /// <summary>°æÇèÄ¡ º¯È­ ½Ã È£Ãâ(ÇöÀç °æÇèÄ¡, ´ÙÀ½ ·¹º§±îÁö ÇÊ¿ä °æÇèÄ¡)</summary>
+    // PlayerUIBinderì™€ ì—°ê²°
+    /// <summary>ê²½í—˜ì¹˜ ë³€í™” ì‹œ í˜¸ì¶œ(í˜„ì¬ ê²½í—˜ì¹˜, ë‹¤ìŒ ë ˆë²¨ê¹Œì§€ í•„ìš” ê²½í—˜ì¹˜)</summary>
     public event Action<float, float> OnExpChanged;
 
-    /// <summary>·¹º§¾÷ ½Ã È£Ãâ</summary>
+    /// <summary>ë ˆë²¨ì—… ì‹œ í˜¸ì¶œ</summary>
     public event Action<int> OnLevelUp;
 
     private void Awake()
@@ -32,7 +33,17 @@ public class PlayerLevelSystem : MonoBehaviour
         CurrentExp = 0f;
     }
 
-    /// <summary>ÇÃ·¹ÀÌ¾î°¡ amount ¸¸Å­ °æÇèÄ¡¸¦ ¾òÀ½</summary>
+    private void Start()
+    {
+        OnLevelUp += HandleLevelUp;
+    }
+
+    private void OnDestroy()
+    {
+        OnLevelUp -= HandleLevelUp;
+    }
+
+    /// <summary>í”Œë ˆì´ì–´ê°€ amount ë§Œí¼ ê²½í—˜ì¹˜ë¥¼ ì–»ìŒ</summary>
     public void AddExp(float amount)
     {
         if (amount <= 0f) return;
@@ -48,5 +59,11 @@ public class PlayerLevelSystem : MonoBehaviour
         }
 
         OnExpChanged?.Invoke(CurrentExp, RequiredExp);
+    }
+
+    private void HandleLevelUp(int newLevel)
+    {
+        // ë ˆë²¨ì—… UI ë„ìš°ê¸°
+        InGameUIManager.Instance.ShowLevelUpUI();
     }
 }

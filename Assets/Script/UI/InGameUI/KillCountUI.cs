@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public class KillCountUI : MonoBehaviour
@@ -9,10 +9,11 @@ public class KillCountUI : MonoBehaviour
     {
         if (KillCounter.Instance != null)
         {
-            KillCounter.Instance.OnKillCountChanged += HandleKillChanged;
-            
-            // �ʱ� ����ȭ
-            HandleKillChanged(KillCounter.Instance.TotalKills);
+            Register(KillCounter.Instance);
+        }
+        else
+        {
+            KillCounter.OnCreated += Register;
         }
     }
 
@@ -20,11 +21,21 @@ public class KillCountUI : MonoBehaviour
     {
         if (KillCounter.Instance != null)
             KillCounter.Instance.OnKillCountChanged -= HandleKillChanged;
+
+        KillCounter.OnCreated -= Register;
     }
 
     private void HandleKillChanged(int totalKills)
     {
         Debug.Log($"KillCountUI: Kill count updated to {totalKills}");
-        textKillCount.text = $"óġ ��: {totalKills}";
+        textKillCount.text = $"Kills: {totalKills}";
+    }
+
+    private void Register(KillCounter counter)
+    {
+        counter.OnKillCountChanged += HandleKillChanged;
+
+        // 초기 동기화
+        HandleKillChanged(counter.TotalKills);
     }
 }

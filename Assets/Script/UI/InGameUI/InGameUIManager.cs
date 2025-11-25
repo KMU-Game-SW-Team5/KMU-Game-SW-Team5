@@ -46,16 +46,22 @@ public class InGameUIManager : MonoBehaviour
         TimeManager.Instance.OnDayRatioChanged += waveTimerUI.SetRatio;
     }
 
-    void OnEnable()
-    {
-        //TimeManager.Instance.OnCycleProgress += waveTimerUI.UpdateRotation; 
-        //TimeManager.Instance.OnDayRatioChanged += waveTimerUI.SetRatio;
-    }
-    void OnDisable()
+    void OnDestroy()
     {
         TimeManager.Instance.OnCycleProgress -= waveTimerUI.UpdateRotation;
         TimeManager.Instance.OnDayRatioChanged -= waveTimerUI.SetRatio;
     }
+
+    //void OnEnable()
+    //{
+    //    TimeManager.Instance.OnCycleProgress += waveTimerUI.UpdateRotation; 
+    //    TimeManager.Instance.OnDayRatioChanged += waveTimerUI.SetRatio;
+    //}
+    //void OnDisable()
+    //{
+    //    TimeManager.Instance.OnCycleProgress -= waveTimerUI.UpdateRotation;
+    //    TimeManager.Instance.OnDayRatioChanged -= waveTimerUI.SetRatio;
+    //}
 
     // -----------------------------
     // About Player
@@ -131,10 +137,10 @@ public class InGameUIManager : MonoBehaviour
     // -----------------------------
     // About LevelUp
     // -----------------------------
-    public void ShowLevelUpUI(SkillData[] options)
+    public void ShowLevelUpUI()
     {
         levelUpPanel.SetActive(true);
-        levelUpUI.Show(options);        
+        levelUpUI.ShowCards();        
     }
 
     // -----------------------------

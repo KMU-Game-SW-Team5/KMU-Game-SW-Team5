@@ -58,6 +58,7 @@ public abstract class BossMonsterBase : MonsterBase
         else if (distance <= attackRange)
         {
             TryAttack();
+            HandlePlayerDetected();
             SetMoveAnimation(false);
         }
         else

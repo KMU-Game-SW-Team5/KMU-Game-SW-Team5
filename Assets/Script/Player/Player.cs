@@ -27,7 +27,7 @@ public class Player : MonoBehaviour, IDamageable
         moveController = GetComponent<MoveController>();
         playerAnimation = GetComponent<PlayerAnimation>();
 
-        OnHPChanged?.Invoke(hp, maxHealth);
+        OnHPChanged?.Invoke(hp, maxHealth); // UI 적용
     }
 
     public void TakeDamage(int damage)
@@ -41,7 +41,7 @@ public class Player : MonoBehaviour, IDamageable
         CombatUIManager.Instance?.PlayHitEffect();
         LowHPEffect();
         playerAnimation.SetAnimation(AnimationType.Hit);
-        OnHPChanged?.Invoke(hp, maxHealth);
+        OnHPChanged?.Invoke(hp, maxHealth); // UI 적용
 
         SetInvincibleFor(invincibleTimeWhenTakeDamage);
 
@@ -67,6 +67,7 @@ public class Player : MonoBehaviour, IDamageable
     {
         hp = Mathf.Min(hp + value, maxHealth);
         Debug.Log("Healed, currentHP : " + hp);
+        OnHPChanged?.Invoke(hp, maxHealth); // UI 적용
         LowHPEffect();
     }
 
@@ -79,7 +80,7 @@ public class Player : MonoBehaviour, IDamageable
     void Die()
     {
         Debug.Log("플레이어가 쓰러졌습니다.");
-        GameManager.Instance.EndGame(false);
+        GameManager.Instance.EndGame(false);    // UI 적용
         Time.timeScale = 0f;
     }
 
