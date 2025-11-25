@@ -969,7 +969,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -66.3, y: 0, z: -29.1}
-  m_LocalScale: {x: 63.730003, y: 63.730003, z: 63.730003}
+  m_LocalScale: {x: 15, y: 15, z: 15}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4101563447967464520}
@@ -1080,18 +1080,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 1000
-  moveSpeed: 1
+  moveSpeed: 30
   isFlying: 0
-  detectionRange: 1000
-  attackRange: 50
+  detectionRange: 500
+  attackRange: 30
   lockYToSelf: 1
   attackDamage: 10
   attackCooldown: 1
   deathAnimationDuration: 3
+  rb: {fileID: 0}
   Color_AdditionalDamage: {r: 1, g: 0.4, b: 0.4, a: 1}
   Color_Frozen: {r: 0.6, g: 0.8, b: 1, a: 1}
   additionalDamageRate: 0
   damageTextAnchor: {fileID: 5153714918706455673}
+  isCCImmune: 0
 --- !u!1 &5656136914208609881
 GameObject:
   m_ObjectHideFlags: 0

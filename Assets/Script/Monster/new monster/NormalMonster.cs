@@ -98,4 +98,10 @@ public class NormalMonster : MonsterBase
         //  - deathAnimationDuration 후 Destroy
         // 까지 처리해 줌
     }
+    protected override void Die(GameObject killer = null)
+    {
+        base.Die(killer);
+        RoomManager room = GetComponentInParent<RoomManager>();
+        room.NotifyMonsterDied(this.gameObject);
+    }
 }
