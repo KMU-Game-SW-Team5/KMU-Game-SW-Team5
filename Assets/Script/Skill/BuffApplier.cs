@@ -4,10 +4,7 @@ using UnityEngine;
 public class BuffApplier : MonoBehaviour
 {
     [Header("참조")]
-    [SerializeField] private SkillManager skillManager;
     [SerializeField] private MoveController moveController;
-    // 필요하면 Player, 방어력 컴포넌트 등도 추가
-    // [SerializeField] private PlayerDefense playerDefense;
 
     private void Awake()
     { 
@@ -15,9 +12,16 @@ public class BuffApplier : MonoBehaviour
             moveController = GetComponent<MoveController>();
     }
 
-    public void ApplyBuff(BuffStatType statType, float amount, float duration)
+    // 입력 시간 동안 적용
+    public void ApplyBuffFor(BuffStatType statType, float amount, float duration)
     {
         StartCoroutine(BuffRoutine(statType, amount, duration));
+    }
+
+    // 영구 적용
+    public void ApplyBuff(BuffStatType type, float amount)
+    {
+        AddBuff(type, amount);
     }
 
     private IEnumerator BuffRoutine(BuffStatType statType, float amount, float duration)
@@ -37,6 +41,14 @@ public class BuffApplier : MonoBehaviour
         {
             case BuffStatType.Magic:
                 SkillManager.Instance.AddMagicStat(amount);
+                break;
+
+            case BuffStatType.Heal:
+                SkillManager.Instance.player.Heal((int)amount);
+                break;
+
+            case BuffStatType.AttackSpeed:
+                SkillManager.Instance.AddAttackSpeed(amount);
                 break;
 
 

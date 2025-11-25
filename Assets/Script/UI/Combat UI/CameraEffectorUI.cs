@@ -15,6 +15,14 @@ public class CameraEffectorUI : MonoBehaviour
     [SerializeField, Tooltip("0~1, 이 값 이후로 알파=1 (최외곽)")]
     private float outerRadius = 0.9f;
 
+    [Header("사각형 테두리 설정")]
+    [SerializeField, Range(0f, 0.5f)]
+    private float borderThickness = 0.1f;   // 0에 가까울수록 얇은 테두리
+
+
+    private float lastAspect = -1f;   // 마지막으로 생성했을 때의 화면 비율
+
+
     [Header("Low HP 깜빡임 설정")]
     [SerializeField] private float blinkMaxIntensity = 0.8f;
     [SerializeField] private float blinkSpeed = 2.0f;
@@ -48,7 +56,10 @@ public class CameraEffectorUI : MonoBehaviour
             hitFlashCanvas.alpha = 0f;
 
         if (lowHpImage != null)
+        {
             GenerateVignette(lowHpImage);
+            lastAspect = GetCurrentAspect();
+        }
     }
 
     private void Start()
@@ -56,31 +67,59 @@ public class CameraEffectorUI : MonoBehaviour
         camTransform = Camera.main.transform;
     }
 
+    private void Update()
+    {
+        // 카메라 셋업 등 기존 Update 내용이 있다면 그 위/아래에 추가
+
+        float currentAspect = GetCurrentAspect();
+
+        // 비율이 일정 이상 바뀌었을 때만 다시 생성 (0.01 = 약 1% 차이)
+        if (Mathf.Abs(currentAspect - lastAspect) > 0.01f)
+        {
+            if (lowHpImage != null)
+            {
+                GenerateVignette(lowHpImage);
+                lastAspect = currentAspect;
+            }
+        }
+    }
+
+
     private void GenerateVignette(Image targetImage)
     {
         Texture2D tex = new Texture2D(textureSize, textureSize, TextureFormat.RGBA32, false);
         tex.wrapMode = TextureWrapMode.Clamp;
         tex.filterMode = FilterMode.Bilinear;
 
-        float half = textureSize / 2f;
+        int w = textureSize;
+        int h = textureSize;
 
-        for (int y = 0; y < textureSize; y++)
+        for (int y = 0; y < h; y++)
         {
-            for (int x = 0; x < textureSize; x++)
+            for (int x = 0; x < w; x++)
             {
-                float nx = (x - half) / half;
-                float ny = (y - half) / half;
-                float dist = Mathf.Sqrt(nx * nx + ny * ny);
+                // 0 ~ 1 정규화 좌표
+                float u = x / (w - 1f);
+                float v = y / (h - 1f);
 
+                // 네 개의 가장자리까지의 거리 중 최소값
+                // (0쯤이면 화면 가장자리, 0.5로 갈수록 중앙)
+                float distToEdge = Mathf.Min(u, v, 1f - u, 1f - v);
+
+                // 테두리 두께 기준으로 알파 계산
+                // distToEdge == 0        → 알파 최대
+                // distToEdge == thickness→ 알파 0
                 float alpha;
-                if (dist <= innerRadius)
-                    alpha = 0f;
-                else if (dist >= outerRadius)
-                    alpha = 1f;
+                if (distToEdge >= borderThickness)
+                {
+                    alpha = 0f; // 테두리 안쪽은 투명
+                }
                 else
                 {
-                    float t = Mathf.InverseLerp(innerRadius, outerRadius, dist);
-                    alpha = t * t * (3f - 2f * t);
+                    float t = distToEdge / Mathf.Max(borderThickness, 0.0001f);
+                    alpha = 1f - t;      // 가장자리 1 → 안쪽으로 갈수록 0
+                                         // 부드럽게 하고 싶으면 조금 둥글게
+                    alpha = alpha * alpha * (3f - 2f * alpha);
                 }
 
                 Color c = lowHpColor;
@@ -99,9 +138,10 @@ public class CameraEffectorUI : MonoBehaviour
 
         targetImage.sprite = sp;
         targetImage.type = Image.Type.Simple;
-        targetImage.preserveAspect = true;
+        targetImage.preserveAspect = false;  // 화면 비율에 맞게 늘이기
         targetImage.color = Color.white;
     }
+
 
     // -------- Low HP 깜빡임 --------
     public void StartLowHpBlink()
@@ -204,5 +244,12 @@ public class CameraEffectorUI : MonoBehaviour
         camTransform.localPosition = originalLocalPos;
         shakeCo = null;
     }
+
+    private float GetCurrentAspect()
+    {
+        if (Screen.height <= 0) return 0f;
+        return (float)Screen.width / Screen.height;
+    }
+
 }
 

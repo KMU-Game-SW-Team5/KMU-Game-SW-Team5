@@ -1,5 +1,7 @@
 public enum BuffStatType
 {
+    Heal,               // 회복
+    IncreaseMaxHealth,  // 최대 체력 증가
     Magic,          // 마력
     MoveSpeed,      // 이동 속도
     AttackSpeed,    // 공격 속도

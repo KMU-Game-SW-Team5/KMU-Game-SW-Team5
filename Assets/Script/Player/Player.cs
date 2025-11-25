@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 public class Player : MonoBehaviour, IDamageable
 {
@@ -17,6 +16,7 @@ public class Player : MonoBehaviour, IDamageable
     [Header("무적 상태 관련")]
     private bool isInvincible = false;
     private Coroutine invincibleCo;
+    [SerializeField] private float invincibleTimeWhenTakeDamage = 1f;
 
     // HP 변화 이벤트 -> UI 연결
     public event Action<int, int> OnHPChanged;
@@ -43,6 +43,8 @@ public class Player : MonoBehaviour, IDamageable
         playerAnimation.SetAnimation(AnimationType.Hit);
         OnHPChanged?.Invoke(hp, maxHealth);
 
+        SetInvincibleFor(invincibleTimeWhenTakeDamage);
+
         if (hp <= 0)
         {
             Die();
@@ -61,10 +63,17 @@ public class Player : MonoBehaviour, IDamageable
         }
     }
 
-    void Heal(int heal)
+    public void Heal(int value)
     {
-        hp = Mathf.Max(hp + heal, maxHealth);
+        hp = Mathf.Min(hp + value, maxHealth);
+        Debug.Log("Healed, currentHP : " + hp);
         LowHPEffect();
+    }
+
+    public void IncreaseMaxHealth(int value)
+    {
+        maxHealth += value;
+        Heal(value);
     }
 
     void Die()

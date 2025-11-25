@@ -89,6 +89,7 @@ public class ProjectileComponent : MonoBehaviour
     // ---------------------------------------------------------------------
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("92 : " + other.ToString());
         Transform root = other.transform.root;
 
         // 🔹 Tag 기반 판별: 일반 몬스터("Monster") + 보스("Boss") 모두 포함

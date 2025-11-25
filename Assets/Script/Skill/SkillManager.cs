@@ -10,7 +10,11 @@ public class SkillManager : MonoBehaviour
 
     // 플레이어 오브젝트
     public GameObject owner { get; private set; }
+    public Player player;
     private PlayerAnimation playerAnimation;
+
+    [Header("버프 적용해주는 스크립트")]
+    [SerializeField] public BuffApplier buffApplier;
 
     [Header("스킬 시전 위치 (플레이어 자식 오브젝트들)")]
     [SerializeField] private Transform shotPos_Staff;
@@ -48,8 +52,12 @@ public class SkillManager : MonoBehaviour
     [Header("기본 공격")]
     [SerializeField] private ActiveSkillBase basicAttackSkill; // 기본 공격에 사용할 액티브 스킬
     [SerializeField, Tooltip("초당 몇 번까지 기본 공격 가능한지")]
-    private float basicAttackRate = 1f;
-    public float GetAttackSpeed() => basicAttackRate;
+    private float attackSpeed = 1f;
+    public float GetAttackSpeed() => attackSpeed;
+    public void AddAttackSpeed(float value)
+    {
+        attackSpeed += value;
+    }
 
     // 내부용: 마지막 기본 공격 시각
     private float lastBasicAttackTime = -999f;
@@ -59,8 +67,8 @@ public class SkillManager : MonoBehaviour
     {
         get
         {
-            if (basicAttackRate <= 0f) return 99999f;
-            return 1f / basicAttackRate;
+            if (attackSpeed <= 0f) return 99999f;
+            return 1f / attackSpeed;
         }
     }
 
@@ -96,6 +104,11 @@ public class SkillManager : MonoBehaviour
 
     private void Awake()
     {
+        Init();
+    }
+
+    private void Init()
+    {
         // 싱글톤 기본 코드
         if (Instance != null && Instance != this)
         {
@@ -105,11 +118,7 @@ public class SkillManager : MonoBehaviour
         Instance = this;
 
         owner = this.gameObject;   // SkillManager는 플레이어에게 붙어있음
-        Init();
-    }
-
-    private void Init()
-    {
+        player = GetComponent<Player>();
         InitalizeActiveSkills();
     }
 
@@ -219,7 +228,7 @@ public class SkillManager : MonoBehaviour
     {
         if (isCasting) return;
         if (basicAttackSkill == null) return;
-        if (basicAttackRate <= 0f) return;
+        if (attackSpeed <= 0f) return;
 
         if (!Input.GetMouseButton(0))
             return;
@@ -391,6 +400,7 @@ public class SkillManager : MonoBehaviour
             }
         }
     }
+
 
     // 바라보는 방향에 가장 먼저 맞은 곳에 프리팹을 생성해서 그 트랜스폼을 리턴함.
     public Transform CreateSkillAnchor()

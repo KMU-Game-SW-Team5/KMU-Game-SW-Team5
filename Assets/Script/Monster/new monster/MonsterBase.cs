@@ -31,7 +31,7 @@ public abstract class MonsterBase : MonoBehaviour
     [Header("=== Animation & Physics ===")]
     public float deathAnimationDuration = 3f;
 
-    [SerializeField] protected Rigidbody rb;
+    protected Rigidbody rb;
     protected Animator animator;
 
     [Header("=== Target ===")]

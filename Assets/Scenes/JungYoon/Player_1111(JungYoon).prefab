@@ -979,7 +979,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2452702568488850722
 Transform:
   m_ObjectHideFlags: 0
@@ -1289,7 +1289,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7975783524636609005
 Transform:
   m_ObjectHideFlags: 0
@@ -1696,7 +1696,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6522356679867261639
 Transform:
   m_ObjectHideFlags: 0
@@ -2028,7 +2028,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7648031366741974893
 Transform:
   m_ObjectHideFlags: 0
@@ -2142,7 +2142,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1137992971812312296
 Transform:
   m_ObjectHideFlags: 0
@@ -2992,7 +2992,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5647511851056924960
 Transform:
   m_ObjectHideFlags: 0
@@ -3200,7 +3200,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &308723942957790595
 Transform:
   m_ObjectHideFlags: 0
@@ -3543,6 +3543,7 @@ GameObject:
   - component: {fileID: 4998915581994404291}
   - component: {fileID: 2567325219279645160}
   - component: {fileID: 6106417556462171900}
+  - component: {fileID: 7131818643936476358}
   - component: {fileID: 1828637652230387654}
   - component: {fileID: 3626455592132302725}
   - component: {fileID: 5603917540863879228}
@@ -3659,6 +3660,7 @@ MonoBehaviour:
   maxHealth: 200
   hp: 1000
   lowHpRatio: 0.2
+  invincibleTimeWhenTakeDamage: 1
 --- !u!114 &4243399907048013887
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3777,6 +3779,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1635d100120cca4f97b2f468bac3dd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 621652012615075189}
+  buffApplier: {fileID: 7131818643936476358}
   shotPos_Staff: {fileID: 7317331833410312651}
   shotPos_LeftDown: {fileID: 5329853201394726540}
   shotPos_Left: {fileID: 5749783127110644265}
@@ -3789,9 +3793,9 @@ MonoBehaviour:
   radius: 11.8
   activeSkills:
   - {fileID: 11400000, guid: a392258e60bdd0441aea1e85e458f279, type: 2}
-  - {fileID: 11400000, guid: 14f4a9560e9982f41a2d41b1856c4059, type: 2}
-  - {fileID: 11400000, guid: 9c36d8adedca00c4880c14631beb0eaa, type: 2}
-  - {fileID: 11400000, guid: d296c5fb661c8ea42bde2e86bb221330, type: 2}
+  - {fileID: 11400000, guid: 92ed4f15b36f6ea418bd73c450234d45, type: 2}
+  - {fileID: 11400000, guid: 6e1ea0111f34e2c4cbbcf68f1a27a4e3, type: 2}
+  - {fileID: 11400000, guid: 31ec668155a1d6d47a9ee8dba2a3595b, type: 2}
   passiveSkills:
   - {fileID: 11400000, guid: 12bd4f7dbc3015b47b1aef00aa1e4204, type: 2}
   - {fileID: 11400000, guid: 06cc93e0d3845504a80e9a993f12ff03, type: 2}
@@ -3804,11 +3808,24 @@ MonoBehaviour:
   passiveSkillDeck: {fileID: 11400000, guid: c2ee1cfcb2020c44cb43eea97d110305, type: 2}
   skillKeys: 71000000650000007200000066000000
   basicAttackSkill: {fileID: 11400000, guid: 671443c482f707c469d28b80f9f61916, type: 2}
-  basicAttackRate: 2
+  attackSpeed: 1
   magicStat: 10
   skillAnchorPrefab: {fileID: 8333112402990972783, guid: 4f14c3a49e5cfdb40949a31ac4a06bf3, type: 3}
   maxSpellDistance: 1000
   anchorLifetime: 10
+--- !u!114 &7131818643936476358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8932935889209719771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d73e7aec586c0d48807fa33562463fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveController: {fileID: 7740971710797951775}
 --- !u!95 &1828637652230387654
 Animator:
   serializedVersion: 5
