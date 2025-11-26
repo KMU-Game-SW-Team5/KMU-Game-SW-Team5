@@ -569,7 +569,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1146543536
 Transform:
   m_ObjectHideFlags: 0
@@ -622,63 +622,7 @@ MonoBehaviour:
   bossDamageKey: 107
   bossDisappearKey: 108
   levelUpKey: 58
---- !u!1001 &1236883803
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2108181300566924573, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 974.73785
-      objectReference: {fileID: 0}
-    - target: {fileID: 2108181300566924573, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 883.80676
-      objectReference: {fileID: 0}
-    - target: {fileID: 2108181300566924573, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 397.04486
-      objectReference: {fileID: 0}
-    - target: {fileID: 2108181300566924573, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2108181300566924573, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2108181300566924573, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2108181300566924573, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2108181300566924573, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2108181300566924573, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2108181300566924573, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7946045568706385865, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
-      propertyPath: m_Name
-      value: BossManager
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 4cf3e0c2cecac374c9e8051dde83e20d, type: 3}
+  gameClearKey: 99
 --- !u!114 &1696408490 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3141457540799673612, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
@@ -1199,7 +1143,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1056307279}
-  - {fileID: 1236883803}
   - {fileID: 18422795}
   - {fileID: 1146543536}
   - {fileID: 2077880362}

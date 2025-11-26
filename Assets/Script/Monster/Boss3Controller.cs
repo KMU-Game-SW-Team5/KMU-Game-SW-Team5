@@ -49,9 +49,6 @@ public class Boss3Controller : MonoBehaviour, IDamageable
 
     // [UI 연결] HP 변화 이벤트 
     private bool isPlayerDetected = false;
-    public event Action<int, int> OnHPChanged;
-    public event Action<int, int> OnAppeared;
-    public event Action OnDisappeared;  
 
     private float lastProgress = 0f; 
 
@@ -101,18 +98,21 @@ public class Boss3Controller : MonoBehaviour, IDamageable
             if (distance <= detectionRange && distance > attackRange)
             {
                 MoveTowardsPlayer();
-                if(animator != null) animator.SetFloat("Speed", 1f); 
+                HandlePlayerDetected();
+                if (animator != null) animator.SetFloat("Speed", 1f); 
 
                 CheckDualFootsteps();
             }
             else if (distance <= attackRange)
             {
                 AttackPlayer();
-                if(animator != null) animator.SetFloat("Speed", 0f);
+                HandlePlayerDetected();
+                if (animator != null) animator.SetFloat("Speed", 0f);
             }
             else
             {
-                if(animator != null) animator.SetFloat("Speed", 0f);
+                HandlePlayerLost();
+                if (animator != null) animator.SetFloat("Speed", 0f);
             }
         }
         else
@@ -275,7 +275,7 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         currentHealth -= damage;
 
         // UI 연결
-        OnHPChanged?.Invoke(currentHealth, maxHealth);
+        InGameUIManager.Instance.UpdateBossHPUI(currentHealth, maxHealth);
         Debug.Log("보스 3 체력: " + currentHealth);
 
         if (currentHealth <= 0)
@@ -305,9 +305,6 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         rb.velocity = Vector3.zero;
         GetComponent<Collider>().enabled = false;
 
-        // UI 관련 이벤트 함수 제거를 위한 보스 사라짐 알림
-        BossManager.Instance.UnregisterBoss(this);
-
         // Kill Counter 반영
         KillCounter.Instance.AddBossKill();
 
@@ -325,7 +322,7 @@ public class Boss3Controller : MonoBehaviour, IDamageable
         else
         {
             // 새롭게 감지된 경우
-            OnAppeared?.Invoke(currentHealth, maxHealth);
+            InGameUIManager.Instance.AppearBossUI(currentHealth, maxHealth);
             isPlayerDetected = true;
         }
     }
@@ -334,6 +331,6 @@ public class Boss3Controller : MonoBehaviour, IDamageable
     void HandlePlayerLost()
     {
         isPlayerDetected = false;
-        OnDisappeared?.Invoke();
+        InGameUIManager.Instance.DisappearBossUI();
     }
 }

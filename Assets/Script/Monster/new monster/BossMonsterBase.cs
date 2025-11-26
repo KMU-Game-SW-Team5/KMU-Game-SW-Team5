@@ -10,10 +10,6 @@ public abstract class BossMonsterBase : MonsterBase
 
     // [UI 연결] HP 변화 이벤트 
     private bool isPlayerDetected = false;
-    public event Action<int, int> OnHPChanged;
-    public event Action<int, int> OnAppeared;
-    public event Action OnDisappeared;
-
 
     protected override void Awake()
     {
@@ -90,7 +86,7 @@ public abstract class BossMonsterBase : MonsterBase
         base.TakeDamage(dmg, attacker); // HP 감소 + 0 이하 시 Die 호출
 
         // UI 연결
-        OnHPChanged?.Invoke((int)currentHealth, maxHealth);
+        InGameUIManager.Instance.UpdateBossHPUI(currentHealth, maxHealth);
 
         // 이미 죽었으면 추가 로직 안 타도록
         if (isDead) return;
@@ -171,7 +167,7 @@ public abstract class BossMonsterBase : MonsterBase
         // 기본 보스는 맞았을 때 특별히 아무것도 안 함
         // 자식 클래스에서 animator.SetTrigger("Hit") 같이 덮어써도 됨
         // UI 연결
-        OnHPChanged?.Invoke((int)currentHealth, maxHealth);
+        InGameUIManager.Instance.UpdateBossHPUI(currentHealth, maxHealth);
     }
 
     protected override void OnDeath(GameObject killer)
@@ -180,8 +176,6 @@ public abstract class BossMonsterBase : MonsterBase
         // 자식 클래스에서 보스 전용 드랍, 포탈 생성, 클리어 UI 등 구현
         // UI 연결
         HandlePlayerLost();
-        // UI 관련 이벤트 함수 제거를 위한 보스 사라짐 알림
-        BossManager.Instance.UnregisterBoss(this);
         // Kill Counter 반영
         KillCounter.Instance.AddBossKill();
     }
@@ -197,7 +191,7 @@ public abstract class BossMonsterBase : MonsterBase
         else
         {
             // 새롭게 감지된 경우
-            OnAppeared?.Invoke((int)currentHealth, maxHealth);
+            InGameUIManager.Instance.AppearBossUI(currentHealth, maxHealth);
             isPlayerDetected = true;
         }
     }
@@ -206,6 +200,6 @@ public abstract class BossMonsterBase : MonsterBase
     void HandlePlayerLost()
     {
         isPlayerDetected = false;
-        OnDisappeared?.Invoke();
+        InGameUIManager.Instance.DisappearBossUI();    // UI
     }
 }
