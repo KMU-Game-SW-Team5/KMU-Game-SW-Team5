@@ -17,7 +17,7 @@ public class MapMaker : MonoBehaviour
     public GameObject wall;         // 벽 프리팹 
     public GameObject wallDoor;     // 문이 있는 벽 프리팹 
     public GameObject ceiling;      // 천장 프리팹
-    public GameObject boss;         // 보스몹 프리팹
+    // public GameObject boss;      // [변경] RoomManager에서 Resources로 로드하므로 제거됨
 
     [Header("몬스터 수")]
     public int monsterMin = 15;
@@ -30,19 +30,19 @@ public class MapMaker : MonoBehaviour
     private Vector3 nextPosition;   // 새로 생성될 방 위치
     private Vector3 bossPosition;
     private int bossRoomCount;
+    private int currentDifficulty = 0; // [추가] 난이도 저장 변수
 
-    // mapHolder 변수 제거됨 (this.transform 사용)
+    private List<RoomManager> allRooms = new List<RoomManager>();
+
+    private Dictionary<Vector3, Transform> roomMap = new Dictionary<Vector3, Transform>();
 
     void Start()
     {
         ApplyDifficulty();
         FloorAndCeilingMaker();
         WallMaker();
-        
-        // 여기에 장애물/모듈 랜덤 배치 함수가 있다면 호출
-        // PlaceRandomModules(); 
-
-        BossRoomMaker();
+        // BossRoomMaker(); // [변경] 더 이상 별도로 보스방을 만들지 않음
+        RoomManagerInitailize();
 
         Debug.Log("맵 배치 완료.");
 
@@ -62,6 +62,7 @@ public class MapMaker : MonoBehaviour
     {   
         // SettingService 클래스가 프로젝트에 존재하며 해당 클래스가 정적으로 선언되어 멤버에 접근
         int difficulty = SettingsService.GameDifficulty;
+        currentDifficulty = difficulty; // [추가] RoomManager에 넘겨주기 위해 멤버 변수에 저장
 
         switch (difficulty)
         {
@@ -84,10 +85,12 @@ public class MapMaker : MonoBehaviour
     }
 
     void FloorAndCeilingMaker()
-    {   
+    {  
         // 큐와 집합 초기화 및 초기값 설정
         PositionQueue.Clear();
         TempSet.Clear();
+        allRooms.Clear();
+        roomMap.Clear();
         PositionQueue.Enqueue(new Vector3(0, 0, 0));
         TempSet.Add(new Vector3(0, 0, 0));
         roomCount--;
@@ -102,35 +105,30 @@ public class MapMaker : MonoBehaviour
             // 방생성
             GameObject newFloor = Instantiate(floor, nowPosition, Quaternion.identity);
             newFloor.transform.localScale = new Vector3(roomSize, 1, roomSize);
-            // 생성 후 부모 설정 (this.transform 사용)
             newFloor.transform.SetParent(transform, true);
 
-            // ★ 추가된 부분: RoomManager 설정 ★
+            // 딕셔너리에 방 정보 저장 (WallMaker에서 사용)
+            roomMap.Add(nowPosition, newFloor.transform);
+
+            // 생성되는 방별 RoomManager SetUp
             RoomManager roomMgr = newFloor.GetComponent<RoomManager>();
-            if (PositionQueue.Count + 1 <= bossRoomCount)   // 현재 방이 보스방이 생성되어야할 방일때 
+            allRooms.Add(roomMgr);
+            
+            // [변경] Setup 호출 시 currentDifficulty 전달
+            if (nowPosition == Vector3.zero)
             {
-                roomMgr.Setup(RoomType.Boss, 0, 0);
+                roomMgr.Setup(RoomType.Start, monsterMin, monsterMax, currentDifficulty);
             }
             else
             {
-                // (0,0,0) 위치면 시작 방, 아니면 일반 방으로 설정
-                if (nowPosition == Vector3.zero)
-                {
-                    roomMgr.Setup(RoomType.Start, monsterMin, monsterMax);
-                }
-                else
-                {
-                    roomMgr.Setup(RoomType.Normal, monsterMin, monsterMax);
-                }   
-            }
+                roomMgr.Setup(RoomType.Normal, monsterMin, monsterMax, currentDifficulty);
+            }   
 
             // 천장 생성
             Vector3 nowCeilingPosition = nowPosition;
             nowCeilingPosition.y = 10 * 20; // 높이 설정 로직 유지
             Quaternion nowCeilingRotation = Quaternion.Euler(180, 0, 0);
             GameObject newCeiling = Instantiate(ceiling, nowCeilingPosition, nowCeilingRotation);
-            // newCeiling.transform.localScale = new Vector3(roomSize, 1, roomSize);
-            // 생성 후 부모 설정
             newCeiling.transform.SetParent(transform, true);
 
             // 방이 생성된 위치를 집합에 저장
@@ -187,9 +185,25 @@ public class MapMaker : MonoBehaviour
                         }
                     }
                 }
-
             }
+        }
 
+        // 마지막에 생성된 방에 보스방 SetUp 설정
+        int assignedBossRooms = 0;
+        
+        for (int i = allRooms.Count - 1; i >= 0; i--)
+        {
+            // 할당하려는 보스방 개수를 채웠으면 중단
+            if (assignedBossRooms >= bossRoomCount) break;
+
+            RoomManager currentRoom = allRooms[i];
+
+            // 시작 방은 보스방이 될 수 없음
+            if (currentRoom.type == RoomType.Start) continue;
+
+            // 방 타입을 Boss로 변경 (몬스터 수는 0으로 설정, 난이도 전달)
+            currentRoom.Setup(RoomType.Boss, 0, 0, currentDifficulty);
+            assignedBossRooms++;
         }
     }
 
@@ -211,8 +225,8 @@ public class MapMaker : MonoBehaviour
             // 상하좌우 방향 리스트
             List<string> UDLRlist = new List<string> { "Up", "Down", "Left", "Right" };
 
-            // 첫번째 접근 하는 방을 확인하기 위한 flag
-            bool FirstAccess = true; 
+            // 현재 방의 Transform 가져오기 (벽의 부모로 쓰기 위함)
+            Transform currentRoomTransform = roomMap.ContainsKey(nowPosition) ? roomMap[nowPosition] : transform;
 
             for (int i = 0; i < 4; i++)
             {
@@ -262,7 +276,7 @@ public class MapMaker : MonoBehaviour
                         GameObject doorWall = Instantiate(wallDoor, wallPosition, wallRotation);
                         doorWall.transform.localScale *= roomSize;
                         // 생성 후 부모 설정
-                        doorWall.transform.SetParent(transform, true);
+                        doorWall.transform.SetParent(currentRoomTransform, true);
                         
                         ToarchMaker(doorWall);
                     }
@@ -278,7 +292,7 @@ public class MapMaker : MonoBehaviour
                                 GameObject doorWall = Instantiate(wallDoor, wallPosition, wallRotation);
                                 doorWall.transform.localScale *= roomSize;
                                 // 생성 후 부모 설정
-                                doorWall.transform.SetParent(transform, true);
+                                doorWall.transform.SetParent(currentRoomTransform, true);
 
                                 ToarchMaker(doorWall);
                             }
@@ -290,10 +304,9 @@ public class MapMaker : MonoBehaviour
                                 GameObject newWall = Instantiate(wall, adjustedWallPos, wallRotation);
                                 newWall.transform.localScale *= roomSize;
                                 // 생성 후 부모 설정
-                                newWall.transform.SetParent(transform, true);
+                                newWall.transform.SetParent(currentRoomTransform, true);
 
                                 ToarchMaker(newWall);
-
                             }
                         }
                     }
@@ -306,7 +319,7 @@ public class MapMaker : MonoBehaviour
                     GameObject newWall = Instantiate(wall, adjustedWallPos, wallRotation);
                     newWall.transform.localScale *= roomSize;
                     // 생성 후 부모 설정
-                    newWall.transform.SetParent(transform, true);
+                    newWall.transform.SetParent(currentRoomTransform, true);
 
                     ToarchMaker(newWall);
                 }
@@ -336,12 +349,14 @@ public class MapMaker : MonoBehaviour
         }
     }
 
-    void BossRoomMaker()
-    {
-        bossPosition.y += 20;
-        GameObject newfloor = Instantiate(boss, bossPosition, Quaternion.identity);
+    // void BossRoomMaker() { ... } // 제거됨
 
-        BossMonsterBase bossController = newfloor.GetComponent<BossMonsterBase>();
-        BossManager.Instance.RegisterBoss(bossController);
+    void RoomManagerInitailize()
+    {   
+        // 모든 맵의 배치가 끝난 뒤의 방의 설정별로 RoomManager 생성
+        foreach(var room in allRooms)
+        {
+            room.Initialize();
+        }
     }
 }
