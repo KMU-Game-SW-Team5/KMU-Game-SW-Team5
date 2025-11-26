@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: God Mode
   icon: {fileID: 21300000, guid: bc86f5b7aa0061e4ea1fd21345c10355, type: 3}
-  descriptionTemplate: Get Magic Stat 1000 for 10 seconds
+  descriptionTemplate: Get Magic Stat {damage} for 10 seconds
   baseValue: 1000
   coefficient: 0
   cooldown: 5

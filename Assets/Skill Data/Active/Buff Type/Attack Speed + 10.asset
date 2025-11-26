@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: Rage
   icon: {fileID: 21300000, guid: b77402021cc52554984cc1625252a146, type: 3}
-  descriptionTemplate: Attack Speed + 10
+  descriptionTemplate: Attack Speed + {damage}
   baseValue: 10
   coefficient: 0
   cooldown: 5

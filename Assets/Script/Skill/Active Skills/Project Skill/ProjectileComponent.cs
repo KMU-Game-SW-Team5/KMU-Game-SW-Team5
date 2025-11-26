@@ -121,6 +121,27 @@ public class ProjectileComponent : MonoBehaviour
                 // ③ 적중시 효과 발동
                 skillManager.OnHit(ctx);
             }
+
+            // 임시 코드 (추후 통일할 것)
+            if (other.TryGetComponent<BossController>(out var Monster))
+            {
+                GameObject attacker = skillManager.owner;
+
+                // ① 기본 데미지 적용
+                Monster.TakeDamage((int)baseDamage);
+
+                // ② HitContext 생성
+                HitContext ctx = new HitContext(
+                    attacker: attacker,
+                    target: monster.gameObject,
+                    hitPoint: transform.position,
+                    baseDamage: baseDamage,
+                    source: this
+                );
+
+                // ③ 적중시 효과 발동
+                skillManager.OnHit(ctx);
+            }
         }
 
         Bomb();

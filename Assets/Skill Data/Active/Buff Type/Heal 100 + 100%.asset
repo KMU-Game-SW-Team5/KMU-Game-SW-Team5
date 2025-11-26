@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Heal 100 + 100%
   m_EditorClassIdentifier: 
   skillName: Heal
-  icon: {fileID: 21300000, guid: 2e350bcef09f70943ba03de78d8c063a, type: 3}
+  icon: {fileID: 21300000, guid: 2fdadb4dd2872284c8ac0a2600293981, type: 3}
   descriptionTemplate: Heal self 100 + {damage}
   baseValue: 100
   coefficient: 1

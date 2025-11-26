@@ -12,15 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6dcc4c1f4af93a46826bd085bcecd01, type: 3}
   m_Name: LeapForward 45degree
   m_EditorClassIdentifier: 
-  skillName: 
-  icon: {fileID: 21300000, guid: ef630bd2e9341ec4e955ee2eedcf33d1, type: 3}
-  descriptionTemplate: Leap Forward 45degree
-  baseValue: 10
-  coefficient: 1
+  skillName: Leap
+  icon: {fileID: 21300000, guid: c46be55a65cb30e44b7c89e3c0d531da, type: 3}
+  descriptionTemplate: Leap Forward at a 45 degree angle by {damage}
+  baseValue: 300
+  coefficient: 0
   cooldown: 1
   prepareTime: 0
   castTime: 0.25
   animationTypes: 0a000000
-  horizontalSpeed: 50
-  upwardSpeed: 50
-  leapDuration: 3
+  leapDuration: 1

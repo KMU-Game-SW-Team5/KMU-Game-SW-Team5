@@ -397,9 +397,25 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: magicStat
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: attackSpeed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: activeSkills.Array.size
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: passiveSkills.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: activeSkills.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 92ed4f15b36f6ea418bd73c450234d45, type: 2}
     - target: {fileID: 8932935889209719771, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: m_Name
       value: Player_1111(JungYoon)
@@ -777,18 +793,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 657624979574675555, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 994157210023281312, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3796687810399178829, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3849265804514593410, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}
-      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4929341127049401344, guid: 309660764c12bc74d8f9b1b0d7d9f81a, type: 3}

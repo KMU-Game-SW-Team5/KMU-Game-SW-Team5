@@ -18,3 +18,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8d3248b03f94b334f88fd273461db41a, type: 2}
   - {fileID: 11400000, guid: 464f74e8228879246b0d567e7d7da350, type: 2}
   - {fileID: 11400000, guid: 12bd4f7dbc3015b47b1aef00aa1e4204, type: 2}
+  - {fileID: 11400000, guid: 9e0860d1d3ba89d4f8c760b38db42919, type: 2}
+  - {fileID: 11400000, guid: d36904bcb4c094a40a6322caa87d3501, type: 2}
+  workingCards:
+  - {fileID: 11400000, guid: 06cc93e0d3845504a80e9a993f12ff03, type: 2}
+  - {fileID: 11400000, guid: b007423157907b6478a4bf9c73a98631, type: 2}
+  - {fileID: 11400000, guid: 8d3248b03f94b334f88fd273461db41a, type: 2}
+  - {fileID: 11400000, guid: 464f74e8228879246b0d567e7d7da350, type: 2}
+  - {fileID: 11400000, guid: 12bd4f7dbc3015b47b1aef00aa1e4204, type: 2}
+  - {fileID: 11400000, guid: 9e0860d1d3ba89d4f8c760b38db42919, type: 2}
+  - {fileID: 11400000, guid: d36904bcb4c094a40a6322caa87d3501, type: 2}

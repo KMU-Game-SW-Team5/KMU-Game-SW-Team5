@@ -12,15 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7238f7edb203cb49b36070d4273af91, type: 3}
   m_Name: Dash
   m_EditorClassIdentifier: 
-  skillName: 
-  icon: {fileID: 0}
-  descriptionTemplate: "\uC804\uBC29\uC5D0 \uD654\uC5FC\uAD6C\uB97C \uBC1C\uC0AC\uD558\uC5EC
-    {damage}\uC758 \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4."
-  baseValue: 10
-  coefficient: 1
-  cooldown: 5
+  skillName: Dash
+  icon: {fileID: 21300000, guid: 3e74fafb59d81d248bc0e748a3732473, type: 3}
+  descriptionTemplate: Dash moving direction by {damage}
+  baseValue: 100
+  coefficient: 0
+  cooldown: 2
   prepareTime: 0
   castTime: 0
-  animationTypes: 
+  animationTypes: 08000000
   dashSpeed: 15
   dashDuration: 0.3

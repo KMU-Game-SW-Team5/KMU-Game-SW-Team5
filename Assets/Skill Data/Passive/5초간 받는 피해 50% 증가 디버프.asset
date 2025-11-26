@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59622cc7cf0630646956bda3ca8e3d2a, type: 3}
   m_Name: "5\uCD08\uAC04 \uBC1B\uB294 \uD53C\uD574 50% \uC99D\uAC00 \uB514\uBC84\uD504"
   m_EditorClassIdentifier: 
-  skillName: 
-  icon: {fileID: 0}
-  describe: 
+  skillName: Armor reduction
+  icon: {fileID: 21300000, guid: 8a96b38c76be79946a150249547b07bc, type: 3}
+  description: All attack inflicts debuff that increase damage taken by 50% for 5
+    seconds
   hitEffects:
   - {fileID: 11400000, guid: ac1436625301a8f41bf78aef17c4067f, type: 2}

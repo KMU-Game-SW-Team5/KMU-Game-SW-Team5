@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fire ball
   m_EditorClassIdentifier: 
   skillName: Fire Ball
-  icon: {fileID: 21300000, guid: 9f69b220176e6964fbd87f5f158d45e3, type: 3}
+  icon: {fileID: 21300000, guid: c15755f9b990f804786cb44e32da6951, type: 3}
   descriptionTemplate: launches a fireball in the target direction that deals {damage}
     to the first enemy hit.
   baseValue: 10
@@ -29,8 +29,8 @@ MonoBehaviour:
   projectileMotion: {fileID: 11400000, guid: cbd820820019a854f8f6484d84dc0813, type: 2}
   motionSpeed: 1
   distanceOffset: 10
-  branchCount: 21
-  burstCount: 20
+  branchCount: 9
+  burstCount: 5
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4
