@@ -18,6 +18,7 @@ public class TestCode : MonoBehaviour
     [SerializeField] private KeyCode bossDamageKey = KeyCode.K;  // 보스 체력 깎기
     [SerializeField] private KeyCode bossDisappearKey = KeyCode.L;  // 보스 사라짐
     [SerializeField] private KeyCode levelUpKey = KeyCode.Colon;  // 레벨업
+    [SerializeField] private KeyCode gameClearKey = KeyCode.C;  // 레벨업
 
     void OnEnable() { TimeManager.Instance.OnWaveChanged += ApplyWave; }
     void OnDisable() { TimeManager.Instance.OnWaveChanged -= ApplyWave; }
@@ -50,6 +51,8 @@ public class TestCode : MonoBehaviour
 
         // 레벨업
         if (Input.GetKeyDown(levelUpKey)) inGameUIManager.UpdatePlayerLVUI(++LV);
+
+        if (Input.GetKeyDown(gameClearKey)) GameManager.Instance.EndGame(true);
     }
 
     public void ApplyWave(bool isDay)
