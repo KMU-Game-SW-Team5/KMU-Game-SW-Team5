@@ -334,7 +334,13 @@ public abstract class MonsterBase : MonoBehaviour
     // 파생 클래스에서 AI 루프에서 이 함수를 호출.
     protected void MoveTowards(Vector3 target)
     {
-        if (!IsAlive || isStunned || rb == null) return;
+        if (!IsAlive || rb == null) return;
+
+        if (isStunned)
+        {
+            rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+            return;
+        }
 
         Vector3 from = rb.position;
         Vector3 to = target;

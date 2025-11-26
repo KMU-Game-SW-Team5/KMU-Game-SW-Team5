@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 1912419575940059384}
-  lifeTime: 0.7
+  lifeTime: 1
   DamageTextObjectRef: {fileID: 2112914933767844937}
   screenJitterRadius: 40
   floatUpPixels: 40
@@ -176,8 +176,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  minFontSize: 30
-  maxFontSize: 50
+  minFontSize: 40
+  maxFontSize: 60
   fontSizeScaler: 100
   lowDamageColor: {r: 1, g: 1, b: 1, a: 1}
   highDamageColor: {r: 1, g: 0.2, b: 0.2, a: 1}
