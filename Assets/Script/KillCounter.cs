@@ -37,6 +37,8 @@ public class KillCounter : MonoBehaviour
     {
         TotalBossKills++;
         OnKillCountChanged?.Invoke(TotalKills);
+
+        GameManager.Instance.CheckAndEndGame();
     }
 
     public void ResetCounter()
