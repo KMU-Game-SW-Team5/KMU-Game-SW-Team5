@@ -9,6 +9,9 @@ public abstract class MonsterBase : MonoBehaviour
     public bool IsAlive => currentHealth > 0;
     protected bool isDead = false;
 
+    [Header("처치시 EXP")]
+    public int exp = 100;
+
     [Header("=== Movement ===")]
     public float moveSpeed = 3f;
     public bool isFlying = false;
@@ -323,6 +326,8 @@ public abstract class MonsterBase : MonoBehaviour
         }
         KillCounter.Instance.AddMonsterKill();
         Debug.Log("몬스터가 쓰러졌습니다.");
+
+        PlayerLevelSystem.Instance.AddExp(exp);
         // 사망 모션 재생 후 삭제
         Destroy(gameObject, deathAnimationDuration);
     }
