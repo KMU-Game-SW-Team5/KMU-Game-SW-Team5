@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.AI.Navigation;
 
 public class MapMaker : MonoBehaviour
 {
+    public NavMeshSurface navMeshSurface;
     [Header("방의 개수")]
     public int roomCount = 10;              // 생성할 방의 개수
 
@@ -33,14 +35,27 @@ public class MapMaker : MonoBehaviour
 
     void Start()
     {
-
         ApplyDifficulty();
         FloorAndCeilingMaker();
         WallMaker();
+        
+        // 여기에 장애물/모듈 랜덤 배치 함수가 있다면 호출
+        // PlaceRandomModules(); 
+
         BossRoomMaker();
 
-        // 맵 생성이 모두 끝난 시점
-        Debug.Log("맵 생성 완료!");
+        Debug.Log("맵 배치 완료.");
+
+        // [핵심] 맵과 장애물이 다 깔린 뒤에 네비게이션 굽기 실행
+        if (navMeshSurface != null)
+        {
+            navMeshSurface.BuildNavMesh();
+            Debug.Log("NavMesh 굽기 완료 (파란색 지도가 생성됨)");
+        }
+        else
+        {
+            Debug.LogError("NavMeshSurface가 연결되지 않았습니다!");
+        }
     }
 
     void ApplyDifficulty()

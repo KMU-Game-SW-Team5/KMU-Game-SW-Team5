@@ -1,23 +1,18 @@
 ﻿using UnityEngine;
+using UnityEngine.AI;
 
 public class NormalMonster : MonsterBase
 {
-    private float checkInterval = 0.5f;    // 이동 확인 주기 (1초)
-    private float minMoveDistance = 0.5f;  // 이 거리 이하면 막힌 걸로 간주
-    private float avoidDuration = 2f;    // 회피 기동 지속 시간
-
-
-    private float stuckCheckTimer = 0f;
-    private Vector3 lastPosition;
-    
-    private bool isAvoiding = false;    // 현재 회피 중인가?
-    private float avoidTimer = 0f;      // 회피 남은 시간
-    private Vector3 avoidDirection;     // 회피할 방향
+    private NavMeshAgent agent;
 
     protected override void Awake()
     {
         base.Awake();
-        lastPosition = transform.position;
+        agent = GetComponent<NavMeshAgent>();
+
+        // 몬스터 설정 (회전은 직접 제어, 2D/3D에 따라 UpAxis 설정)
+        agent.updateRotation = false; 
+        agent.updateUpAxis = false; // 3D 게임이면 false
     }
 
     protected override void Update()
@@ -31,132 +26,62 @@ public class NormalMonster : MonsterBase
     {
         base.FixedUpdate();
 
-        // 죽었으면 아무 것도 안 함
-        if (!IsAlive || isDead)
+        if (!IsAlive || isDead || player == null)
         {
-            SetMoveAnimation(false);
-            return;
-        }
-
-        // 타겟이 없으면 이동/공격 없음
-        if (player == null)
-        {
+            if(agent.isOnNavMesh) agent.isStopped = true;
             SetMoveAnimation(false);
             return;
         }
 
         float distance = Vector3.Distance(transform.position, player.position);
 
-        // 탐지 범위 안이면서, 공격 범위 밖 → 이동
+        // [이동] 탐지 범위 안, 공격 범위 밖
         if (distance <= detectionRange && distance > attackRange)
         {
-            // 끼임 감지 체크
-            CheckIfStuck();
-            if (isAvoiding)
+            // NavMesh 위에서만 이동 명령
+            if (agent.isOnNavMesh)
             {
-                // [회피 모드] 계산된 회피 방향으로 잠시 이동
-                // MoveTowards는 목적지 좌표를 받으므로, 현재 위치에서 멀리 떨어진 지점을 타겟으로 설정
-                Vector3 avoidTarget = transform.position + avoidDirection * 5f;
-                MoveTowards(avoidTarget);
+                agent.isStopped = false;
+                agent.SetDestination(player.position); // 알아서 장애물 피해서 감
+            }
 
-                // 회피 타이머 감소
-                avoidTimer -= Time.fixedDeltaTime;
-                if (avoidTimer <= 0)
+            // [회전] 가야 할 방향 바라보기
+            if (agent.velocity.sqrMagnitude > 0.1f)
+            {
+                Vector3 dir = agent.steeringTarget - transform.position;
+                dir.y = 0;
+                if (dir != Vector3.zero)
                 {
-                    isAvoiding = false; // 시간 종료 시 다시 추격 모드로 복귀
+                    Quaternion rot = Quaternion.LookRotation(dir);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.fixedDeltaTime * 10f);
                 }
             }
-            else
-            {
-                // [일반 추격 모드] 플레이어를 향해 이동
-                MoveTowards(player.position);
-            }
-
-            SetMoveAnimation(true);   // Animator "Speed" = 1
+            SetMoveAnimation(true);
         }
-        // 공격 범위 안 → 공격 시도
+        // [공격] 공격 범위 안
         else if (distance <= attackRange)
         {
-            ResetStuckCheck();
+            if(agent.isOnNavMesh) agent.isStopped = true; // 멈춤
             TryAttack();
         }
-        // 그 외(너무 멀거나 아직 못 찾았거나) → 대기
         else
         {
-            ResetStuckCheck();
+            if(agent.isOnNavMesh) agent.isStopped = true;
             SetMoveAnimation(false);
         }
     }
-    // 끼임 감지 로직
-    private void CheckIfStuck()
-    {
-        if (isAvoiding) return;
-
-        stuckCheckTimer += Time.fixedDeltaTime;
-
-        // 1초 마다 검사
-        if (stuckCheckTimer >= checkInterval)
-        {
-            float movedDist = Vector3.Distance(transform.position, lastPosition);
-
-            
-            if (movedDist < minMoveDistance)
-            {
-                StartAvoidance();
-            }
-
-            
-            lastPosition = transform.position;
-            stuckCheckTimer = 0f;
-        }
-    }
-    private void StartAvoidance()
-    {
-        isAvoiding = true;
-        avoidTimer = avoidDuration;
-
-        // 플레이어 방향을 기준으로 좌/우 랜덤으로 꺾어서 탈출 시도
-        Vector3 dirToPlayer = (player.position - transform.position).normalized;
-        
-        
-        float randomAngle = Random.Range(45f, 135f);
-        if (Random.value > 0.5f) randomAngle *= -1; // 왼쪽 or 오른쪽 랜덤
-
-        
-        avoidDirection = Quaternion.Euler(0, randomAngle, 0) * dirToPlayer;
-    }
-
-    private void ResetStuckCheck()
-    {
-        stuckCheckTimer = 0f;
-        lastPosition = transform.position;
-        isAvoiding = false;
-    }
-
+    
     private void TryAttack()
     {
-        // 제자리에서 공격 애니메이션 재생
         SetMoveAnimation(false);
+        if (!CanAttack() || playerScript == null) return;
 
-        // 쿨타임 미충족
-        if (!CanAttack())
-            return;
-
-        // 플레이어 스크립트 없으면 공격 불가
-        if (playerScript == null)
-            return;
-
-        // 공격 시에도 Y축은 자기 높이에 고정해서 바라보게 (MonsterController와 동일 컨셉)
+        // 공격 시 플레이어 보기
         Vector3 lookPos = player.position;
-        if (lockYToSelf)
-            lookPos.y = transform.position.y;
+        if (lockYToSelf) lookPos.y = transform.position.y;
         transform.LookAt(lookPos);
 
-        // 공격 애니메이션
-        if (animator != null)
-            animator.SetTrigger("Attack");
-
-        // 실제 데미지 적용은 MonsterBase의 공통 함수 사용
+        if (animator != null) animator.SetTrigger("Attack");
         ApplyBasicAttackToPlayer();
     }
 
