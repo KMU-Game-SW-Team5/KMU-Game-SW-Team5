@@ -2,9 +2,22 @@
 
 public class NormalMonster : MonsterBase
 {
+    private float checkInterval = 0.5f;    // 이동 확인 주기 (1초)
+    private float minMoveDistance = 0.5f;  // 이 거리 이하면 막힌 걸로 간주
+    private float avoidDuration = 2f;    // 회피 기동 지속 시간
+
+
+    private float stuckCheckTimer = 0f;
+    private Vector3 lastPosition;
+    
+    private bool isAvoiding = false;    // 현재 회피 중인가?
+    private float avoidTimer = 0f;      // 회피 남은 시간
+    private Vector3 avoidDirection;     // 회피할 방향
+
     protected override void Awake()
     {
         base.Awake();
+        lastPosition = transform.position;
     }
 
     protected override void Update()
@@ -37,20 +50,87 @@ public class NormalMonster : MonsterBase
         // 탐지 범위 안이면서, 공격 범위 밖 → 이동
         if (distance <= detectionRange && distance > attackRange)
         {
-            // MonsterBase의 MoveTowards는 슬로우/스턴/리지드바디/Y축 고정까지 처리
-            MoveTowards(player.position);
+            // 끼임 감지 체크
+            CheckIfStuck();
+            if (isAvoiding)
+            {
+                // [회피 모드] 계산된 회피 방향으로 잠시 이동
+                // MoveTowards는 목적지 좌표를 받으므로, 현재 위치에서 멀리 떨어진 지점을 타겟으로 설정
+                Vector3 avoidTarget = transform.position + avoidDirection * 5f;
+                MoveTowards(avoidTarget);
+
+                // 회피 타이머 감소
+                avoidTimer -= Time.fixedDeltaTime;
+                if (avoidTimer <= 0)
+                {
+                    isAvoiding = false; // 시간 종료 시 다시 추격 모드로 복귀
+                }
+            }
+            else
+            {
+                // [일반 추격 모드] 플레이어를 향해 이동
+                MoveTowards(player.position);
+            }
+
             SetMoveAnimation(true);   // Animator "Speed" = 1
         }
         // 공격 범위 안 → 공격 시도
         else if (distance <= attackRange)
         {
+            ResetStuckCheck();
             TryAttack();
         }
         // 그 외(너무 멀거나 아직 못 찾았거나) → 대기
         else
         {
+            ResetStuckCheck();
             SetMoveAnimation(false);
         }
+    }
+    // 끼임 감지 로직
+    private void CheckIfStuck()
+    {
+        if (isAvoiding) return;
+
+        stuckCheckTimer += Time.fixedDeltaTime;
+
+        // 1초 마다 검사
+        if (stuckCheckTimer >= checkInterval)
+        {
+            float movedDist = Vector3.Distance(transform.position, lastPosition);
+
+            
+            if (movedDist < minMoveDistance)
+            {
+                StartAvoidance();
+            }
+
+            
+            lastPosition = transform.position;
+            stuckCheckTimer = 0f;
+        }
+    }
+    private void StartAvoidance()
+    {
+        isAvoiding = true;
+        avoidTimer = avoidDuration;
+
+        // 플레이어 방향을 기준으로 좌/우 랜덤으로 꺾어서 탈출 시도
+        Vector3 dirToPlayer = (player.position - transform.position).normalized;
+        
+        
+        float randomAngle = Random.Range(45f, 135f);
+        if (Random.value > 0.5f) randomAngle *= -1; // 왼쪽 or 오른쪽 랜덤
+
+        
+        avoidDirection = Quaternion.Euler(0, randomAngle, 0) * dirToPlayer;
+    }
+
+    private void ResetStuckCheck()
+    {
+        stuckCheckTimer = 0f;
+        lastPosition = transform.position;
+        isAvoiding = false;
     }
 
     private void TryAttack()
