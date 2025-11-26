@@ -16,6 +16,10 @@ public class BossManager : MonoBehaviour
 
     public event Action<Boss3Controller> OnBoss3Spawned;
     public event Action<Boss3Controller> OnBoss3Died;
+
+    // BossUIBinder와 연결(BossManager 싱글톤 생성 시 알림)
+    public static event Action<BossManager> OnCreated;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -24,6 +28,7 @@ public class BossManager : MonoBehaviour
             return;
         }
         Instance = this;
+        OnCreated?.Invoke(this);
     }
 
     public void RegisterBoss(BossMonsterBase boss)

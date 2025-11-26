@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class EndingUI : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class EndingUI : MonoBehaviour
     [SerializeField] TextMeshProUGUI playTime;
     [SerializeField] TextMeshProUGUI levelAchieved;
     [SerializeField] TextMeshProUGUI monsterKills;
+
+    [SerializeField] Button btn_ReturnToMainMenu;
+    [SerializeField] Button btn_OpenNicknamePanel;
 
     private void OnEnable()
     {
@@ -25,20 +29,40 @@ public class EndingUI : MonoBehaviour
         InputBlocker.Unblock();
     }
 
-    public void OnButtonClicked()
+    public void SetupClear()
+    {
+        btn_ReturnToMainMenu.gameObject.SetActive(false);
+        btn_OpenNicknamePanel.gameObject.SetActive(true);
+
+        if (title != null)
+            title.text = "Clear";
+    }
+
+    public void SetupGameOver()
+    {
+        btn_OpenNicknamePanel.gameObject.SetActive(false);
+        btn_ReturnToMainMenu.gameObject.SetActive(true);
+
+        if (title != null)
+            title.text = "Game Over";
+    }
+
+    public void OnClickReturnToMainMenu()
     {
         InGameUIManager.Instance.HideEndingUI();
         SceneManager.LoadScene("Assets/Scenes/MainUI.unity");
         Debug.Log("메인 메뉴로 버튼 미구현");
     }
 
-    public void SetRecordValue(GameResult gameResult)
+    public void OnClickOpenNicknamePanel()
     {
-        if(title != null)
-            title.text = gameResult.IsClear ? "Clear" : "Game Over";
+        InGameUIManager.Instance.ShowEnterNicknamePanel();
+    }
 
+    public void SetValue(GameResult gameResult)
+    {
         if (playTime != null)
-            playTime.text = FormatTime(gameResult.PlayTimeSeconds);
+            playTime.text = FormatTime(gameResult.PlayTime);
 
         if (levelAchieved != null)
             levelAchieved.text = $"Lv. {gameResult.LevelAchieved}";

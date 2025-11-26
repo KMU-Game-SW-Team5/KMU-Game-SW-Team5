@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class InGameUIManager : MonoBehaviour
 {
@@ -20,7 +21,12 @@ public class InGameUIManager : MonoBehaviour
     [SerializeField] GameObject levelUpPanel;
     [Header("Ending UI")]
     [SerializeField] EndingUI endingUI;
-    [SerializeField] GameObject endingPanel;
+    [Header("EnterNicname UI")]
+    [SerializeField] EnterNicknameUI enterNicknameUI;
+    [Header("Leaderboard UI")]
+    [SerializeField] LeaderboardUI leaderboardUI;
+    [SerializeField] EntryUI playerEntryUI;
+
     [Header("Etc")]
     [HideInInspector] public List<SkillSlotUI> skillSlots = new List<SkillSlotUI>();    // 동적 List
     [HideInInspector] public List<TextMeshProUGUI> skillKeysTexts = new List<TextMeshProUGUI>();  // 동적 List
@@ -153,12 +159,47 @@ public class InGameUIManager : MonoBehaviour
     // -----------------------------
     public void ShowEndingUI(GameResult gameResult)
     {
-        endingPanel.SetActive(true);
-        endingUI.SetRecordValue(gameResult);
+        if (gameResult.IsClear) endingUI.SetupClear();
+        else endingUI.SetupGameOver();
+
+        endingUI.gameObject.SetActive(true);
+        endingUI.SetValue(gameResult);
     }
 
     public void HideEndingUI()
     {
-        endingPanel.SetActive(false);
+        endingUI.gameObject.SetActive(false);
+    }
+
+    // -----------------------------
+    // About EnterNickNameUI
+    // -----------------------------
+    public void ShowEnterNicknamePanel()
+    {
+        enterNicknameUI.gameObject.SetActive(true);
+    }
+
+    public void HideEnterNicknamePanel()
+    {
+        enterNicknameUI.gameObject.SetActive(false);
+    }
+
+    // -----------------------------
+    // About LeaderboardUI
+    // -----------------------------
+    public async Task ShowLeaderboardUI()
+    {
+        leaderboardUI.gameObject.SetActive(true);
+
+        var entries = await LeaderboardService.Instance.LoadTopAsync();
+
+        leaderboardUI.RefreshLeaderboard(entries);
+        SetupPlayerEntry();
+    }
+
+    private void SetupPlayerEntry()
+    {
+        LeaderboardEntry myEntry = LeaderboardService.Instance.LastSubmittedEntry;
+        playerEntryUI.SetData(myEntry, myEntry.Rank, true);
     }
 }

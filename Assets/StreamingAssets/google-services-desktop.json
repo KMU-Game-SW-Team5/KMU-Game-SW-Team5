@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "86815832816",
+    "project_id": "kmu-game-sw-team5",
+    "storage_bucket": "kmu-game-sw-team5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:86815832816:android:08256a7f3d52f5af82e035",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.GameSw"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUwYRnx6UpAt2ovjlcxjuWgZI69XeRdyM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

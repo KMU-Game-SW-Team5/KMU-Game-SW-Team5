@@ -54,19 +54,48 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void EndGame(bool isClear)
     {
-        if (timeManager == null || playerLevelSystem == null || killCounter == null)
+        GameResult result = GetGameResult(isClear);
+
+        inGameUIManager.ShowEndingUI(result);
+    }
+
+    public void CheckAndEndGame()
+    {
+        bool isEnd = false;
+
+        int difficult = SettingsService.GameDifficulty;
+        switch (difficult)
         {
-            Debug.LogError("GameManager : 참조 null");    
-            return;
+            case 0:
+                if (KillCounter.Instance.TotalBossKills == 1) isEnd = true;
+                break;
+            case 1:
+                if (KillCounter.Instance.TotalBossKills == 2) isEnd = true;
+                break;
+            case 2:
+                if (KillCounter.Instance.TotalBossKills == 3) isEnd = true;
+                break;
         }
 
-        GameResult result = new GameResult(
+        if (isEnd) EndGame(true);
+    }
+
+    /// <summary>
+    /// 게임 상태 요청 함수 (매개변수는 bool값이며, true : Clear, false : Game Over)
+    /// </summary>
+    public GameResult GetGameResult(bool isClear)
+    {
+        if (timeManager == null || playerLevelSystem == null || killCounter == null)
+        {
+            Debug.LogError("GameManager : 참조 null");
+            return new GameResult();
+        }
+
+        return new GameResult(
             isClear,
             (float)timeManager.Elapsed,
             playerLevelSystem.Level,
             killCounter.TotalKills
         );
-
-        inGameUIManager.ShowEndingUI(result);
     }
 }
