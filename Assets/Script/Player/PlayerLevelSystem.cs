@@ -4,18 +4,25 @@ using UnityEngine;
 
 public class PlayerLevelSystem : MonoBehaviour
 {
+    // 싱글톤 인스턴스
+    public static PlayerLevelSystem Instance { get; private set; }
+
     [Header("초기 설정")]
     [SerializeField] private int startLevel = 1;
 
     [Header("경험치 증가 규칙")]
-    [SerializeField] private float baseRequiredExp = 100f;   // 1 -> 2 필요 경험치
-    [SerializeField] private float expIncrementPerLevel = 50f; // 레벨당 추가 경험치
+    [SerializeField] private int baseRequiredExp = 1000;   // 1 -> 2 필요 경험치
+    [SerializeField] private int expIncrementPerLevel = 200; // 레벨당 추가 경험치
+
+    [Header("마력 증가 규칙")]
+    [SerializeField] private int baseMagicStat = 100;
+    [SerializeField] private int magicStatIncrementPerLevel = 10;
 
     public int Level { get; private set; }
-    public float CurrentExp { get; private set; }
+    public int CurrentExp { get; private set; }
 
     /// <summary>다음 레벨까지 필요한 경험치</summary>
-    public float RequiredExp
+    public int RequiredExp
     {
         get => baseRequiredExp + (Level - 1) * expIncrementPerLevel;
     }
@@ -30,12 +37,21 @@ public class PlayerLevelSystem : MonoBehaviour
     private void Awake()
     {
         Level = startLevel;
-        CurrentExp = 0f;
+        CurrentExp = 0;
+
+        // 싱글톤 기본 코드
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
     }
 
     private void Start()
     {
         OnLevelUp += HandleLevelUp;
+        SkillManager.Instance.SetMagicStat(baseMagicStat);
     }
 
     private void OnDestroy()
@@ -44,7 +60,7 @@ public class PlayerLevelSystem : MonoBehaviour
     }
 
     /// <summary>플레이어가 amount 만큼 경험치를 얻음</summary>
-    public void AddExp(float amount)
+    public void AddExp(int amount)
     {
         if (amount <= 0f) return;
 
@@ -54,7 +70,7 @@ public class PlayerLevelSystem : MonoBehaviour
         {
             CurrentExp -= RequiredExp;
             Level++;
-
+            IncreaseMagicStat();
             OnLevelUp?.Invoke(Level);
         }
 
@@ -65,5 +81,10 @@ public class PlayerLevelSystem : MonoBehaviour
     {
         // 레벨업 UI 띄우기
         InGameUIManager.Instance.ShowLevelUpUI();
+    }
+
+    private void IncreaseMagicStat()
+    {
+        SkillManager.Instance.AddMagicStat(magicStatIncrementPerLevel);
     }
 }

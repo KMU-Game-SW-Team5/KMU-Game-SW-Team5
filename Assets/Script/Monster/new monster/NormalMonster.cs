@@ -26,7 +26,7 @@ public class NormalMonster : MonsterBase
     {
         base.FixedUpdate();
 
-        if (!IsAlive || isDead || player == null)
+        if (!IsAlive || isDead || player == null || isStunned)
         {
             if(agent.isOnNavMesh) agent.isStopped = true;
             SetMoveAnimation(false);

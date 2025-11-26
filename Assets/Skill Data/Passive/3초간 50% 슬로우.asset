@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59622cc7cf0630646956bda3ca8e3d2a, type: 3}
   m_Name: "3\uCD08\uAC04 50% \uC2AC\uB85C\uC6B0"
   m_EditorClassIdentifier: 
-  skillName: "\uB0C9\uAE30 \uBD80\uC5EC"
+  skillName: Slow
   icon: {fileID: 21300000, guid: de629debbb984994daa432462e6cd525, type: 3}
-  describe: 
+  description: All attack slows down enemy for 3 seconds by 50%
   hitEffects:
   - {fileID: 11400000, guid: fec412ecd7837894791250d91f6d2b6f, type: 2}

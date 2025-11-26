@@ -72,8 +72,12 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-    [Header("스탯")]
-    [SerializeField] public float magicStat = 10f;  // 마력 스탯 
+    private float magicStat = 100f;  // 마력 스탯 
+
+    public void SetMagicStat(int value)
+    {
+        magicStat = value;
+    }
     public float GetMagicStat() { return magicStat; }
     public void AddMagicStat(float value)
     {
@@ -336,15 +340,21 @@ public class SkillManager : MonoBehaviour
     {
         if (skill == null) return;
 
-        if (!passiveSkills.Contains(skill))
-            passiveSkills.Add(skill);
+        // 중복 획득 어떻게 처리할지 생각하기
+        //if (!passiveSkills.Contains(skill))
+        //    passiveSkills.Add(skill);
 
         if (skill is PS_AddHitEffectType addHitSkill)
         {
             foreach (var effSO in addHitSkill.hitEffects)
                 runtimeEffects.Add(effSO.CreateEffectInstance());
         }
+        if (skill is PS_AddStatType addStatSkill)
+        {
+            buffApplier.ApplyBuff(addStatSkill.buffStatType, addStatSkill.amount);
+        }
     }
+
 
     // 스킬 적중 발생시 호출
     public void OnHit(HitContext ctx)
@@ -424,7 +434,6 @@ public class SkillManager : MonoBehaviour
                 targetTransform = hit.transform.root;
             }
 
-            Debug.Log($"[SkillManager] Raycast hit: {hit.collider.name} (tag: {hit.collider.tag})");
         }
         else
         {
@@ -488,8 +497,9 @@ public class SkillManager : MonoBehaviour
 
         var skill = allActiveDeck.DrawWithoutReplacementFromRuntime();
         if (skill == null) return null;
+        ownedActiveDeck.AddRuntimeCard(skill);
 
-        AddActiveSkill(skill);
+
         return skill;
     }
 
@@ -514,15 +524,14 @@ public class SkillManager : MonoBehaviour
             return DrawDuplicateActiveSkillFromDeck();
     }
 
-    // 패시브 스킬 한 장 뽑기 (비복원)
+    // 패시브 스킬 한 장 뽑기
     public PassiveSkillBase DrawPassiveSkillFromDeck()
     {
         if (passiveSkillDeck == null) return null;
 
-        var skill = passiveSkillDeck.DrawWithoutReplacement();
+        var skill = passiveSkillDeck.DrawWithReplacement();
         if (skill == null) return null;
 
-        AddPassiveSkill(skill);
         return skill;
     }
 

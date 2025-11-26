@@ -10,6 +10,6 @@ public class TestLevelSystem : MonoBehaviour
         if (InputBlocker.IsInputBlocked)
             return;
 
-        if (Input.GetKeyDown(KeyCode.U)) levelSystem.AddExp(100f);
+        if (Input.GetKeyDown(KeyCode.U)) levelSystem.AddExp(100);
     }
 }

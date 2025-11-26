@@ -14,4 +14,9 @@ public class PassiveSkillBase : ScriptableObject
     public Sprite GetIcon() => icon;
     public string GetSkillName() => skillName;
     public string GetSkillDescription() => description;
+
+    public override string ToString()
+    {
+        return skillName;
+    }
 }

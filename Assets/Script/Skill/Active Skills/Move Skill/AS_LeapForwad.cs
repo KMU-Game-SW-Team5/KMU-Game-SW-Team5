@@ -6,8 +6,6 @@ using UnityEngine;
 public class AS_LeapForward : ActiveSkillBase
 {
     [Header("도약 설정")]
-    [SerializeField] private float horizontalSpeed = 10f; // 전방으로 얼마나 빠르게
-    [SerializeField] private float upwardSpeed = 10f;     // 얼마나 높이 뜨는지
     [SerializeField] private float leapDuration = 0.6f;   // 도약 유지 시간
 
     protected override void Execute(GameObject user, Transform target)
@@ -27,8 +25,8 @@ public class AS_LeapForward : ActiveSkillBase
         // 도약 시작 요청
         mover.StartSkillMove(
             worldDirection: dir,
-            horizontalSpeed: horizontalSpeed,
-            upwardSpeed: upwardSpeed,
+            horizontalSpeed: GetDamage(),
+            upwardSpeed: GetDamage(),
             duration: leapDuration,
             useGravity: true
         );

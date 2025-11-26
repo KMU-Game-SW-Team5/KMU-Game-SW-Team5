@@ -5,10 +5,16 @@ using UnityEngine;
 
 public class Player : MonoBehaviour, IDamageable
 {
+    [Header("체력 관련")]
     public int maxHealth = 100;
     public int hp = 100;
     [SerializeField] private float lowHpRatio = 0.2f;
-    public float hpRatio => (float)hp/(float)maxHealth; 
+    public float hpRatio => (float)hp/(float)maxHealth;
+
+    public void IncreaseEXP(int value)
+    {
+
+    }
 
     private MoveController moveController;
     private PlayerAnimation playerAnimation;

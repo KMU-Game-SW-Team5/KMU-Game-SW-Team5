@@ -396,6 +396,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: activeSkills.Array.size
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8932935889209719771, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: m_Name
       value: Player_1111(JungYoon)
@@ -541,8 +545,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1146543536}
-  - component: {fileID: 1146543535}
   - component: {fileID: 1146543537}
+  - component: {fileID: 1146543538}
   m_Layer: 0
   m_Name: TestObject
   m_TagString: Untagged
@@ -550,19 +554,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1146543535
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1146543534}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c98e979d45857a4f945f704443d96e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inGameUIManager: {fileID: 1696408490}
 --- !u!4 &1146543536
 Transform:
   m_ObjectHideFlags: 0
@@ -592,6 +583,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelSystem: {fileID: 1086943292}
   inGameUIManager: {fileID: 1696408490}
+--- !u!114 &1146543538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1146543534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c98e979d45857a4f945f704443d96e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inGameUIManager: {fileID: 1696408490}
+  skill1Key: 116
+  skill2Key: 121
+  skill3Key: 117
+  skill4Key: 105
+  expKey: 103
+  hpKey: 104
+  bossAppearKey: 106
+  bossDamageKey: 107
+  bossDisappearKey: 108
+  levelUpKey: 58
 --- !u!1001 &1236883803
 PrefabInstance:
   m_ObjectHideFlags: 0

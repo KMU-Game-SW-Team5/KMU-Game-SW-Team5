@@ -200,4 +200,9 @@ public abstract class ActiveSkillBase : ScriptableObject
 
     public Sprite GetIcon() => icon;
     public string GetSkillName() => skillName;
+
+    public override string ToString()
+    {
+        return skillName + star.ToString();
+    }
 }

@@ -10,10 +10,19 @@ using UnityEngine.UI;
 
 public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
+    [SerializeField] private TextMeshProUGUI skillName;
     [SerializeField] private Image icon;
     [SerializeField] private TextMeshProUGUI description;
     [SerializeField] private GameObject stars;
     [SerializeField] private GameObject starPrefab;
+
+    [Header("뽑기 설정")]
+    [SerializeField][Range(0, 100)] private int activeSKillPercent = 20;
+
+    // 뽑은 카드
+    ActiveSkillBase selectedActiveSkill;
+    PassiveSkillBase selectedPassiveSkill;
+    bool isActive;      // 뽑은 게 액티브 스킬인지
 
     private int level;
 
@@ -29,17 +38,16 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     // Active, Passive 카드 중 랜덤 선택
     private void DrawSkillCard()
     {
-        bool isActive = UnityEngine.Random.Range(0, 2) == 0;
+        isActive = UnityEngine.Random.Range(0, 100) <= activeSKillPercent;
 
         if (isActive)
         {
-            DrawActiveSkill();
+            selectedActiveSkill = DrawActiveSkill();
         }
-        else if(DrawPassiveSkill() == null)
+        else
         {
-            DrawActiveSkill();
+            selectedPassiveSkill = DrawPassiveSkill();
         }
-        Debug.Log($"activeSkill.level: {level}, activeSkill.description: {description.text}");
     }
 
     private ActiveSkillBase DrawActiveSkill()
@@ -47,8 +55,12 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         ActiveSkillBase activeSkill = SkillManager.Instance.DrawActiveSkillAutoFromDeck();
 
         if (activeSkill == null)
-            return null;
+        {
+            Debug.Log("Active skill is null");
 
+            return null;
+        }
+        skillName.text = activeSkill.GetSkillName();
         level = activeSkill.GetNumOfStar();
         icon.sprite = activeSkill.GetIcon();
         description.text = activeSkill.GetAcquisitionDescriptionPlain();
@@ -61,8 +73,13 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         PassiveSkillBase passiveSkill = SkillManager.Instance.DrawPassiveSkillFromDeck();
 
         if (passiveSkill == null)
-            return null;
+        {
+            Debug.Log("Passive skill is null");
 
+            return null;
+        }
+
+        skillName.text = passiveSkill.GetSkillName();
         level = 0;
         icon.sprite = passiveSkill.GetIcon();
         description.text = passiveSkill.GetSkillDescription();
@@ -84,6 +101,16 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         gameObject.transform.localScale = new Vector3(1, 1, 1);
 
         // 카드 변경 사항 적용
+        if (isActive)
+        {
+            Debug.Log(selectedActiveSkill.ToString() + "was selected");
+            SkillManager.Instance.AddActiveSkill(selectedActiveSkill);
+        }
+        else
+        {
+            Debug.Log(selectedPassiveSkill.ToString() + "was selected");
+            SkillManager.Instance.AddPassiveSkill(selectedPassiveSkill);
+        }
 
         gameObject.transform.parent.GetComponent<LevelUpUI>().CloseSkillChoiceUI();
     }
@@ -100,6 +127,7 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     private void InitCard()
     {
+        skillName.text = "";
         icon.sprite = null;
         description.text = "";
         ClearStars();
