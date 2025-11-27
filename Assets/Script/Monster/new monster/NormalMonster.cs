@@ -105,8 +105,56 @@ public class NormalMonster : MonsterBase
     }
     protected override void Die(GameObject killer = null)
     {
+        if (isDead) return;
+
         base.Die(killer);
+
+        // 길막 방지
+        if (agent != null) 
+        {
+            agent.velocity = Vector3.zero;
+            agent.isStopped = true;
+            agent.enabled = false; 
+        }
+
+        
+        UnityEngine.AI.NavMeshObstacle obstacle = GetComponent<UnityEngine.AI.NavMeshObstacle>();
+        if (obstacle != null) obstacle.enabled = false;
+
+        
+        Collider[] colliders = GetComponentsInChildren<Collider>();
+        foreach (Collider col in colliders)
+        {
+            col.enabled = false;
+        }
+
+        // 물리 연산 제거 충돌 감지 끄기
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.velocity = Vector3.zero;
+            rb.isKinematic = true;       // 물리 힘 무시
+            rb.detectCollisions = false; // 충돌 계산 자체를 끔
+        }
+
+        ChangeLayerRecursively(this.transform, "Ignore Raycast");
+
+        // ---------------------------------------------------------
+
         RoomManager room = GetComponentInParent<RoomManager>();
-        room.NotifyMonsterDied(this.gameObject);
+        if (room != null) room.NotifyMonsterDied(this.gameObject);
+    }
+
+    
+    private void ChangeLayerRecursively(Transform trans, string layerName)
+    {
+        int layerIndex = LayerMask.NameToLayer(layerName);
+        if (layerIndex == -1) return; 
+
+        trans.gameObject.layer = layerIndex;
+        foreach (Transform child in trans)
+        {
+            ChangeLayerRecursively(child, layerName);
+        }
     }
 }
