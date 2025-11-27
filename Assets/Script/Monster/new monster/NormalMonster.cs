@@ -1,14 +1,27 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
-
+using System.Collections.Generic;
 public class NormalMonster : MonsterBase
 {
     private NavMeshAgent agent;
+
+    private Vector3 patrolTarget;         
+    private float patrolRange = 15f;      // 몬스터의 배회 범위
+    private float patrolWaitTime = 0.3f;  // 대기 시간
+    private float lastPatrolTime;         
+    private float minPatrolMoveDistance = 0.5f;
+
+    private Queue<Vector3> visitedPatrolPoints = new Queue<Vector3>(); // 방문 지점을 저장할 큐
+    private const int MAX_VISITED_POINTS = 7;                          // 기억할 최대 지점 수
+    private const float PATROL_AVOIDANCE_RADIUS = 5f;
+    
 
     protected override void Awake()
     {
         base.Awake();
         agent = GetComponent<NavMeshAgent>();
+
+        detectionRange /= 2f;
 
         // 몬스터 설정 (회전은 직접 제어, 2D/3D에 따라 UpAxis 설정)
         agent.updateRotation = false; 
@@ -66,9 +79,114 @@ public class NormalMonster : MonsterBase
         }
         else
         {
-            if(agent.isOnNavMesh) agent.isStopped = true;
+            DoPatrol();
+        }
+    }
+    // --- DoPatrol() 함수 ---
+    private void DoPatrol()
+    {
+        if (!agent.isOnNavMesh) 
+        {
+            SetMoveAnimation(false);
+            return;
+        }
+
+        // 목표 도달 거리가 가까워졌거나, 대기 시간이 지났다면 새로운 목표 설정
+        if (agent.remainingDistance <= minPatrolMoveDistance || Time.time > lastPatrolTime + patrolWaitTime)
+        {
+            // 목표에 도달했을 때만 해당 지점을 큐에 기록 (새로운 목표 설정 직전에 실행)
+            if (agent.remainingDistance <= minPatrolMoveDistance && patrolTarget != Vector3.zero)
+            {
+                visitedPatrolPoints.Enqueue(patrolTarget);
+                // 4개를 초과하면 가장 오래된 지점 제거
+                if (visitedPatrolPoints.Count > MAX_VISITED_POINTS)
+                {
+                    visitedPatrolPoints.Dequeue();
+                }
+            }
+
+            // 목표에 도착했으므로 잠시 멈춤
+            agent.isStopped = true;
+            SetMoveAnimation(false);
+
+            lastPatrolTime = Time.time;
+
+            // 대기 시간이 짧거나 0에 가깝다면 즉시 다음 목표를 설정
+            if (patrolWaitTime <= 0.1f)
+            {
+                SetNewPatrolTarget();
+            }
+            else
+            {
+                // 설정된 대기 시간만큼 멈춘 후 목표 설정
+                Invoke("SetNewPatrolTarget", patrolWaitTime); 
+            }
+        }
+        else if(agent.isStopped)
+        {
+            // 목표를 찾았으나 대기 중인 상태일 때
             SetMoveAnimation(false);
         }
+        else
+        {
+            // 이동 중일 때 회전 (추격과 동일한 회전 로직 사용)
+            Vector3 dir = agent.steeringTarget - transform.position;
+            dir.y = 0;
+            if (dir != Vector3.zero)
+            {
+                Quaternion rot = Quaternion.LookRotation(dir);
+                transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.fixedDeltaTime * 10f);
+            }
+            SetMoveAnimation(true);
+        }
+    }
+
+    private void SetNewPatrolTarget()
+    {
+        const int MAX_ATTEMPTS = 10; // 무한 루프 방지를 위한 최대 시도 횟수
+
+        for (int i = 0; i < MAX_ATTEMPTS; i++)
+        {
+            Vector3 randomDirection = Random.insideUnitSphere * patrolRange;
+            randomDirection += transform.position;
+            
+            NavMeshHit hit;
+            // NavMesh 위에서 유효한 위치를 찾습니다.
+            if (NavMesh.SamplePosition(randomDirection, out hit, patrolRange, NavMesh.AllAreas))
+            {
+                // [핵심] 최근 방문했던 지점과 너무 가까운지 확인합니다.
+                if (!IsTooCloseToVisited(hit.position, PATROL_AVOIDANCE_RADIUS))
+                {
+                    // 유효한 위치를 찾았습니다.
+                    patrolTarget = hit.position;
+                    agent.SetDestination(patrolTarget);
+                    agent.isStopped = false;
+                    SetMoveAnimation(true);
+                    return; // 함수 종료
+                }
+            }
+        }
+        
+        // 10번 시도했으나 유효한 위치를 찾지 못했다면, 그냥 멈춰있습니다.
+        // 다음 FixedUpdate 루프에서 다시 시도됩니다.
+    }
+    /// <summary>
+    /// 새로운 위치가 최근 방문했던 지점과 너무 가까운지 확인합니다.
+    /// </summary>
+    private bool IsTooCloseToVisited(Vector3 position, float safeDistance)
+    {
+        foreach (Vector3 visited in visitedPatrolPoints)
+        {
+            // Y축을 무시하고 수평 거리만 비교합니다 (바닥 높이가 달라도 같은 위치로 간주)
+            Vector3 p1 = new Vector3(position.x, 0, position.z);
+            Vector3 p2 = new Vector3(visited.x, 0, visited.z);
+            
+            if (Vector3.Distance(p1, p2) < safeDistance)
+            {
+                return true; // 너무 가까움
+            }
+        }
+        return false;
     }
     
     private void TryAttack()
