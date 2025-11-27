@@ -216,7 +216,6 @@ public class MoveController : MonoBehaviour
             
             if (clips[index] != null)
             {
-                Debug.Log($"[Sound] 발소리 재생! (시간: {Time.time:F2}초 / 파일명: {clips[index].name})");
                 audioSource.pitch = Random.Range(0.9f, 1.1f);
                 audioSource.PlayOneShot(clips[index]);
             }
