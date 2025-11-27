@@ -15,7 +15,7 @@ public class PlayerLevelSystem : MonoBehaviour
     [SerializeField] private int expIncrementPerLevel = 200; // 레벨당 추가 경험치
 
     [Header("마력 증가 규칙")]
-    [SerializeField] private int baseMagicStat = 100;
+    [SerializeField] private int baseMagicStat = 1000;
     [SerializeField] private int magicStatIncrementPerLevel = 10;
 
     public int Level { get; private set; }

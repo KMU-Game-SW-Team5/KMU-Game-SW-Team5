@@ -356,6 +356,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 621652012615075189, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: hp
+      value: 44444
+      objectReference: {fileID: 0}
     - target: {fileID: 5215407885252488437, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -402,7 +406,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: attackSpeed
-      value: 2
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: activeSkills.Array.size
@@ -416,6 +420,10 @@ PrefabInstance:
       propertyPath: activeSkills.Array.data[1]
       value: 
       objectReference: {fileID: 11400000, guid: 92ed4f15b36f6ea418bd73c450234d45, type: 2}
+    - target: {fileID: 6635469780268860728, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: jumpClip
       value: 
