@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +12,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     [TextArea]
     [SerializeField]
     private string descriptionTemplate =
-        "전방에 화염구를 발사하여 {damage}의 피해를 입힙니다.";
+        "Launches a fireball in the target direction that deals {damage} to the first enemy hit.";
     // 에디터에서 이 문자열을 직접 작성할 수 있음.
     // {damage} 토큰을 우리가 수치/공식으로 치환해서 씀.
 
@@ -166,8 +166,17 @@ public abstract class ActiveSkillBase : ScriptableObject
     public void IncreaseBaseValue(float value) => baseValue += value;
     public void IncreaseCoefficient(float value) => coefficient += value;
 
-    public void IncreaseStar() => star++;
+    public void IncreaseStar()
+    {
+        star++;
+        cooldown = Mathf.Max(0.2f, cooldown - 1);
+    }
     public int GetNumOfStar() => star;
+
+    public void ClearStar()
+    {
+        star = 1;
+    }
 
     // ============================
     // 애니메이션

@@ -5,48 +5,63 @@ using UnityEngine.UI;
 
 public class SkillPanel : MonoBehaviour
 {
-    [Header("UI ÄÁÅ×ÀÌ³Ê")]
+
+    // ì‹±ê¸€í†¤ ì¸ìŠ¤í„´ìŠ¤
+    public static SkillPanel Instance { get; private set; }
+
+    [Header("UI ì»¨í…Œì´ë„ˆ")]
     [SerializeField] private Transform activeSkillContainer;
     [SerializeField] private Transform passiveSkillContainer;
 
-    [Header("UI ÇÁ¸®ÆÕ")]
-    [SerializeField] private GameObject activeSkillUIPrefab;   // ¾×Æ¼ºê¿ë ½½·Ô ÇÁ¸®ÆÕ
-    [SerializeField] private GameObject passiveSkillUIPrefab;  // ÆĞ½Ãºê¿ë ½½·Ô ÇÁ¸®ÆÕ
+    [Header("UI í”„ë¦¬íŒ¹")]
+    [SerializeField] private GameObject activeSkillUIPrefab;   // ì•¡í‹°ë¸Œìš© ìŠ¬ë¡¯ í”„ë¦¬íŒ¹
+    [SerializeField] private GameObject passiveSkillUIPrefab;  // íŒ¨ì‹œë¸Œìš© ìŠ¬ë¡¯ í”„ë¦¬íŒ¹
 
-    [Header("½ºÅ©·Ñ ¼³Á¤")]
-    [SerializeField] private ScrollRect passiveScrollRect;     // ÆĞ½Ãºê ½ºÅ³ ¸®½ºÆ®¿ë ScrollRect
-    [SerializeField] private float scrollSpeed = 0.15f;        // ÈÙ °¨µµ
+    [Header("ìŠ¤í¬ë¡¤ ì„¤ì •")]
+    [SerializeField] private ScrollRect passiveScrollRect;     // íŒ¨ì‹œë¸Œ ìŠ¤í‚¬ ë¦¬ìŠ¤íŠ¸ìš© ScrollRect
+    [SerializeField] private float scrollSpeed = 0.15f;        // íœ  ê°ë„
 
-    // »ı¼ºµÈ ½½·Ôµé Ä³½Ì (¼³¸í/º° °»½Å¿ë)
+    // ìƒì„±ëœ ìŠ¬ë¡¯ë“¤ ìºì‹± (ì„¤ëª…/ë³„ ê°±ì‹ ìš©)
     private readonly List<SkillUI_SkillPanel> activeSlots = new();
     private readonly List<SkillUI_SkillPanel> passiveSlots = new();
 
     private bool initialized = false;
 
+    private void Awake()
+    {
+        // ì‹±ê¸€í†¤ ê¸°ë³¸ ì½”ë“œ
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+
     private void Start()
     {
-        // ¾À ÁøÀÔ ½Ã ÇÑ ¹ø¸¸ ÀüÃ¼ ½½·Ô »ı¼º
+        // ì”¬ ì§„ì… ì‹œ í•œ ë²ˆë§Œ ì „ì²´ ìŠ¬ë¡¯ ìƒì„±
         RefreshAll();
         initialized = true;
     }
 
-    // ÆĞ½Ãºê ½ºÅ³ ½ºÅ©·Ñ °¡´ÉÇÏ°Ô ÇÔ.
+    // íŒ¨ì‹œë¸Œ ìŠ¤í‚¬ ìŠ¤í¬ë¡¤ ê°€ëŠ¥í•˜ê²Œ í•¨.
     private void Update()
     {
-        // ÆĞ³ÎÀÌ ÄÑÁ® ÀÖ°í ScrollRect°¡ ¿¬°áµÇ¾î ÀÖÀ» ¶§¸¸
+        // íŒ¨ë„ì´ ì¼œì ¸ ìˆê³  ScrollRectê°€ ì—°ê²°ë˜ì–´ ìˆì„ ë•Œë§Œ
         if (!gameObject.activeInHierarchy) return;
         if (passiveScrollRect == null) return;
 
-        // ¸¶¿ì½º ÈÙ ÀÔ·Â (UnityEngine.Input)
-        float wheel = Input.mouseScrollDelta.y;   // À§·Î ½ºÅ©·Ñ: +, ¾Æ·¡·Î: -
+        // ë§ˆìš°ìŠ¤ íœ  ì…ë ¥ (UnityEngine.Input)
+        float wheel = Input.mouseScrollDelta.y;   // ìœ„ë¡œ ìŠ¤í¬ë¡¤: +, ì•„ë˜ë¡œ: -
 
         if (Mathf.Abs(wheel) > 0.0001f)
         {
             // ScrollRect.verticalNormalizedPosition:
-            // 1 = ¸Ç À§, 0 = ¸Ç ¾Æ·¡
+            // 1 = ë§¨ ìœ„, 0 = ë§¨ ì•„ë˜
             float pos = passiveScrollRect.verticalNormalizedPosition;
 
-            // ÈÙ ¹æÇâ¿¡ µû¶ó À§/¾Æ·¡·Î ÀÌµ¿
+            // íœ  ë°©í–¥ì— ë”°ë¼ ìœ„/ì•„ë˜ë¡œ ì´ë™
             pos += wheel * scrollSpeed;
 
             passiveScrollRect.verticalNormalizedPosition = Mathf.Clamp01(pos);
@@ -56,28 +71,28 @@ public class SkillPanel : MonoBehaviour
 
     private void OnEnable()
     {
-        // ÆĞ³ÎÀÌ ´Ù½Ã ÄÑÁú ¶§´Â ±âÁ¸ ½½·ÔÀ» Àç»ç¿ëÇÏ°í, ¼³¸í/º°¸¸ °»½Å
+        // íŒ¨ë„ì´ ë‹¤ì‹œ ì¼œì§ˆ ë•ŒëŠ” ê¸°ì¡´ ìŠ¬ë¡¯ì„ ì¬ì‚¬ìš©í•˜ê³ , ì„¤ëª…/ë³„ë§Œ ê°±ì‹ 
         if (initialized)
         {
             UpdateAllDescriptions();
         }
         else
         {
-            // È¤½Ã Start Àü¿¡ ÄÑÁú ¼ö ÀÖÀ¸¸é ¾ÈÀü¸Á
+            // í˜¹ì‹œ Start ì „ì— ì¼œì§ˆ ìˆ˜ ìˆìœ¼ë©´ ì•ˆì „ë§
             RefreshAll();
             initialized = true;
         }
     }
      
     /// <summary>
-    /// ÀüÃ¼ ½ºÅ³ ¸ñ·ÏÀ» ´Ù½Ã ±×¸°´Ù. (½½·Ô ½Ï Áö¿ì°í ´Ù½Ã »ı¼º)
-    /// »õ ½ºÅ³ ¼¼Æ®°¡ Å©°Ô ¹Ù²ï °æ¿ì / Ã³À½ ÃÊ±âÈ­ÇÒ ¶§ »ç¿ë.
+    /// ì „ì²´ ìŠ¤í‚¬ ëª©ë¡ì„ ë‹¤ì‹œ ê·¸ë¦°ë‹¤. (ìŠ¬ë¡¯ ì‹¹ ì§€ìš°ê³  ë‹¤ì‹œ ìƒì„±)
+    /// ìƒˆ ìŠ¤í‚¬ ì„¸íŠ¸ê°€ í¬ê²Œ ë°”ë€ ê²½ìš° / ì²˜ìŒ ì´ˆê¸°í™”í•  ë•Œ ì‚¬ìš©.
     /// </summary>
     public void RefreshAll()
     {
         ClearAllSlots();
 
-        // 1) ¾×Æ¼ºê ½ºÅ³
+        // 1) ì•¡í‹°ë¸Œ ìŠ¤í‚¬
         var actives = SkillManager.Instance.GetActiveSkills();
         if (actives != null)
         {
@@ -85,13 +100,13 @@ public class SkillPanel : MonoBehaviour
             {
                 var slot = Instantiate(activeSkillUIPrefab, activeSkillContainer);
                 SkillUI_SkillPanel slot_component = slot.GetComponent<SkillUI_SkillPanel>();
-                slot_component.Setup(skill);          // ¾×Æ¼ºê ½ºÅ³ ÂüÁ¶ ³Ñ±è
-                slot_component.UpdateDescription();   // ÇöÀç ½ºÅÈ ±â¹İÀ¸·Î ¼³¸í/º° °»½Å (ÀÌ ¾È¿¡¼­ Ã³¸®)
+                slot_component.Setup(skill);          // ì•¡í‹°ë¸Œ ìŠ¤í‚¬ ì°¸ì¡° ë„˜ê¹€
+                slot_component.UpdateDescription();   // í˜„ì¬ ìŠ¤íƒ¯ ê¸°ë°˜ìœ¼ë¡œ ì„¤ëª…/ë³„ ê°±ì‹  (ì´ ì•ˆì—ì„œ ì²˜ë¦¬)
                 activeSlots.Add(slot_component);
             }
         }
 
-        // 2) ÆĞ½Ãºê ½ºÅ³
+        // 2) íŒ¨ì‹œë¸Œ ìŠ¤í‚¬
         var passives = SkillManager.Instance.GetPassiveSkills();
         if (passives != null)
         {
@@ -99,23 +114,23 @@ public class SkillPanel : MonoBehaviour
             {
                 var slot = Instantiate(passiveSkillUIPrefab, passiveSkillContainer);
                 SkillUI_SkillPanel slot_component = slot.GetComponent<SkillUI_SkillPanel>();
-                slot_component.Setup(skill);          // ÆĞ½Ãºê ½ºÅ³ ÂüÁ¶ ³Ñ±è
-                slot_component.UpdateDescription();   // ¼³¸í/º° °»½Å
+                slot_component.Setup(skill);          // íŒ¨ì‹œë¸Œ ìŠ¤í‚¬ ì°¸ì¡° ë„˜ê¹€
+                slot_component.UpdateDescription();   // ì„¤ëª…/ë³„ ê°±ì‹ 
                 passiveSlots.Add(slot_component);
             }
         }
     }
 
     /// <summary>
-    /// ½ºÅ³ ¼³¸í + º° °³¼ö¸¸ ÀüºÎ ¾÷µ¥ÀÌÆ® (½ºÅÈ º¯µ¿ / °­È­ ÈÄ È£Ãâ).
-    /// ½½·ÔÀº ´Ù½Ã ¸¸µéÁö ¾Ê´Â´Ù.
+    /// ìŠ¤í‚¬ ì„¤ëª… + ë³„ ê°œìˆ˜ë§Œ ì „ë¶€ ì—…ë°ì´íŠ¸ (ìŠ¤íƒ¯ ë³€ë™ / ê°•í™” í›„ í˜¸ì¶œ).
+    /// ìŠ¬ë¡¯ì€ ë‹¤ì‹œ ë§Œë“¤ì§€ ì•ŠëŠ”ë‹¤.
     /// </summary>
     public void UpdateAllDescriptions()
     {
         foreach (var slot in activeSlots)
         {
             if (slot != null)
-                slot.UpdateDescription();   // ¿©±â¼­ ¼³¸í + º° °»½Å±îÁö ´ã´ç
+                slot.UpdateDescription();   // ì—¬ê¸°ì„œ ì„¤ëª… + ë³„ ê°±ì‹ ê¹Œì§€ ë‹´ë‹¹
         }
 
         foreach (var slot in passiveSlots)
@@ -126,7 +141,7 @@ public class SkillPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// ¾×Æ¼ºê ½ºÅ³À» »õ·Î ¹è¿üÀ» ¶§ UI¿¡ Áï½Ã ½½·Ô Ãß°¡.
+    /// ì•¡í‹°ë¸Œ ìŠ¤í‚¬ì„ ìƒˆë¡œ ë°°ì› ì„ ë•Œ UIì— ì¦‰ì‹œ ìŠ¬ë¡¯ ì¶”ê°€.
     /// </summary>
     public void OnLearnActiveSkill(ActiveSkillBase newSkill)
     {
@@ -135,13 +150,13 @@ public class SkillPanel : MonoBehaviour
 
         var slot = Instantiate(activeSkillUIPrefab, activeSkillContainer);
         SkillUI_SkillPanel slot_component = slot.GetComponent<SkillUI_SkillPanel>();
-        slot_component.Setup(newSkill);          // ¾×Æ¼ºê ½ºÅ³ ÂüÁ¶ ³Ñ±è
-        slot_component.UpdateDescription();   // ÇöÀç ½ºÅÈ ±â¹İÀ¸·Î ¼³¸í/º° °»½Å (ÀÌ ¾È¿¡¼­ Ã³¸®)
+        slot_component.Setup(newSkill);          // ì•¡í‹°ë¸Œ ìŠ¤í‚¬ ì°¸ì¡° ë„˜ê¹€
+        slot_component.UpdateDescription();   // í˜„ì¬ ìŠ¤íƒ¯ ê¸°ë°˜ìœ¼ë¡œ ì„¤ëª…/ë³„ ê°±ì‹  (ì´ ì•ˆì—ì„œ ì²˜ë¦¬)
         activeSlots.Add(slot_component);
     }
 
     /// <summary>
-    /// ÆĞ½Ãºê ½ºÅ³À» »õ·Î ¹è¿üÀ» ¶§ UI¿¡ Áï½Ã ½½·Ô Ãß°¡.
+    /// íŒ¨ì‹œë¸Œ ìŠ¤í‚¬ì„ ìƒˆë¡œ ë°°ì› ì„ ë•Œ UIì— ì¦‰ì‹œ ìŠ¬ë¡¯ ì¶”ê°€.
     /// </summary>
     public void OnLearnPassiveSkill(PassiveSkillBase newSkill)
     {
@@ -150,13 +165,13 @@ public class SkillPanel : MonoBehaviour
 
         var slot = Instantiate(passiveSkillUIPrefab, passiveSkillContainer);
         SkillUI_SkillPanel slot_component = slot.GetComponent<SkillUI_SkillPanel>();
-        slot_component.Setup(newSkill);          // ÆĞ½Ãºê ½ºÅ³ ÂüÁ¶ ³Ñ±è
-        slot_component.UpdateDescription();   // ¼³¸í/º° °»½Å
+        slot_component.Setup(newSkill);          // íŒ¨ì‹œë¸Œ ìŠ¤í‚¬ ì°¸ì¡° ë„˜ê¹€
+        slot_component.UpdateDescription();   // ì„¤ëª…/ë³„ ê°±ì‹ 
         passiveSlots.Add(slot_component);
     }
 
     // -----------------------------
-    // ³»ºÎ ÇïÆÛ
+    // ë‚´ë¶€ í—¬í¼
     // -----------------------------
     private void ClearAllSlots()
     {

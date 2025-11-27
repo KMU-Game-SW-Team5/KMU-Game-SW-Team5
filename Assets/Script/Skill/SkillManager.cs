@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using TMPro;
@@ -7,6 +7,8 @@ public class SkillManager : MonoBehaviour
 {
     // 싱글톤 인스턴스
     public static SkillManager Instance { get; private set; }
+
+    [SerializeField] private InputManager inputManager;
 
     // 플레이어 오브젝트
     public GameObject owner { get; private set; }
@@ -176,6 +178,9 @@ public class SkillManager : MonoBehaviour
         // 쿨타임 갱신
         UpdateSkillsCooldown();
 
+        // 게임 끝나면 스킬 사용 불가
+        if (!inputManager.GetMovable()) return;
+
         // 입력 처리 
         HandleBasicAttackInput();
         HandleSkillInput();
@@ -322,6 +327,7 @@ public class SkillManager : MonoBehaviour
 
             int idx = activeSkills.Count - 1;
             UpdateSkillIcon(idx);
+            SkillPanel.Instance.OnLearnActiveSkill(newSkill);
         }
 
         if (ownedActiveDeck != null)
@@ -336,20 +342,27 @@ public class SkillManager : MonoBehaviour
     }
 
     // 패시브 스킬 추가
-    public void AddPassiveSkill(PassiveSkillBase skill)
+    public void AddPassiveSkill(PassiveSkillBase newSkill)
     {
-        if (skill == null) return;
+        if (newSkill == null) return;
 
         // 중복 획득 어떻게 처리할지 생각하기
         //if (!passiveSkills.Contains(skill))
         //    passiveSkills.Add(skill);
+        passiveSkills.Add(newSkill);
+        if (SkillPanel.Instance == null)
+        {
+            Debug.Log("skill panel instance is null");
+            return;
+        }
+        SkillPanel.Instance.OnLearnPassiveSkill(newSkill);
 
-        if (skill is PS_AddHitEffectType addHitSkill)
+        if (newSkill is PS_AddHitEffectType addHitSkill)
         {
             foreach (var effSO in addHitSkill.hitEffects)
                 runtimeEffects.Add(effSO.CreateEffectInstance());
         }
-        if (skill is PS_AddStatType addStatSkill)
+        if (newSkill is PS_AddStatType addStatSkill)
         {
             buffApplier.ApplyBuff(addStatSkill.buffStatType, addStatSkill.amount);
         }
@@ -488,7 +501,7 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-    // ===================== 덱 기반 스킬 뽑기 API (UI에서 호출) =====================
+    // ===================== 덱 기반 스킬 뽑기 API (UI에서 호출) ============================================================
 
     // 신규 액티브 스킬 한 장 뽑기 (비복원, 전체 덱에서)
     public ActiveSkillBase DrawNewActiveSkillFromDeck()
@@ -497,6 +510,7 @@ public class SkillManager : MonoBehaviour
 
         var skill = allActiveDeck.DrawWithoutReplacementFromRuntime();
         if (skill == null) return null;
+        skill.ClearStar();
         ownedActiveDeck.AddRuntimeCard(skill);
 
 

@@ -159,6 +159,7 @@ public class InGameUIManager : MonoBehaviour
     // -----------------------------
     public void ShowEndingUI(GameResult gameResult)
     {
+
         if (gameResult.IsClear) endingUI.SetupClear();
         else endingUI.SetupGameOver();
 
