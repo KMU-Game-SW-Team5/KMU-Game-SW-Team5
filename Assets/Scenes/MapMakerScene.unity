@@ -416,6 +416,30 @@ PrefabInstance:
       propertyPath: activeSkills.Array.data[1]
       value: 
       objectReference: {fileID: 11400000, guid: 92ed4f15b36f6ea418bd73c450234d45, type: 2}
+    - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: jumpClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 3d8f480d252db9449b2f978284506f8e, type: 3}
+    - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: audioSource
+      value: 
+      objectReference: {fileID: 1086943304}
+    - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: runClips.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: walkClips.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: runClips.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 3bd1b93317b7a3a49b13011cdaa64d0b, type: 3}
+    - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: walkClips.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 1f0199a4c6005ec4abbb302f71bc036d, type: 3}
     - target: {fileID: 8932935889209719771, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: m_Name
       value: Player_1111(JungYoon)
@@ -552,6 +576,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79849bac0d3764f0bbb0a2317ae2e937, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!82 &1086943304 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 5603917540863879228, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+  m_PrefabInstance: {fileID: 1034689261}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1146543534
 GameObject:
   m_ObjectHideFlags: 0
