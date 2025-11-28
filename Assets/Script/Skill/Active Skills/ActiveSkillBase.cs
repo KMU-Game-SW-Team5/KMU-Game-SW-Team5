@@ -19,7 +19,8 @@ public abstract class ActiveSkillBase : ScriptableObject
     [Header("수치")]
     [SerializeField] protected float baseValue = 10f;    // 기본 값 (예: 120)
     [SerializeField] protected float coefficient = 1.0f; // 계수 (예: 1.2 → 120% 마력)
-    [SerializeField] protected float cooldown = 5f;      // 쿨타임 (초)
+    [SerializeField] protected float baseCooldown = 5f;     // 설정된 기본 쿨타임
+    protected float currentCooldown = 5f;      // 런타임에서 쓰이는 쿨타임(성급에 따라 변동)
 
     [Header("시전 시간")]
     [SerializeField] protected float prepareTime = 0f;
@@ -120,7 +121,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     {
         if (remainingCooldown > 0f)
         {
-            remainingCooldown = Mathf.Max(0f, cooldown - (Time.time - lastUseTime));
+            remainingCooldown = Mathf.Max(0f, currentCooldown - (Time.time - lastUseTime));
         }
     }
 
@@ -130,7 +131,7 @@ public abstract class ActiveSkillBase : ScriptableObject
             return false;
 
         lastUseTime = Time.time;
-        remainingCooldown = cooldown;
+        remainingCooldown = currentCooldown;
 
         if (SkillManager.Instance != null)
             SkillManager.Instance.StartCoroutine(CastRoutine(user, target));
@@ -154,7 +155,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     public float GetCooldown() => remainingCooldown;
 
     public float GetCooldownRatio() =>
-        (cooldown <= 0f) ? 0f : remainingCooldown / cooldown;
+        (currentCooldown <= 0f) ? 0f : remainingCooldown / currentCooldown;
 
     public void DecreaseCooldown(float sec)
     {
@@ -174,13 +175,14 @@ public abstract class ActiveSkillBase : ScriptableObject
     public void IncreaseStar()
     {
         star++;
-        cooldown = Mathf.Max(0.2f, cooldown - 1);
+        currentCooldown = Mathf.Max(0.2f, currentCooldown - 1);
     }
     public int GetNumOfStar() => star;
 
     public void ClearStar()
     {
         star = 1;
+        currentCooldown = baseCooldown;
     }
 
     // ============================
@@ -206,6 +208,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     public virtual void Initialize()
     {
         star = 1;
+        currentCooldown = baseCooldown;
         InitializeCooldown();
     }
 
