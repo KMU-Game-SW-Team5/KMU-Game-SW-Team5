@@ -109,7 +109,12 @@ public abstract class ActiveSkillBase : ScriptableObject
 
     public void InitializeCooldown() => remainingCooldown = 0f;
 
-    public bool CanUse => (remainingCooldown <= 0f);
+    public bool CanUse()
+    {
+        Debug.Log(remainingCooldown.ToString());
+        return remainingCooldown <= 0f;
+    }
+
 
     public void UpdateCooldown()
     {
@@ -121,7 +126,7 @@ public abstract class ActiveSkillBase : ScriptableObject
 
     public bool TryUse(GameObject user, Transform target)
     {
-        if (!CanUse)
+        if (!CanUse())
             return false;
 
         lastUseTime = Time.time;
@@ -201,6 +206,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     public virtual void Initialize()
     {
         star = 1;
+        InitializeCooldown();
     }
 
     // ============================

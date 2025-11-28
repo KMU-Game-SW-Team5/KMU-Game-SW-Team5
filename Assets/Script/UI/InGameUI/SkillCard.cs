@@ -38,6 +38,7 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     // Active, Passive 카드 중 랜덤 선택
     private void DrawSkillCard()
     {
+        // 보유한 액티브 스킬 개수가 3개 이하이고, 액티브 스킬을 뽑을 확률에 들어갈 때 true
         isActive = UnityEngine.Random.Range(0, 100) <= activeSKillPercent;
 
         if (isActive)

@@ -3,22 +3,23 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "AS_Buff", menuName = "Scriptable Object/Active Skill/Buff")]
 public class AS_BuffType : ActiveSkillBase
 {
-    [Header("¹öÇÁ ¼³Á¤")]
-    [SerializeField] private BuffStatType targetStat;  // ¾î¶² ½ºÅÈÀ» ¿Ã¸±Áö
-    [SerializeField] private bool isPermanent = false;   // ¿µ±¸ Áö¼ÓÀÎ °æ¿ì
-    [SerializeField] private float buffDuration = 5f;  // ¹öÇÁ Áö¼Ó ½Ã°£(ÃÊ)
-    [SerializeField] private bool usePercent = false;  // true¸é % ´ÜÀ§, false¸é Àı´ë°ª
+    [Header("ë²„í”„ ì„¤ì •")]
+    [SerializeField] private BuffStatType targetStat;  // ì–´ë–¤ ìŠ¤íƒ¯ì„ ì˜¬ë¦´ì§€
+    [SerializeField] private bool isPermanent = false;   // ì˜êµ¬ ì§€ì†ì¸ ê²½ìš°
+    [SerializeField] private float buffDuration = 5f;  // ë²„í”„ ì§€ì† ì‹œê°„(ì´ˆ)
+    [SerializeField] private bool usePercent = false;  // trueë©´ % ë‹¨ìœ„, falseë©´ ì ˆëŒ€ê°’
+
 
     protected override void Execute(GameObject user, Transform target)
     {
         if (user == null) return;
 
-        // ¸¶·Â, ¼º±ŞÀÌ ¹İ¿µµÈ damage °ª
+        // ë§ˆë ¥, ì„±ê¸‰ì´ ë°˜ì˜ëœ damage ê°’
         float rawValue = GetDamage();
 
         float buffAmount = rawValue;
 
-        // ¸¸¾à % ¹öÇÁ·Î ¾²°í ½Í´Ù¸é ¿¹: rawValue = 200 ¡æ 200% = 2.0¹è
+        // ë§Œì•½ % ë²„í”„ë¡œ ì“°ê³  ì‹¶ë‹¤ë©´ ì˜ˆ: rawValue = 200 â†’ 200% = 2.0ë°°
         if (usePercent)
         {
             buffAmount = rawValue * 0.01f; // 200 -> 2.0 (200%)
@@ -33,7 +34,7 @@ public class AS_BuffType : ActiveSkillBase
         }
 
 
-        // ÇÊ¿äÇÏ¸é ¿©±â¼­ ¹öÇÁ¿ë ÀÌÆåÆ®, »ç¿îµå, UI Ç¥½Ã µîÀ» È£ÃâÇØµµ µÊ
-        // ¿¹: CombatUIManager.Instance?.ShowBuffIcon(this, buffDuration);
+        // í•„ìš”í•˜ë©´ ì—¬ê¸°ì„œ ë²„í”„ìš© ì´í™íŠ¸, ì‚¬ìš´ë“œ, UI í‘œì‹œ ë“±ì„ í˜¸ì¶œí•´ë„ ë¨
+        // ì˜ˆ: CombatUIManager.Instance?.ShowBuffIcon(this, buffDuration);
     }
 }
