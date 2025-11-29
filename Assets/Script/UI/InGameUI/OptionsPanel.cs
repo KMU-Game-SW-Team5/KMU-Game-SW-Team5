@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class OptionsPanel : MonoBehaviour
 {
@@ -43,9 +44,18 @@ public class OptionsPanel : MonoBehaviour
         videoPanel?.SetActive(true);
     }
 
-    public void OnClickReturnBtn()
+    public void OnClickReturnToGame()
     {
         gameObject?.SetActive(false);
+    }
+
+    public void OnClickReturnToMainMenu()
+    {
+        gameObject?.SetActive(false);
+        if (Application.CanStreamedLevelBeLoaded("Assets/Scenes/MainUI.unity"))
+            SceneManager.LoadScene("Assets/Scenes/MainUI.unity");
+        else
+            Debug.LogWarning("Assets/Scenes/MainUI.unity가 Build Settings에 등록되어 있지 않습니다");
     }
 
     void SetAllPanelsInactive()
