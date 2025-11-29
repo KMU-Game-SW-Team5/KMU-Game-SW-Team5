@@ -28,8 +28,10 @@ public class InGameUIManager : MonoBehaviour
     [SerializeField] EntryUI playerEntryUI;
     [Header("Options UI")]
     [SerializeField] OptionsPanel optionsUI;
-    [Header("Etc")]
+    [Header("FullMap UI")]
     [SerializeField] MinimapUI minimapUI;
+    [SerializeField] GameObject fullMap;
+    [Header("Etc")]
     [SerializeField] WaveTimerUI waveTimerUI;
     [HideInInspector] public List<SkillSlotUI> skillSlots = new List<SkillSlotUI>();    // 동적 List
     [HideInInspector] public List<TextMeshProUGUI> skillKeysTexts = new List<TextMeshProUGUI>();  // 동적 List
@@ -63,8 +65,12 @@ public class InGameUIManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // OptionsCanvas를 직접 부르는 게 아니라, 매니저에게 요청
-            optionsUI.gameObject.SetActive(!optionsUI.gameObject.activeSelf);
+            ToggleOptionsPanel();
+        }
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            ToggleFullMap();
         }
     }
 
@@ -160,9 +166,26 @@ public class InGameUIManager : MonoBehaviour
     }
 
     // -----------------------------
-    // About Minimap
+    // About FullMap
     // -----------------------------
-    // public void UpdateMinimap(Sprite newMinimap) { minimapUI.SetMinimap(newMinimap); }
+    public void ToggleFullMap()
+    {
+        fullMap.SetActive(!fullMap.activeSelf);
+    }
+    public void UpdateCurrentRoom(Vector2Int gridPos)
+    {
+        foreach (var ui in MinimapUI.Instances)
+        {
+            ui.SetCurrentRoom(gridPos);
+        }
+    }
+    public void UpdateRotation(float playerYaw)
+    {
+        foreach (var ui in MinimapUI.Instances)
+        {
+            ui.UpdateRotation(playerYaw);
+        }
+    }
 
     // -----------------------------
     // About EndingUI
@@ -211,5 +234,13 @@ public class InGameUIManager : MonoBehaviour
     {
         LeaderboardEntry myEntry = LeaderboardService.Instance.LastSubmittedEntry;
         playerEntryUI.SetData(myEntry, myEntry.Rank, true);
+    }
+
+    // -----------------------------
+    // About OptionsUI
+    // -----------------------------
+    public void ToggleOptionsPanel()
+    {
+        optionsUI.gameObject.SetActive(!optionsUI.gameObject.activeSelf);
     }
 }
