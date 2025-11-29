@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class LeaderboardUI : MonoBehaviour
@@ -21,6 +22,14 @@ public class LeaderboardUI : MonoBehaviour
     {
         Time.timeScale = 1f;
         InputBlocker.Unblock();
+    }
+
+    public void OnClickReturnToMainMenu()
+    {
+        if (Application.CanStreamedLevelBeLoaded("Assets/Scenes/MainUI.unity"))
+            SceneManager.LoadScene("Assets/Scenes/MainUI.unity");
+        else
+            Debug.LogWarning("Assets/Scenes/MainUI.unity가 Build Settings에 등록되어 있지 않습니다");
     }
 
     public void RefreshLeaderboard(List<LeaderboardEntry> entries)
