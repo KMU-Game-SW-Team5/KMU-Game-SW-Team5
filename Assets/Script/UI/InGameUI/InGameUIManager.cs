@@ -26,13 +26,14 @@ public class InGameUIManager : MonoBehaviour
     [Header("Leaderboard UI")]
     [SerializeField] LeaderboardUI leaderboardUI;
     [SerializeField] EntryUI playerEntryUI;
-
+    [Header("Options UI")]
+    [SerializeField] OptionsPanel optionsUI;
     [Header("Etc")]
+    [SerializeField] MinimapUI minimapUI;
+    [SerializeField] WaveTimerUI waveTimerUI;
     [HideInInspector] public List<SkillSlotUI> skillSlots = new List<SkillSlotUI>();    // 동적 List
     [HideInInspector] public List<TextMeshProUGUI> skillKeysTexts = new List<TextMeshProUGUI>();  // 동적 List
     [HideInInspector] public List<TextMeshProUGUI> cooldownTexts = new List<TextMeshProUGUI>();  // 동적 List
-    [SerializeField] MinimapUI minimapUI;
-    [SerializeField] WaveTimerUI waveTimerUI;
     //[SerializeField] TimeManager timeManager;
 
     void Awake()
@@ -56,6 +57,15 @@ public class InGameUIManager : MonoBehaviour
     {
         TimeManager.Instance.OnCycleProgress -= waveTimerUI.UpdateRotation;
         TimeManager.Instance.OnDayRatioChanged -= waveTimerUI.SetRatio;
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            // OptionsCanvas를 직접 부르는 게 아니라, 매니저에게 요청
+            optionsUI.gameObject.SetActive(!optionsUI.gameObject.activeSelf);
+        }
     }
 
     //void OnEnable()
