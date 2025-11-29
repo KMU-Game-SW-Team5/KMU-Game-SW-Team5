@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,13 @@ public class WaveTimerUI : MonoBehaviour
     [SerializeField] RectTransform discGroup;   // 회전의 주체
     [SerializeField] Image dayDisc;
     [SerializeField] Image nightDisc;
+    [SerializeField] TextMeshProUGUI inGameTime;
+
+    void Update()
+    {
+        if (inGameTime != null)
+            inGameTime.text = FormatTime((float)TimeManager.Instance.Elapsed);
+    }
 
     public void UpdateRotation(float progress)
     {
@@ -19,5 +27,15 @@ public class WaveTimerUI : MonoBehaviour
         dayRatio = Mathf.Clamp01(dayRatio);
         dayDisc.fillAmount = dayRatio;
         nightDisc.fillAmount = 1f - dayRatio;
+    }
+
+    private string FormatTime(float seconds)
+    {
+        int totalSeconds = Mathf.FloorToInt(seconds);
+        int hour = totalSeconds / 3600;
+        totalSeconds = totalSeconds % 3600;
+        int min = totalSeconds / 60;
+        int sec = totalSeconds % 60;
+        return $"{hour:00}:{min:00}:{sec:00}";
     }
 }
