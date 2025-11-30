@@ -96,6 +96,9 @@ public class SkillManager : MonoBehaviour
     List<SkillSlotUI> skillSlots;
     List<TextMeshProUGUI> cooldownTexts;  // 쿨다운 텍스트 배열
 
+    [Header("사운드")]
+    [SerializeField] private AudioSource skillAudioSource;
+
     // 시전 중에는 스킬 입력을 막기 위한 플래그
     private bool isCasting = false;
 
@@ -117,6 +120,7 @@ public class SkillManager : MonoBehaviour
         owner = this.gameObject;   // SkillManager는 플레이어에게 붙어있음
         player = GetComponent<Player>();
         InitalizeActiveSkills();
+        if (skillAudioSource == null) skillAudioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -249,6 +253,17 @@ public class SkillManager : MonoBehaviour
 
             AnimationType animType = basicAttackSkill.GetSkillAnimation();
 
+            // 사운드 재생
+            if (basicAttackSkill.castClip != null)
+            {
+                skillAudioSource.PlayOneShot(basicAttackSkill.castClip, 0.5f);
+            }
+            else
+            {
+                Debug.Log("cast clip is null");
+            }
+
+
             if (animType == AnimationType.Straight)
             {
                 float castTime = basicAttackSkill.GetCastTime();
@@ -281,6 +296,14 @@ public class SkillManager : MonoBehaviour
                     if (executed)
                     {
                         AnimationType animType = activeSkill.GetSkillAnimation();
+                        if (activeSkill.castClip != null)
+                        {
+                            skillAudioSource.PlayOneShot(activeSkill.castClip);
+                        }
+                        else
+                        {
+                            Debug.Log("cast clip is null");
+                        }
 
                         if (animType == AnimationType.Straight)
                         {
@@ -377,10 +400,6 @@ public class SkillManager : MonoBehaviour
                 eff.Apply(ctx);
     }
 
-    // 스킬 습득시 호출 (필요하면 카드 UI에서 호출하도록 구현)
-    public void OnSkillGetted()
-    {
-    }
 
     // 스킬들 쿨타임 감소
     public void UpdateSkillsCooldown()

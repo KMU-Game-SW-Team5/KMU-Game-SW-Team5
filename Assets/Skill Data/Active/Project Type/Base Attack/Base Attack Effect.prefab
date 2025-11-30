@@ -14750,6 +14750,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ExplosionEffectPrefab: {fileID: 362261158077530393, guid: 5f5d7543db2632041814b596a94d2af0, type: 3}
+  audioSource: {fileID: 0}
+  ExplosionSound: {fileID: 8300000, guid: bf9852cad53425041a03e4b39578eb08, type: 3}
 --- !u!135 &-1720109622931087375
 SphereCollider:
   m_ObjectHideFlags: 0

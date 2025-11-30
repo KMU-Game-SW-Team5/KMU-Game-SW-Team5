@@ -29,6 +29,9 @@ public abstract class ActiveSkillBase : ScriptableObject
     [Header("출력될 수 있는 애니메이션들")]
     [SerializeField] public List<AnimationType> animationTypes = new List<AnimationType>();
 
+    [Header("사운드")]
+    [SerializeField] public AudioClip castClip;
+
     private float lastUseTime = -999f;    // 마지막 사용 시각
     private float remainingCooldown = 0f; // 남은 쿨타임 (초)
     private int star = 1;                 // 성급(획득 횟수)

@@ -3702,6 +3702,7 @@ MonoBehaviour:
   jumpClip: {fileID: 0}
   walkDelay: 0.6
   runDelay: 0.35
+  leapImpulseMultiplier: 0.1
 --- !u!114 &5196499929229690915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3779,6 +3780,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1635d100120cca4f97b2f468bac3dd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputManager: {fileID: 0}
   player: {fileID: 621652012615075189}
   buffApplier: {fileID: 7131818643936476358}
   shotPos_Staff: {fileID: 7317331833410312651}
@@ -3809,7 +3811,6 @@ MonoBehaviour:
   skillKeys: 71000000650000007200000066000000
   basicAttackSkill: {fileID: 11400000, guid: 671443c482f707c469d28b80f9f61916, type: 2}
   attackSpeed: 1
-  magicStat: 10
   skillAnchorPrefab: {fileID: 8333112402990972783, guid: 4f14c3a49e5cfdb40949a31ac4a06bf3, type: 3}
   maxSpellDistance: 1000
   anchorLifetime: 10
@@ -3971,6 +3972,8 @@ MonoBehaviour:
   startLevel: 1
   baseRequiredExp: 100
   expIncrementPerLevel: 50
+  baseMagicStat: 1000
+  magicStatIncrementPerLevel: 10
 --- !u!1 &9083218606825446040
 GameObject:
   m_ObjectHideFlags: 0

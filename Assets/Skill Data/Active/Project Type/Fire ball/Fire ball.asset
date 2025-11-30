@@ -18,19 +18,20 @@ MonoBehaviour:
     to the first enemy hit.
   baseValue: 10
   coefficient: 1
-  cooldown: 2
+  baseCooldown: 5
   prepareTime: 0.25
   castTime: 0
   animationTypes: 07000000
+  castClip: {fileID: 8300000, guid: b1f97d1e88465134ba3b170840ea68cf, type: 3}
   projectilePrefab: {fileID: 5099431166652583641, guid: 18fd82d41bb8c5f4da5c6b40dffc6b3f, type: 3}
-  projectileSpeed: 100
+  projectileSpeed: 200
   lifeTime: 5
   penetrable: 0
   projectileMotion: {fileID: 11400000, guid: cbd820820019a854f8f6484d84dc0813, type: 2}
   motionSpeed: 1
   distanceOffset: 10
-  branchCount: 9
-  burstCount: 5
+  branchCount: 10
+  burstCount: 10
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class ProjectileComponent : MonoBehaviour
@@ -10,6 +10,7 @@ public class ProjectileComponent : MonoBehaviour
     private Motion motionType;       // 운동 로직
 
     [SerializeField] private GameObject ExplosionEffectPrefab;
+    [SerializeField] private AudioClip ExplosionSound;
 
     private GameObject projectilePrefabRef; // 오브젝트 풀링 키
     private SkillManager skillManager;      // 싱글톤 SkillManager
@@ -121,27 +122,6 @@ public class ProjectileComponent : MonoBehaviour
                 // ③ 적중시 효과 발동
                 skillManager.OnHit(ctx);
             }
-
-            // 임시 코드 (추후 통일할 것)
-            if (other.TryGetComponent<BossController>(out var Monster))
-            {
-                GameObject attacker = skillManager.owner;
-
-                // ① 기본 데미지 적용
-                Monster.TakeDamage((int)baseDamage);
-
-                // ② HitContext 생성
-                HitContext ctx = new HitContext(
-                    attacker: attacker,
-                    target: monster.gameObject,
-                    hitPoint: transform.position,
-                    baseDamage: baseDamage,
-                    source: this
-                );
-
-                // ③ 적중시 효과 발동
-                skillManager.OnHit(ctx);
-            }
         }
 
         Bomb();
@@ -165,6 +145,19 @@ public class ProjectileComponent : MonoBehaviour
             var ec = effect.GetComponent<ExplosionEffectComponent>();
             if (ec != null)
                 ec.SetPrefabRef(ExplosionEffectPrefab);
+
+            if (ExplosionSound != null)
+            {
+                // 폭발 사운드 재생 (폭발 방향의 정해진 거리에서 재생)
+                Vector3 dir = (transform.position - Camera.main.transform.position).normalized;
+                Vector3 playPos = Camera.main.transform.position + dir * 3f;  // 여기서 거리 설정
+                AudioSource.PlayClipAtPoint(ExplosionSound, playPos);
+            }
+
+        }
+        else
+        {
+            Debug.Log("Explosion effect is null");
         }
 
         if (!penetrable)
