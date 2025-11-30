@@ -26,6 +26,12 @@ public class KillCounter : MonoBehaviour
         OnCreated?.Invoke(this);
     }
 
+    // 게임 재실행 시 카운트 초기화
+    private void OnEnable()
+    {
+        ResetCounter();
+    }
+
     public void AddMonsterKill()
     {
         TotalMonsterKills++;

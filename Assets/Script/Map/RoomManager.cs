@@ -192,6 +192,11 @@ public class RoomManager : MonoBehaviour
         {
             Debug.Log($"{type} 방 입장! 상태: {state}");
 
+            // Minimap UI
+            int gx = Mathf.RoundToInt(transform.position.x / (10 * 40));
+            int gy = Mathf.RoundToInt(transform.position.z / (10 * 40));
+            InGameUIManager.Instance.UpdateCurrentRoom(new Vector2Int(gx, gy));
+
             if (!isSpawned)
             {
                 // [변경] Normal 방 또는 Boss 방 입장 시 문 잠그고 몬스터/보스 소환
@@ -314,7 +319,7 @@ public class RoomManager : MonoBehaviour
     {
         state = RoomState.Cleared;
         UnlockDoors();
-        
+
         // 보스방 클리어 시 추가 로직이 필요하면 여기에 작성
         if (type == RoomType.Boss)
         {

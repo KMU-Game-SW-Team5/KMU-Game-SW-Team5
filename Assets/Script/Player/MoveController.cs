@@ -1,3 +1,4 @@
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -63,6 +64,10 @@ public class MoveController : MonoBehaviour
     {
         // ���콺 ȸ��(�þ�)�� Ư�� �̵� �߿��� �״�� ����
         transform.Rotate(Vector3.up * lookInput.x * lookSensitivity * Time.deltaTime);
+
+        // minmap UI
+        float yaw = transform.eulerAngles.y;
+        InGameUIManager.Instance.UpdateRotation(yaw);
 
         xRotation -= lookInput.y * lookSensitivity * Time.deltaTime;
         xRotation = Mathf.Clamp(xRotation, minLookAngle, maxLookAngle);
