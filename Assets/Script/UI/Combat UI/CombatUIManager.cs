@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 public class CombatUIManager : MonoBehaviour
 {
@@ -14,7 +14,7 @@ public class CombatUIManager : MonoBehaviour
     [SerializeField] private CameraEffectorUI cameraEffector;
 
     [Header("Skill Panel")]
-    [SerializeField] private GameObject skillPanel;
+    [SerializeField] private GameObject skillPanelWindow;
 
     [Header("Stat Panel")]
     [SerializeField] private TextMeshProUGUI magicStatText;
@@ -27,14 +27,8 @@ public class CombatUIManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKey(KeyCode.Tab))
-        {
-            skillPanel.SetActive(true);
-        }
-        else
-        {
-            skillPanel.SetActive(false);
-        }
+        // 탭 누르고 있을 때만 보여줌
+        SkillPanel.Instance.Toggle(Input.GetKey(KeyCode.Tab));
 
         // 추후 최적화 할 것
         magicStatText.text = SkillManager.Instance.GetMagicStat().ToString();

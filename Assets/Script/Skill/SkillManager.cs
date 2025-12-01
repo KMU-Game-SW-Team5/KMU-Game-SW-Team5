@@ -121,6 +121,7 @@ public class SkillManager : MonoBehaviour
         player = GetComponent<Player>();
         InitalizeActiveSkills();
         if (skillAudioSource == null) skillAudioSource = GetComponent<AudioSource>();
+        if (inputManager == null) inputManager = GetComponent<InputManager>();
     }
 
     private void Start()
@@ -245,7 +246,6 @@ public class SkillManager : MonoBehaviour
 
         bool executed = basicAttackSkill.TryUse(gameObject, CreateSkillAnchor());
 
-        Debug.Log(executed.ToString());
 
         if (executed)
         {
@@ -349,6 +349,7 @@ public class SkillManager : MonoBehaviour
             if (SkillPanel.Instance == null)
             {
                 Init();
+                Debug.Log("SkillPanel is null");
             }
             SkillPanel.Instance.OnLearnActiveSkill(newSkill);
         }
@@ -522,51 +523,44 @@ public class SkillManager : MonoBehaviour
 
     // ===================== 덱 기반 스킬 뽑기 API (UI에서 호출) ============================================================
 
-    // 신규 액티브 스킬 한 장 뽑기 (비복원, 전체 덱에서)
-    public ActiveSkillBase DrawNewActiveSkillFromDeck()
+    // 신규 액티브 스킬 한 장 뽑기 (미리보기용, 비복원 후보)
+    public ActiveSkillBase PreviewNewActiveSkillFromDeck()
     {
         if (allActiveDeck == null) return null;
-
-        var skill = allActiveDeck.DrawWithoutReplacementFromRuntime();
-        if (skill == null) return null;
-        skill.ClearStar();
+        // 덱에서 제거하지 말고 그냥 랜덤으로 하나 보기만
+        var skill = allActiveDeck.GetRandomFromRuntime();
         return skill;
     }
 
-    // 뽑은 액티브 스킬 중복 액티브 스킬 덱으로 옮기기
-    public void MoveCardToDuplicateDeck(ActiveSkillBase skill)
-    {
-        if (skill == null)
-        {
-            Debug.Log("Can't move skill");
-            return;
-        }
-        ownedActiveDeck.AddRuntimeCard(skill);
-    }
-
-    // 중복 액티브 스킬 한 장 뽑기 (복원, 획득 덱에서)
-    public ActiveSkillBase DrawDuplicateActiveSkillFromDeck()
+    // 중복 액티브 스킬 한 장 뽑기 (복원, 획득 덱에서, 역시 미리보기)
+    public ActiveSkillBase PreviewDuplicateActiveSkillFromDeck()
     {
         if (ownedActiveDeck == null) return null;
 
         var skill = ownedActiveDeck.DrawWithReplacementFromRuntime();
-        if (skill == null) return null;
-
-        skill.IncreaseStar();
         return skill;
     }
 
-    // 자동: 액티브 스킬 4종 전까지는 신규, 이후에는 중복
-    public ActiveSkillBase DrawActiveSkillAutoFromDeck()
+    // 자동: 액티브 스킬 4종 전까지는 신규, 이후에는 중복 (전부 "미리보기")
+    // isDuplicate = true 이면 중복 업그레이드 카드
+    public ActiveSkillBase PreviewActiveSkillAutoFromDeck(out bool isDuplicate)
     {
         Debug.Log("Active Skill count : " + activeSkills.Count.ToString());
+
         if (activeSkills.Count < 4)
-            return DrawNewActiveSkillFromDeck();
+        {
+            isDuplicate = false;
+            return PreviewNewActiveSkillFromDeck();
+        }
         else
-            return DrawDuplicateActiveSkillFromDeck();
+        {
+            isDuplicate = true;
+            return PreviewDuplicateActiveSkillFromDeck();
+        }
     }
 
-    // 패시브 스킬 한 장 뽑기
+
+    // 패시브 스킬은 어차피 WithReplacement 추출이라 기존 그대로 써도 됨
     public PassiveSkillBase DrawPassiveSkillFromDeck()
     {
         if (passiveSkillDeck == null) return null;
@@ -576,6 +570,35 @@ public class SkillManager : MonoBehaviour
 
         return skill;
     }
+
+
+    // ✅ 액티브 스킬 선택 확정 시 호출
+    public void CommitActiveSkillSelection(ActiveSkillBase skill)
+    {
+        if (skill == null) return;
+
+        // 아직 스킬 4개 미만 → 신규 획득 확정
+        if (activeSkills.Count < 4)
+        {
+            // 전체 덱에서 실제로 제거 (비복원)
+            allActiveDeck.RemoveRuntimeCard(skill);
+
+            // 획득/중복 덱에 추가
+            ownedActiveDeck.AddRuntimeCard(skill);
+
+            // 처음 얻을 때는 기획대로 초기 별 처리
+            skill.ClearStar();
+        }
+        else
+        {
+            // 이미 스킬 4개 이상 → 중복 강화 (별 +1)
+            skill.IncreaseStar();
+        }
+
+        // 실제 보유 리스트에 반영 (기존에 하던 로직)
+        AddActiveSkill(skill);
+    }
+
 
     // ===============================================테스트 함수들======================================================
 #if UNITY_EDITOR

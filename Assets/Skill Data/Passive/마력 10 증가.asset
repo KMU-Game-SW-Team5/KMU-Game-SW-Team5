@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7d579c084f8fef42bef69d778d4e34a, type: 3}
-  m_Name: "\uB9C8\uB825 20 \uC99D\uAC00"
+  m_Name: "\uB9C8\uB825 10 \uC99D\uAC00"
   m_EditorClassIdentifier: 
   skillName: Arcane boost
   icon: {fileID: 21300000, guid: 28a795d1eb4bd1945a44d2b09dcce038, type: 3}
   description: Increase magic stat by 20
   buffStatType: 2
-  amount: 20
+  amount: 10

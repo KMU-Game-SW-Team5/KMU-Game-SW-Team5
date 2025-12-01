@@ -1,13 +1,14 @@
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SkillPanel : MonoBehaviour
 {
-
     // 싱글톤 인스턴스
     public static SkillPanel Instance { get; private set; }
+
+    [Header("실제 내용 패널 루트 (자식 패널)")]
+    [SerializeField] private GameObject skillPanelWindow; // 실제로 보이는 패널(자식 오브젝트)
 
     [Header("UI 컨테이너")]
     [SerializeField] private Transform activeSkillContainer;
@@ -27,63 +28,109 @@ public class SkillPanel : MonoBehaviour
 
     private bool initialized = false;
 
+    // -----------------------------
+    // 라이프사이클
+    // -----------------------------
     private void Awake()
     {
-        // 싱글톤 기본 코드
+        // 싱글톤 설정
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
         Instance = this;
+
+        // 시작 시에는 창을 숨겨둔다.
+        if (skillPanelWindow != null)
+            skillPanelWindow.SetActive(false);
     }
 
-    private void Start()
-    {
-        // 씬 진입 시 한 번만 전체 슬롯 생성
-        RefreshAll();
-        initialized = true;
-    }
-
-    // 패시브 스킬 스크롤 가능하게 함.
     private void Update()
     {
-        // 패널이 켜져 있고 ScrollRect가 연결되어 있을 때만
-        if (!gameObject.activeInHierarchy) return;
-        if (passiveScrollRect == null) return;
+        // 창이 열려있고 ScrollRect가 연결되어 있을 때만 스크롤 처리
+        if (skillPanelWindow == null || !skillPanelWindow.activeInHierarchy)
+            return;
+        if (passiveScrollRect == null)
+            return;
 
-        // 마우스 휠 입력 (UnityEngine.Input)
         float wheel = Input.mouseScrollDelta.y;   // 위로 스크롤: +, 아래로: -
 
         if (Mathf.Abs(wheel) > 0.0001f)
         {
-            // ScrollRect.verticalNormalizedPosition:
-            // 1 = 맨 위, 0 = 맨 아래
+            // ScrollRect.verticalNormalizedPosition: 1 = 맨 위, 0 = 맨 아래
             float pos = passiveScrollRect.verticalNormalizedPosition;
-
-            // 휠 방향에 따라 위/아래로 이동
             pos += wheel * scrollSpeed;
-
             passiveScrollRect.verticalNormalizedPosition = Mathf.Clamp01(pos);
         }
     }
 
+    // -----------------------------
+    // 외부에서 호출할 인터페이스
+    // -----------------------------
 
-    private void OnEnable()
+    /// <summary>
+    /// 스킬 패널을 연다. (처음 열릴 때 한 번만 슬롯 생성)
+    /// </summary>
+    public void Show()
     {
-        // 패널이 다시 켜질 때는 기존 슬롯을 재사용하고, 설명/별만 갱신
-        if (initialized)
+        if (!initialized)
         {
-            UpdateAllDescriptions();
+            Init();             // 슬롯 생성
+            initialized = true;
         }
         else
         {
-            // 혹시 Start 전에 켜질 수 있으면 안전망
-            RefreshAll();
-            initialized = true;
+            UpdateAllDescriptions();   // 기존 슬롯 설명/별만 갱신
+        }
+
+        if (skillPanelWindow != null)
+            skillPanelWindow.SetActive(true);
+    }
+
+    /// <summary>
+    /// 스킬 패널을 닫는다.
+    /// </summary>
+    public void Hide()
+    {
+        if (skillPanelWindow != null)
+            skillPanelWindow.SetActive(false);
+    }
+
+    /// <summary>
+    /// 열려 있으면 닫고, 닫혀 있으면 연다.
+    /// 탭 버튼에 연결하기 좋은 토글 함수.
+    /// </summary>
+    public void Toggle(bool show)
+    {
+        if (skillPanelWindow == null) return;
+
+        bool isOpen = skillPanelWindow.activeSelf;
+
+        if (show && !isOpen)
+        {
+            Show();   // 닫혀 있는데 키를 눌렀을 때 → 한 번만 열기
+        }
+        else if (!show && isOpen)
+        {
+            Hide();   // 열려 있는데 키를 뗐을 때 → 한 번만 닫기
         }
     }
-     
+
+    /// <summary>
+    /// 현재 패널이 열려있는지 여부.
+    /// </summary>
+    public bool IsOpen =>
+        skillPanelWindow != null && skillPanelWindow.activeSelf;
+
+    // -----------------------------
+    // 초기화 / 전체 갱신
+    // -----------------------------
+    private void Init()
+    {
+        RefreshAll();   // 슬롯 생성
+    }
+
     /// <summary>
     /// 전체 스킬 목록을 다시 그린다. (슬롯 싹 지우고 다시 생성)
     /// 새 스킬 세트가 크게 바뀐 경우 / 처음 초기화할 때 사용.
@@ -99,10 +146,10 @@ public class SkillPanel : MonoBehaviour
             foreach (var skill in actives)
             {
                 var slot = Instantiate(activeSkillUIPrefab, activeSkillContainer);
-                SkillUI_SkillPanel slot_component = slot.GetComponent<SkillUI_SkillPanel>();
-                slot_component.Setup(skill);          // 액티브 스킬 참조 넘김
-                slot_component.UpdateDescription();   // 현재 스탯 기반으로 설명/별 갱신 (이 안에서 처리)
-                activeSlots.Add(slot_component);
+                var slotComponent = slot.GetComponent<SkillUI_SkillPanel>();
+                slotComponent.Setup(skill);        // 액티브 스킬 참조 넘김
+                slotComponent.UpdateDescription(); // 현재 스탯 기반 설명/별 갱신
+                activeSlots.Add(slotComponent);
             }
         }
 
@@ -113,10 +160,10 @@ public class SkillPanel : MonoBehaviour
             foreach (var skill in passives)
             {
                 var slot = Instantiate(passiveSkillUIPrefab, passiveSkillContainer);
-                SkillUI_SkillPanel slot_component = slot.GetComponent<SkillUI_SkillPanel>();
-                slot_component.Setup(skill);          // 패시브 스킬 참조 넘김
-                slot_component.UpdateDescription();   // 설명/별 갱신
-                passiveSlots.Add(slot_component);
+                var slotComponent = slot.GetComponent<SkillUI_SkillPanel>();
+                slotComponent.Setup(skill);        // 패시브 스킬 참조 넘김
+                slotComponent.UpdateDescription(); // 설명/별 갱신
+                passiveSlots.Add(slotComponent);
             }
         }
     }
@@ -130,7 +177,7 @@ public class SkillPanel : MonoBehaviour
         foreach (var slot in activeSlots)
         {
             if (slot != null)
-                slot.UpdateDescription();   // 여기서 설명 + 별 갱신까지 담당
+                slot.UpdateDescription();
         }
 
         foreach (var slot in passiveSlots)
@@ -149,10 +196,10 @@ public class SkillPanel : MonoBehaviour
             return;
 
         var slot = Instantiate(activeSkillUIPrefab, activeSkillContainer);
-        SkillUI_SkillPanel slot_component = slot.GetComponent<SkillUI_SkillPanel>();
-        slot_component.Setup(newSkill);          // 액티브 스킬 참조 넘김
-        slot_component.UpdateDescription();   // 현재 스탯 기반으로 설명/별 갱신 (이 안에서 처리)
-        activeSlots.Add(slot_component);
+        var slotComponent = slot.GetComponent<SkillUI_SkillPanel>();
+        slotComponent.Setup(newSkill);
+        slotComponent.UpdateDescription();
+        activeSlots.Add(slotComponent);
     }
 
     /// <summary>
@@ -164,10 +211,10 @@ public class SkillPanel : MonoBehaviour
             return;
 
         var slot = Instantiate(passiveSkillUIPrefab, passiveSkillContainer);
-        SkillUI_SkillPanel slot_component = slot.GetComponent<SkillUI_SkillPanel>();
-        slot_component.Setup(newSkill);          // 패시브 스킬 참조 넘김
-        slot_component.UpdateDescription();   // 설명/별 갱신
-        passiveSlots.Add(slot_component);
+        var slotComponent = slot.GetComponent<SkillUI_SkillPanel>();
+        slotComponent.Setup(newSkill);
+        slotComponent.UpdateDescription();
+        passiveSlots.Add(slotComponent);
     }
 
     // -----------------------------

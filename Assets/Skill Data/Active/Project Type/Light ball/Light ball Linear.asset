@@ -10,28 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 308b2936cbe43b945885bc09b72d2cec, type: 3}
-  m_Name: Light ball Linear Homing
+  m_Name: Light ball Linear
   m_EditorClassIdentifier: 
-  skillName: 
+  skillName: Sequential light ball
   icon: {fileID: 21300000, guid: bd4a5a80c8c6a964a8cc146755e265c2, type: 3}
   descriptionTemplate: shot light ball linearlly ({damage})
   baseValue: 10
-  coefficient: 1
-  cooldown: 5
+  coefficient: 0.1
+  baseCooldown: 5
+  cooldownDecreasePerStar: 0
   prepareTime: 0.25
   castTime: 3
   animationTypes: 03000000
+  castClip: {fileID: 8300000, guid: 9dd13d61ad03c02479502703b57b7a4f, type: 3}
   projectilePrefab: {fileID: 2089860787992684173, guid: 3d53bec11ec83cb47bcd20a7eb615632, type: 3}
   projectileSpeed: 20
   lifeTime: 5
   penetrable: 0
-  projectileMotion: {fileID: 11400000, guid: 05dbd8165b79bb54b85e2e551d2ecb85, type: 2}
-  motionSpeed: 50
+  projectileMotion: {fileID: 11400000, guid: 20873d6e3adddc14292e1689fe0e4a66, type: 2}
+  motionSpeed: 10
   distanceOffset: 10
   branchCount: 1
-  burstCount: 1
+  burstCount: 20
   maxSpreadAngle: 60
-  minInterval: 0.05
+  minInterval: 0.13
   maxInterval: 0.4
   decayK: 0.4
-  shotPositions: 01000000020000000300000004000000050000000600000007000000
+  shotPositions: 00000000

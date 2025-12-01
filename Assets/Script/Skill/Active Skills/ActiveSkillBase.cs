@@ -20,6 +20,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     [SerializeField] protected float baseValue = 10f;    // 기본 값 (예: 120)
     [SerializeField] protected float coefficient = 1.0f; // 계수 (예: 1.2 → 120% 마력)
     [SerializeField] protected float baseCooldown = 5f;     // 설정된 기본 쿨타임
+    [SerializeField] protected float cooldownDecreasePerStar = 1.0f;    // 성급에 따른 쿨타임 감소량
     protected float currentCooldown = 5f;      // 런타임에서 쓰이는 쿨타임(성급에 따라 변동)
 
     [Header("시전 시간")]
@@ -115,7 +116,6 @@ public abstract class ActiveSkillBase : ScriptableObject
 
     public bool CanUse()
     {
-        Debug.Log(remainingCooldown.ToString());
         return remainingCooldown <= 0f;
     }
 
@@ -178,7 +178,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     public void IncreaseStar()
     {
         star++;
-        currentCooldown = Mathf.Max(0.2f, currentCooldown - 1);
+        currentCooldown = Mathf.Max(0.2f, currentCooldown - cooldownDecreasePerStar);
     }
     public int GetNumOfStar() => star;
 

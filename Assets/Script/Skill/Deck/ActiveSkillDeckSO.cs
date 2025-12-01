@@ -13,15 +13,9 @@ public class ActiveSkillDeckSO : ScriptableObject
 
     private void OnEnable()
     {
-        // 에디터에서 도중에 리컴파일될 때도 깔끔하게 초기화되도록
         ResetRuntimeFromInitial();
     }
 
-    /// <summary>
-    /// initialCards를 기준으로 runtimeCards를 다시 구성.
-    /// - "전체 스킬 덱" 용도에서 사용.
-    /// - "획득한 스킬 덱"에서는 호출하지 않고 ClearRuntime/추가만 사용.
-    /// </summary>
     public void ResetRuntimeFromInitial()
     {
         if (runtimeCards == null)
@@ -32,9 +26,6 @@ public class ActiveSkillDeckSO : ScriptableObject
         runtimeCards.AddRange(initialCards);
     }
 
-    /// <summary>
-    /// 런타임 덱 비우기 (획득 스킬 덱 초기화용).
-    /// </summary>
     public void ClearRuntime()
     {
         if (runtimeCards == null)
@@ -44,25 +35,9 @@ public class ActiveSkillDeckSO : ScriptableObject
     }
 
     /// <summary>
-    /// 비복원 추출: runtimeCards에서 하나 뽑고 제거.
-    /// (주로 "전체 스킬 덱"에서 사용)
+    /// ✅ 덱에서 랜덤 카드 하나 "보기만" 한다. (제거 X)
     /// </summary>
-    public ActiveSkillBase DrawWithoutReplacementFromRuntime()
-    {
-        if (runtimeCards == null || runtimeCards.Count == 0)
-            return null;
-
-        int index = Random.Range(0, runtimeCards.Count);
-        ActiveSkillBase picked = runtimeCards[index];
-        runtimeCards.RemoveAt(index);
-        return picked;
-    }
-
-    /// <summary>
-    /// 복원 추출: runtimeCards에서 랜덤 하나 뽑기 (제거 X).
-    /// (주로 "획득한 스킬 덱"에서 사용)
-    /// </summary>
-    public ActiveSkillBase DrawWithReplacementFromRuntime()
+    public ActiveSkillBase GetRandomFromRuntime()
     {
         if (runtimeCards == null || runtimeCards.Count == 0)
             return null;
@@ -72,9 +47,37 @@ public class ActiveSkillDeckSO : ScriptableObject
     }
 
     /// <summary>
-    /// 런타임 덱에 카드 추가 (에셋(initialCards)은 건드리지 않음).
-    /// → "획득한 스킬 덱"에서 쓰기 좋음.
+    /// ✅ 특정 카드를 런타임 덱에서 제거 (확정 선택 시 호출)
     /// </summary>
+    public void RemoveRuntimeCard(ActiveSkillBase card)
+    {
+        if (runtimeCards == null || card == null) return;
+        runtimeCards.Remove(card);
+    }
+
+    /// <summary>
+    /// (기존 함수) 비복원 추출 – 다른 데서 쓰고 있으면 그대로 둬도 됨
+    /// </summary>
+    public ActiveSkillBase DrawWithoutReplacementFromRuntime()
+    {
+        if (runtimeCards == null || runtimeCards.Count == 0)
+            return null;
+
+        int index = Random.Range(0, runtimeCards.Count);
+        var picked = runtimeCards[index];
+        runtimeCards.RemoveAt(index);
+        return picked;
+    }
+
+    public ActiveSkillBase DrawWithReplacementFromRuntime()
+    {
+        if (runtimeCards == null || runtimeCards.Count == 0)
+            return null;
+
+        int index = Random.Range(0, runtimeCards.Count);
+        return runtimeCards[index];
+    }
+
     public void AddRuntimeCard(ActiveSkillBase card)
     {
         if (card == null)
@@ -90,6 +93,5 @@ public class ActiveSkillDeckSO : ScriptableObject
             runtimeCards.Add(card);
     }
 
-    // 필요하면 디자인용 전체 카드에 접근
     public IReadOnlyList<ActiveSkillBase> InitialCards => initialCards;
 }

@@ -242,7 +242,7 @@ public class MoveController : MonoBehaviour
 
             if (clips[index] != null)
             {
-                Debug.Log("발소리 출력중");
+                //Debug.Log("발소리 출력중");
                 audioSource.pitch = Random.Range(0.9f, 1.1f);
                 audioSource.PlayOneShot(clips[index]);
             }

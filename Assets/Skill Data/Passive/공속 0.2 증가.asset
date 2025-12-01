@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7d579c084f8fef42bef69d778d4e34a, type: 3}
-  m_Name: "\uACF5\uC18D 1 \uC99D\uAC00"
+  m_Name: "\uACF5\uC18D 0.2 \uC99D\uAC00"
   m_EditorClassIdentifier: 
   skillName: Frenzy
   icon: {fileID: 21300000, guid: 63b30c77b2de31d4398b65d935f4713c, type: 3}

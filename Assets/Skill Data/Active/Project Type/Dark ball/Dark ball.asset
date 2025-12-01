@@ -12,16 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 308b2936cbe43b945885bc09b72d2cec, type: 3}
   m_Name: Dark ball
   m_EditorClassIdentifier: 
-  skillName: 
+  skillName: Dark wave
   icon: {fileID: 21300000, guid: ccb73df5fe270284a9801f5d9b2021e5, type: 3}
-  descriptionTemplate: Throw Dark Ball {damage}
+  descriptionTemplate: Throw Dark Balls {damage}
   baseValue: 10
-  coefficient: 1
+  coefficient: 0.1
   baseCooldown: 5
+  cooldownDecreasePerStar: 0
   prepareTime: 0.25
   castTime: 0
   animationTypes: 08000000
-  castClip: {fileID: 0}
+  castClip: {fileID: 8300000, guid: 7a15fc41b1d885940a382f983eb3f01b, type: 3}
   projectilePrefab: {fileID: 7914662257891743077, guid: 5af6aca17542d204eb028ec2744aef98, type: 3}
   projectileSpeed: 50
   lifeTime: 5

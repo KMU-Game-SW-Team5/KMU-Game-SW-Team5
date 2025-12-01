@@ -5,20 +5,20 @@ public class TestCode : MonoBehaviour
     [SerializeField] InGameUIManager inGameUIManager;
     int LV = 1;
 
-    [Header("½ºÅ³ Å×½ºÆ® Å°")]
+    [Header("ìŠ¤í‚¬ í…ŒìŠ¤íŠ¸ í‚¤")]
     [SerializeField] private KeyCode skill1Key = KeyCode.T;
     [SerializeField] private KeyCode skill2Key = KeyCode.Y;
     [SerializeField] private KeyCode skill3Key = KeyCode.U;
     [SerializeField] private KeyCode skill4Key = KeyCode.I;
 
-    [Header("±âÅ¸ Å×½ºÆ® Å°")]
-    [SerializeField] private KeyCode expKey = KeyCode.G;  // °æÇèÄ¡ Áõ°¡
-    [SerializeField] private KeyCode hpKey = KeyCode.H;  // Ã¼·Â Áõ°¡
-    [SerializeField] private KeyCode bossAppearKey = KeyCode.J;  // º¸½º µîÀå
-    [SerializeField] private KeyCode bossDamageKey = KeyCode.K;  // º¸½º Ã¼·Â ±ğ±â
-    [SerializeField] private KeyCode bossDisappearKey = KeyCode.L;  // º¸½º »ç¶óÁü
-    [SerializeField] private KeyCode levelUpKey = KeyCode.Colon;  // ·¹º§¾÷
-    [SerializeField] private KeyCode gameClearKey = KeyCode.C;  // ·¹º§¾÷
+    [Header("ê¸°íƒ€ í…ŒìŠ¤íŠ¸ í‚¤")]
+    [SerializeField] private KeyCode expKey = KeyCode.G;  // ê²½í—˜ì¹˜ ì¦ê°€
+    [SerializeField] private KeyCode hpKey = KeyCode.H;  // ì²´ë ¥ ì¦ê°€
+    [SerializeField] private KeyCode bossAppearKey = KeyCode.J;  // ë³´ìŠ¤ ë“±ì¥
+    [SerializeField] private KeyCode bossDamageKey = KeyCode.K;  // ë³´ìŠ¤ ì²´ë ¥ ê¹ê¸°
+    [SerializeField] private KeyCode bossDisappearKey = KeyCode.L;  // ë³´ìŠ¤ ì‚¬ë¼ì§
+    [SerializeField] private KeyCode levelUpKey = KeyCode.Colon;  // ë ˆë²¨ì—…
+    [SerializeField] private KeyCode gameClearKey = KeyCode.C;  // ë ˆë²¨ì—…
 
     void OnEnable() { TimeManager.Instance.OnWaveChanged += ApplyWave; }
     void OnDisable() { TimeManager.Instance.OnWaveChanged -= ApplyWave; }
@@ -28,28 +28,28 @@ public class TestCode : MonoBehaviour
         if (InputBlocker.IsInputBlocked)
             return;
 
-        // ½ºÅ³ »ç¿ë(Äğ´Ù¿î ½ÃÀÛ)
+        // ìŠ¤í‚¬ ì‚¬ìš©(ì¿¨ë‹¤ìš´ ì‹œì‘)
         if (Input.GetKeyDown(skill1Key)) inGameUIManager.UseSkill(0, 5f);
         if (Input.GetKeyDown(skill2Key)) inGameUIManager.UseSkill(1, 5f);
         if (Input.GetKeyDown(skill3Key)) inGameUIManager.UseSkill(2, 5f);
         if (Input.GetKeyDown(skill4Key)) inGameUIManager.UseSkill(3, 5f);
 
-        // °æÇèÄ¡ Áõ°¡
+        // ê²½í—˜ì¹˜ ì¦ê°€
         if (Input.GetKeyDown(expKey)) inGameUIManager.UpdatePlayerEXPUI(5, 40);
 
-        // Ã¼·Â Áõ°¡
+        // ì²´ë ¥ ì¦ê°€
         if (Input.GetKeyDown(hpKey)) inGameUIManager.UpdatePlayerHPUI(5, 100);
 
-        // º¸½º µîÀå
+        // ë³´ìŠ¤ ë“±ì¥
         if (Input.GetKeyDown(bossAppearKey)) inGameUIManager.AppearBossUI(980, 980, "ABC");
 
-        // º¸½º Ã¼·Â ±ğ±â
+        // ë³´ìŠ¤ ì²´ë ¥ ê¹ê¸°
         if (Input.GetKeyDown(bossDamageKey)) inGameUIManager.UpdateBossHPUI(500, 980);
 
-        // º¸½º »ç¶óÁü
+        // ë³´ìŠ¤ ì‚¬ë¼ì§
         if (Input.GetKeyDown(bossDisappearKey)) inGameUIManager.DisappearBossUI();
 
-        // ·¹º§¾÷
+        // ë ˆë²¨ì—…
         if (Input.GetKeyDown(levelUpKey)) inGameUIManager.UpdatePlayerLVUI(++LV);
 
         if (Input.GetKeyDown(gameClearKey)) GameManager.Instance.EndGame(true);
@@ -57,7 +57,7 @@ public class TestCode : MonoBehaviour
 
     public void ApplyWave(bool isDay)
     {
-        if (isDay) Debug.Log("Day");
-        else Debug.Log("Night");
+        //if (isDay) Debug.Log("Day");
+        //else Debug.Log("Night");
     }
 }

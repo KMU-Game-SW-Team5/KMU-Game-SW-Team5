@@ -13,15 +13,17 @@ MonoBehaviour:
   m_Name: Attack Speed + 10
   m_EditorClassIdentifier: 
   skillName: Rage
-  icon: {fileID: 21300000, guid: b77402021cc52554984cc1625252a146, type: 3}
-  descriptionTemplate: Attack Speed + {damage}
-  baseValue: 10
+  icon: {fileID: 21300000, guid: ca6dcc3743947654dafb58b80788fe9c, type: 3}
+  descriptionTemplate: Attack Speed + {damage} for 3 seconds
+  baseValue: 5
   coefficient: 0
-  baseCooldown: 5
+  baseCooldown: 10
+  cooldownDecreasePerStar: 1
   prepareTime: 0
   castTime: 0
-  animationTypes: 0a000000
+  animationTypes: 06000000
+  castClip: {fileID: 0}
   targetStat: 4
   isPermanent: 0
-  buffDuration: 5
+  buffDuration: 3
   usePercent: 0

@@ -23,6 +23,7 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     ActiveSkillBase selectedActiveSkill;
     PassiveSkillBase selectedPassiveSkill;
     bool isActive;      // 뽑은 게 액티브 스킬인지
+    bool isDuplicateActive;         // 이 액티브 카드가 중복 업그레이드 카드인지
 
     private int numOfStar;
 
@@ -44,6 +45,10 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (isActive)
         {
             selectedActiveSkill = DrawActiveSkill();
+            if (selectedActiveSkill == null)
+            {
+                Debug.Log("selected Active skill is null");
+            }
         }
         else
         {
@@ -53,21 +58,40 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     private ActiveSkillBase DrawActiveSkill()
     {
-        ActiveSkillBase activeSkill = SkillManager.Instance.DrawActiveSkillAutoFromDeck();
+        bool duplicate;
+        ActiveSkillBase activeSkill = SkillManager.Instance.PreviewActiveSkillAutoFromDeck(out duplicate);
 
         if (activeSkill == null)
         {
             Debug.Log("Active skill is null");
-
             return null;
         }
+
+        selectedActiveSkill = activeSkill;
+        isDuplicateActive = duplicate;
+
         skillName.text = activeSkill.GetSkillName();
-        numOfStar = activeSkill.GetNumOfStar();
+
+        if (duplicate)
+        {
+            // 🔹 중복 카드라면, "강화 후 레벨"을 미리 보여주기 위해 +1 해서 그림
+            numOfStar = activeSkill.GetNumOfStar() + 1;
+        }
+        else
+        {
+            // 🔹 신규 카드라면 "처음 레벨" (기획에 맞게 0 또는 1 선택)
+            // 기존 ClearStar 후 레벨이 0이었다면 0으로 두고,
+            // 처음부터 1레벨로 보여주고 싶으면 1로 두면 됨.
+            numOfStar = 0;
+        }
+
         icon.sprite = activeSkill.GetIcon();
         description.text = activeSkill.GetAcquisitionDescriptionPlain();
-        
+
         return activeSkill;
     }
+
+
 
     private PassiveSkillBase DrawPassiveSkill()
     {
@@ -104,17 +128,21 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         // 카드 변경 사항 적용
         if (isActive)
         {
-            Debug.Log(selectedActiveSkill.ToString() + "was selected");
-            SkillManager.Instance.AddActiveSkill(selectedActiveSkill);
+            Debug.Log(selectedActiveSkill + " was selected");
+
+            // ✅ 여기서 덱 제거 / 이동 / 별 조정까지 한 번에 처리
+            SkillManager.Instance.CommitActiveSkillSelection(selectedActiveSkill);
         }
         else
         {
-            Debug.Log(selectedPassiveSkill.ToString() + "was selected");
+            Debug.Log(selectedPassiveSkill + " was selected");
             SkillManager.Instance.AddPassiveSkill(selectedPassiveSkill);
+            // 패시브도 나중에 필요하면 별/중복 처리 로직 분리 가능
         }
 
         gameObject.transform.parent.GetComponent<LevelUpUI>().CloseSkillChoiceUI();
     }
+
 
     public void OnPointerEnter(PointerEventData eventData)
     {
