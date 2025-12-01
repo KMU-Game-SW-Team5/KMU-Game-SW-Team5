@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections.Generic;
+[RequireComponent(typeof(AudioSource))]
 public class NormalMonster : MonsterBase
 {
     private NavMeshAgent agent;
@@ -15,7 +16,14 @@ public class NormalMonster : MonsterBase
     private const int MAX_VISITED_POINTS = 7;                          // 기억할 최대 지점 수
     private const float PATROL_AVOIDANCE_RADIUS = 5f;
     
+    [Header("Audio Settings")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] walkClips; 
+    [SerializeField] private AudioClip attackClip;       
+    [SerializeField] private AudioClip deathClip;   
 
+    private float lastProgress = 0f; 
+    private GameObject currentAttackSoundObject;
     protected override void Awake()
     {
         base.Awake();
@@ -26,6 +34,8 @@ public class NormalMonster : MonsterBase
         // 몬스터 설정 (회전은 직접 제어, 2D/3D에 따라 UpAxis 설정)
         agent.updateRotation = false; 
         agent.updateUpAxis = false; // 3D 게임이면 false
+
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
     }
 
     protected override void Update()
@@ -224,6 +234,17 @@ public class NormalMonster : MonsterBase
     protected override void Die(GameObject killer = null)
     {
         if (isDead) return;
+        if (deathClip != null)
+        {
+            AudioSource.PlayClipAtPoint(deathClip, transform.position, 1.0f);
+        }
+
+        
+        if (currentAttackSoundObject != null)
+        {
+            Destroy(currentAttackSoundObject);
+            currentAttackSoundObject = null;
+        }
 
         base.Die(killer);
 
@@ -257,7 +278,7 @@ public class NormalMonster : MonsterBase
 
         ChangeLayerRecursively(this.transform, "Ignore Raycast");
 
-        // ---------------------------------------------------------
+        
 
         RoomManager room = GetComponentInParent<RoomManager>();
         if (room != null) room.NotifyMonsterDied(this.gameObject);
@@ -274,5 +295,47 @@ public class NormalMonster : MonsterBase
         {
             ChangeLayerRecursively(child, layerName);
         }
+    }
+    void CheckDualFootsteps()
+    {
+        if (animator == null) return;
+        
+        
+        float currentProgress = animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1.0f;
+
+        
+        if (currentProgress < lastProgress) PlayWalkSound();
+        else if (lastProgress < 0.5f && currentProgress >= 0.5f) PlayWalkSound();
+
+        lastProgress = currentProgress;
+    }
+
+    void PlayWalkSound()
+    {
+        if (audioSource == null || walkClips == null || walkClips.Length == 0) return;
+
+        int index = Random.Range(0, walkClips.Length);
+        if (walkClips[index] != null)
+        {
+            // 피치 변조를 주어 자연스럽게
+            audioSource.pitch = Random.Range(0.8f, 1.1f);
+            audioSource.PlayOneShot(walkClips[index], 0.6f); // 볼륨 적절히 조절
+        }
+    }
+    void Play2DSound(AudioClip clip)
+    {
+        if (clip == null) return;
+        // 기존에 재생 중인 공격음이 있다면 제거 (중복 방지, 필요에 따라 삭제 가능)
+        if (currentAttackSoundObject != null) Destroy(currentAttackSoundObject);
+
+        currentAttackSoundObject = new GameObject("Temp2DSound");
+        AudioSource tempSource = currentAttackSoundObject.AddComponent<AudioSource>();
+        
+        tempSource.clip = clip;
+        tempSource.spatialBlend = 0f; // 2D 사운드 (거리 상관없이 들림)
+        tempSource.volume = 1.0f;     
+        
+        tempSource.Play();
+        Destroy(currentAttackSoundObject, clip.length); // 재생 끝나면 자동 파괴
     }
 }
