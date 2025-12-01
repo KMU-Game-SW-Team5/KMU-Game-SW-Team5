@@ -22,7 +22,7 @@ MonoBehaviour:
   prepareTime: 0
   castTime: 0.2
   animationTypes: 06000000
-  castClip: {fileID: 0}
+  castClip: {fileID: 8300000, guid: 87a2e502ddd174591af0e35f76e448a2, type: 3}
   targetStat: 0
   isPermanent: 1
   buffDuration: 0

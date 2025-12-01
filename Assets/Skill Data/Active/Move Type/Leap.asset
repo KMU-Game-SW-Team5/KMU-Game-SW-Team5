@@ -13,12 +13,14 @@ MonoBehaviour:
   m_Name: Leap
   m_EditorClassIdentifier: 
   skillName: Leap
-  icon: {fileID: 21300000, guid: c46be55a65cb30e44b7c89e3c0d531da, type: 3}
+  icon: {fileID: 21300000, guid: 3e74fafb59d81d248bc0e748a3732473, type: 3}
   descriptionTemplate: Leap forward
   baseValue: 150
   coefficient: 0
-  cooldown: 0.2
+  baseCooldown: 5
+  cooldownDecreasePerStar: 1
   prepareTime: 0
   castTime: 0
   animationTypes: 02000000
+  castClip: {fileID: 8300000, guid: 2b26cbea232414fcfab41a84fc7a1c55, type: 3}
   jumpAngle: 15

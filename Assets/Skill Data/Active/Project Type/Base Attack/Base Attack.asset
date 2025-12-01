@@ -23,7 +23,7 @@ MonoBehaviour:
   prepareTime: 0.1
   castTime: 0
   animationTypes: 08000000
-  castClip: {fileID: 8300000, guid: bf9852cad53425041a03e4b39578eb08, type: 3}
+  castClip: {fileID: 8300000, guid: e3298e35eed19c942b6f4d2d41cd21ba, type: 3}
   projectilePrefab: {fileID: 7458564200767833722, guid: 0ff7bedf6d978c848940abc2d5c22994, type: 3}
   projectileSpeed: 200
   lifeTime: 4

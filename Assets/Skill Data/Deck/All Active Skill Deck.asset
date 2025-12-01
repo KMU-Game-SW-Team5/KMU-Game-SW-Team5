@@ -16,9 +16,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a392258e60bdd0441aea1e85e458f279, type: 2}
   - {fileID: 11400000, guid: 92ed4f15b36f6ea418bd73c450234d45, type: 2}
   - {fileID: 11400000, guid: 31ec668155a1d6d47a9ee8dba2a3595b, type: 2}
-  - {fileID: 11400000, guid: d296c5fb661c8ea42bde2e86bb221330, type: 2}
   - {fileID: 11400000, guid: 6e1ea0111f34e2c4cbbcf68f1a27a4e3, type: 2}
   - {fileID: 11400000, guid: 00c9b45df413ed3499515cf51040cf1e, type: 2}
   runtimeCards:
-  - {fileID: 11400000, guid: d296c5fb661c8ea42bde2e86bb221330, type: 2}
-  - {fileID: 11400000, guid: 00c9b45df413ed3499515cf51040cf1e, type: 2}
+  - {fileID: 11400000, guid: 6e1ea0111f34e2c4cbbcf68f1a27a4e3, type: 2}
