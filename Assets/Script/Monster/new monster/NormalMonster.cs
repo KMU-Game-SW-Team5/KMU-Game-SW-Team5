@@ -22,6 +22,8 @@ public class NormalMonster : MonsterBase
     [SerializeField] private AudioClip attackClip;       
     [SerializeField] private AudioClip deathClip;   
 
+    [Range(0f, 1f)] [SerializeField] private float walkSoundVolume = 0.1f;
+
     private float lastProgress = 0f; 
     private GameObject currentAttackSoundObject;
     protected override void Awake()
@@ -43,6 +45,14 @@ public class NormalMonster : MonsterBase
         base.Update();
         // 상태이상(슬로우/스턴/DOT)은 MonsterBase.Update()에서 처리
         // 일반 몬스터의 AI 로직은 FixedUpdate에서 처리
+
+        if (IsAlive && !isDead && !isStunned)
+        {
+            if (agent.velocity.sqrMagnitude > 0.1f)
+            {
+                CheckDualFootsteps();
+            }
+        }
     }
 
     protected override void FixedUpdate()
@@ -319,7 +329,7 @@ public class NormalMonster : MonsterBase
         {
             // 피치 변조를 주어 자연스럽게
             audioSource.pitch = Random.Range(0.8f, 1.1f);
-            audioSource.PlayOneShot(walkClips[index], 0.6f); // 볼륨 적절히 조절
+            audioSource.PlayOneShot(walkClips[index], walkSoundVolume);
         }
     }
     void Play2DSound(AudioClip clip)
