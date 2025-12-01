@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,8 +31,6 @@ public class AS_ProjectType : ActiveSkillBase
     public override void Initialize()
     {
         base.Initialize();
-        branchCount = 1;
-        burstCount = 1;
     }
 
     // ============================================================

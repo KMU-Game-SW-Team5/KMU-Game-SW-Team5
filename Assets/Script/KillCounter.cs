@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
+using System.Collections;
+
 
 public class KillCounter : MonoBehaviour
 {
     public static KillCounter Instance { get; private set; }
+
 
     public int TotalMonsterKills { get; private set; }
     public int TotalBossKills { get; private set; }
@@ -14,6 +17,9 @@ public class KillCounter : MonoBehaviour
     public event Action<int> OnKillCountChanged;
     // KillCountUI와 연결(KillCounter 싱글톤 생성 시 알림)
     public static event Action<KillCounter> OnCreated;
+
+    [SerializeField]
+    private float bossEndDelay = 3f; // 보스 죽고 엔딩까지 기다릴 시간(초)
 
     private void Awake()
     {
@@ -44,6 +50,14 @@ public class KillCounter : MonoBehaviour
         TotalBossKills++;
         OnKillCountChanged?.Invoke(TotalKills);
 
+        // 여기서 바로 끝내지 말고, 코루틴으로 지연 실행
+        StartCoroutine(DelayEndGameCoroutine());
+    }
+
+    private IEnumerator DelayEndGameCoroutine()
+    {
+        yield return new WaitForSeconds(bossEndDelay);
+
         GameManager.Instance.CheckAndEndGame();
     }
 
@@ -53,4 +67,5 @@ public class KillCounter : MonoBehaviour
         TotalBossKills = 0;
         OnKillCountChanged?.Invoke(TotalKills);
     }
+
 }

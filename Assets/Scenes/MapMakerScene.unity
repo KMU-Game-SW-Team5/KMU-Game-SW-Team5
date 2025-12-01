@@ -369,7 +369,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 621652012615075189, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: hp
-      value: 44444
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 621652012615075189, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: maxHealth
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 2991035596834519195, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: baseMagicStat
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2991035596834519195, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: baseRequiredExp
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2991035596834519195, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: expIncrementPerLevel
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5215407885252488437, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -417,11 +433,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: attackSpeed
-      value: 1000
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: inputManager
+      value: 
+      objectReference: {fileID: 1325916227}
+    - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: activeSkills.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: passiveSkills.Array.size
@@ -431,10 +451,18 @@ PrefabInstance:
       propertyPath: activeSkills.Array.data[1]
       value: 
       objectReference: {fileID: 11400000, guid: 92ed4f15b36f6ea418bd73c450234d45, type: 2}
+    - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: activeSkills.Array.data[2]
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c9b45df413ed3499515cf51040cf1e, type: 2}
     - target: {fileID: 6635469780268860728, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: rb
+      value: 
+      objectReference: {fileID: 1325916223}
     - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: jumpClip
       value: 
@@ -449,6 +477,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: walkClips.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: leapImpulseMultiplier
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7740971710797951775, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}

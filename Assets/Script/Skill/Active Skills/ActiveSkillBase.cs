@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,14 +12,15 @@ public abstract class ActiveSkillBase : ScriptableObject
     [TextArea]
     [SerializeField]
     private string descriptionTemplate =
-        "전방에 화염구를 발사하여 {damage}의 피해를 입힙니다.";
+        "Launches a fireball in the target direction that deals {damage} to the first enemy hit.";
     // 에디터에서 이 문자열을 직접 작성할 수 있음.
     // {damage} 토큰을 우리가 수치/공식으로 치환해서 씀.
 
     [Header("수치")]
     [SerializeField] protected float baseValue = 10f;    // 기본 값 (예: 120)
     [SerializeField] protected float coefficient = 1.0f; // 계수 (예: 1.2 → 120% 마력)
-    [SerializeField] protected float cooldown = 5f;      // 쿨타임 (초)
+    [SerializeField] protected float baseCooldown = 5f;     // 설정된 기본 쿨타임
+    protected float currentCooldown = 5f;      // 런타임에서 쓰이는 쿨타임(성급에 따라 변동)
 
     [Header("시전 시간")]
     [SerializeField] protected float prepareTime = 0f;
@@ -27,6 +28,9 @@ public abstract class ActiveSkillBase : ScriptableObject
 
     [Header("출력될 수 있는 애니메이션들")]
     [SerializeField] public List<AnimationType> animationTypes = new List<AnimationType>();
+
+    [Header("사운드")]
+    [SerializeField] public AudioClip castClip;
 
     private float lastUseTime = -999f;    // 마지막 사용 시각
     private float remainingCooldown = 0f; // 남은 쿨타임 (초)
@@ -109,23 +113,28 @@ public abstract class ActiveSkillBase : ScriptableObject
 
     public void InitializeCooldown() => remainingCooldown = 0f;
 
-    public bool CanUse => (remainingCooldown <= 0f);
+    public bool CanUse()
+    {
+        Debug.Log(remainingCooldown.ToString());
+        return remainingCooldown <= 0f;
+    }
+
 
     public void UpdateCooldown()
     {
         if (remainingCooldown > 0f)
         {
-            remainingCooldown = Mathf.Max(0f, cooldown - (Time.time - lastUseTime));
+            remainingCooldown = Mathf.Max(0f, currentCooldown - (Time.time - lastUseTime));
         }
     }
 
     public bool TryUse(GameObject user, Transform target)
     {
-        if (!CanUse)
+        if (!CanUse())
             return false;
 
         lastUseTime = Time.time;
-        remainingCooldown = cooldown;
+        remainingCooldown = currentCooldown;
 
         if (SkillManager.Instance != null)
             SkillManager.Instance.StartCoroutine(CastRoutine(user, target));
@@ -149,7 +158,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     public float GetCooldown() => remainingCooldown;
 
     public float GetCooldownRatio() =>
-        (cooldown <= 0f) ? 0f : remainingCooldown / cooldown;
+        (currentCooldown <= 0f) ? 0f : remainingCooldown / currentCooldown;
 
     public void DecreaseCooldown(float sec)
     {
@@ -166,8 +175,18 @@ public abstract class ActiveSkillBase : ScriptableObject
     public void IncreaseBaseValue(float value) => baseValue += value;
     public void IncreaseCoefficient(float value) => coefficient += value;
 
-    public void IncreaseStar() => star++;
+    public void IncreaseStar()
+    {
+        star++;
+        currentCooldown = Mathf.Max(0.2f, currentCooldown - 1);
+    }
     public int GetNumOfStar() => star;
+
+    public void ClearStar()
+    {
+        star = 1;
+        currentCooldown = baseCooldown;
+    }
 
     // ============================
     // 애니메이션
@@ -192,6 +211,8 @@ public abstract class ActiveSkillBase : ScriptableObject
     public virtual void Initialize()
     {
         star = 1;
+        currentCooldown = baseCooldown;
+        InitializeCooldown();
     }
 
     // ============================

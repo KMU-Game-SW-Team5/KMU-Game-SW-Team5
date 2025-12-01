@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Scriptable Object/Deck/ActiveSkillDeck")]
@@ -8,7 +8,8 @@ public class ActiveSkillDeckSO : ScriptableObject
     [SerializeField] private List<ActiveSkillBase> initialCards = new();
 
     // 🔹 런타임에서만 사용하는 작업용 리스트 (씬/플레이마다 리셋)
-    private List<ActiveSkillBase> runtimeCards;
+    [SerializeField]
+    private List<ActiveSkillBase> runtimeCards = new();
 
     private void OnEnable()
     {
@@ -76,7 +77,11 @@ public class ActiveSkillDeckSO : ScriptableObject
     /// </summary>
     public void AddRuntimeCard(ActiveSkillBase card)
     {
-        if (card == null) return;
+        if (card == null)
+        {
+            Debug.Log("add card is null");
+            return;
+        }
 
         if (runtimeCards == null)
             runtimeCards = new List<ActiveSkillBase>();

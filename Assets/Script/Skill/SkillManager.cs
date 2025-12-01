@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using TMPro;
@@ -7,6 +7,8 @@ public class SkillManager : MonoBehaviour
 {
     // 싱글톤 인스턴스
     public static SkillManager Instance { get; private set; }
+
+    [SerializeField] private InputManager inputManager;
 
     // 플레이어 오브젝트
     public GameObject owner { get; private set; }
@@ -33,6 +35,7 @@ public class SkillManager : MonoBehaviour
     [Header("장착된 액티브 스킬 목록")]
     [SerializeField] private List<ActiveSkillBase> activeSkills = new List<ActiveSkillBase>();
     public List<ActiveSkillBase> GetActiveSkills() => activeSkills;
+    public int GetNumOfActiveSkills() => activeSkills.Count;
 
     [Header("장착된 패시브 스킬 목록")]
     [SerializeField] private List<PassiveSkillBase> passiveSkills = new List<PassiveSkillBase>();
@@ -54,10 +57,7 @@ public class SkillManager : MonoBehaviour
     [SerializeField, Tooltip("초당 몇 번까지 기본 공격 가능한지")]
     private float attackSpeed = 1f;
     public float GetAttackSpeed() => attackSpeed;
-    public void AddAttackSpeed(float value)
-    {
-        attackSpeed += value;
-    }
+    public void AddAttackSpeed(float value) { attackSpeed += value; }
 
     // 내부용: 마지막 기본 공격 시각
     private float lastBasicAttackTime = -999f;
@@ -74,19 +74,12 @@ public class SkillManager : MonoBehaviour
 
     private float magicStat = 100f;  // 마력 스탯 
 
-    public void SetMagicStat(int value)
-    {
-        magicStat = value;
-    }
+    public void SetMagicStat(int value) { magicStat = value; }
+
     public float GetMagicStat() { return magicStat; }
-    public void AddMagicStat(float value)
-    {
-        magicStat += value;
-    }
-    public void AddMagicStatPercent(float percent)
-    {
-        magicStat *= 1 + percent;
-    }
+    public void AddMagicStat(float value) { magicStat += value; }
+
+    public void AddMagicStatPercent(float percent) { magicStat *= 1 + percent; }
 
     [Header("스킬 시전용 앵커 프리팹")]
     [Tooltip("스킬 타겟용 앵커 프리팹 (없으면 기본 빈 오브젝트 생성)")]
@@ -102,6 +95,9 @@ public class SkillManager : MonoBehaviour
     [Header("스킬 UI")]
     List<SkillSlotUI> skillSlots;
     List<TextMeshProUGUI> cooldownTexts;  // 쿨다운 텍스트 배열
+
+    [Header("사운드")]
+    [SerializeField] private AudioSource skillAudioSource;
 
     // 시전 중에는 스킬 입력을 막기 위한 플래그
     private bool isCasting = false;
@@ -124,11 +120,15 @@ public class SkillManager : MonoBehaviour
         owner = this.gameObject;   // SkillManager는 플레이어에게 붙어있음
         player = GetComponent<Player>();
         InitalizeActiveSkills();
+        if (skillAudioSource == null) skillAudioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
     {
         playerAnimation = GetComponent<PlayerAnimation>();
+
+        // 기본 공격 초기화
+        basicAttackSkill.Initialize();
 
         // 액티브 스킬 쿨타임 초기화
         foreach (var skill in activeSkills)
@@ -175,6 +175,9 @@ public class SkillManager : MonoBehaviour
 
         // 쿨타임 갱신
         UpdateSkillsCooldown();
+
+        // 게임 끝나면 스킬 사용 불가
+        if (!inputManager.GetMovable()) return;
 
         // 입력 처리 
         HandleBasicAttackInput();
@@ -242,11 +245,24 @@ public class SkillManager : MonoBehaviour
 
         bool executed = basicAttackSkill.TryUse(gameObject, CreateSkillAnchor());
 
+        Debug.Log(executed.ToString());
+
         if (executed)
         {
             lastBasicAttackTime = Time.time;
 
             AnimationType animType = basicAttackSkill.GetSkillAnimation();
+
+            // 사운드 재생
+            if (basicAttackSkill.castClip != null)
+            {
+                skillAudioSource.PlayOneShot(basicAttackSkill.castClip, 0.5f);
+            }
+            else
+            {
+                Debug.Log("cast clip is null");
+            }
+
 
             if (animType == AnimationType.Straight)
             {
@@ -280,6 +296,14 @@ public class SkillManager : MonoBehaviour
                     if (executed)
                     {
                         AnimationType animType = activeSkill.GetSkillAnimation();
+                        if (activeSkill.castClip != null)
+                        {
+                            skillAudioSource.PlayOneShot(activeSkill.castClip);
+                        }
+                        else
+                        {
+                            Debug.Log("cast clip is null");
+                        }
 
                         if (animType == AnimationType.Straight)
                         {
@@ -322,6 +346,11 @@ public class SkillManager : MonoBehaviour
 
             int idx = activeSkills.Count - 1;
             UpdateSkillIcon(idx);
+            if (SkillPanel.Instance == null)
+            {
+                Init();
+            }
+            SkillPanel.Instance.OnLearnActiveSkill(newSkill);
         }
 
         if (ownedActiveDeck != null)
@@ -336,20 +365,27 @@ public class SkillManager : MonoBehaviour
     }
 
     // 패시브 스킬 추가
-    public void AddPassiveSkill(PassiveSkillBase skill)
+    public void AddPassiveSkill(PassiveSkillBase newSkill)
     {
-        if (skill == null) return;
+        if (newSkill == null) return;
 
         // 중복 획득 어떻게 처리할지 생각하기
         //if (!passiveSkills.Contains(skill))
         //    passiveSkills.Add(skill);
+        passiveSkills.Add(newSkill);
+        if (SkillPanel.Instance == null)
+        {
+            Debug.Log("skill panel instance is null");
+            return;
+        }
+        SkillPanel.Instance.OnLearnPassiveSkill(newSkill);
 
-        if (skill is PS_AddHitEffectType addHitSkill)
+        if (newSkill is PS_AddHitEffectType addHitSkill)
         {
             foreach (var effSO in addHitSkill.hitEffects)
                 runtimeEffects.Add(effSO.CreateEffectInstance());
         }
-        if (skill is PS_AddStatType addStatSkill)
+        if (newSkill is PS_AddStatType addStatSkill)
         {
             buffApplier.ApplyBuff(addStatSkill.buffStatType, addStatSkill.amount);
         }
@@ -364,10 +400,6 @@ public class SkillManager : MonoBehaviour
                 eff.Apply(ctx);
     }
 
-    // 스킬 습득시 호출 (필요하면 카드 UI에서 호출하도록 구현)
-    public void OnSkillGetted()
-    {
-    }
 
     // 스킬들 쿨타임 감소
     public void UpdateSkillsCooldown()
@@ -488,7 +520,7 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-    // ===================== 덱 기반 스킬 뽑기 API (UI에서 호출) =====================
+    // ===================== 덱 기반 스킬 뽑기 API (UI에서 호출) ============================================================
 
     // 신규 액티브 스킬 한 장 뽑기 (비복원, 전체 덱에서)
     public ActiveSkillBase DrawNewActiveSkillFromDeck()
@@ -497,10 +529,19 @@ public class SkillManager : MonoBehaviour
 
         var skill = allActiveDeck.DrawWithoutReplacementFromRuntime();
         if (skill == null) return null;
-        ownedActiveDeck.AddRuntimeCard(skill);
-
-
+        skill.ClearStar();
         return skill;
+    }
+
+    // 뽑은 액티브 스킬 중복 액티브 스킬 덱으로 옮기기
+    public void MoveCardToDuplicateDeck(ActiveSkillBase skill)
+    {
+        if (skill == null)
+        {
+            Debug.Log("Can't move skill");
+            return;
+        }
+        ownedActiveDeck.AddRuntimeCard(skill);
     }
 
     // 중복 액티브 스킬 한 장 뽑기 (복원, 획득 덱에서)
@@ -518,6 +559,7 @@ public class SkillManager : MonoBehaviour
     // 자동: 액티브 스킬 4종 전까지는 신규, 이후에는 중복
     public ActiveSkillBase DrawActiveSkillAutoFromDeck()
     {
+        Debug.Log("Active Skill count : " + activeSkills.Count.ToString());
         if (activeSkills.Count < 4)
             return DrawNewActiveSkillFromDeck();
         else

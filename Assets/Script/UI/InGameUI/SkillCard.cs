@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -24,9 +24,9 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     PassiveSkillBase selectedPassiveSkill;
     bool isActive;      // 뽑은 게 액티브 스킬인지
 
-    private int level;
+    private int numOfStar;
 
-    public int Level => level;
+    public int Level => numOfStar;
 
     private void OnEnable()
     {
@@ -38,6 +38,7 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     // Active, Passive 카드 중 랜덤 선택
     private void DrawSkillCard()
     {
+        // 보유한 액티브 스킬 개수가 3개 이하이고, 액티브 스킬을 뽑을 확률에 들어갈 때 true
         isActive = UnityEngine.Random.Range(0, 100) <= activeSKillPercent;
 
         if (isActive)
@@ -61,7 +62,7 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             return null;
         }
         skillName.text = activeSkill.GetSkillName();
-        level = activeSkill.GetNumOfStar();
+        numOfStar = activeSkill.GetNumOfStar();
         icon.sprite = activeSkill.GetIcon();
         description.text = activeSkill.GetAcquisitionDescriptionPlain();
         
@@ -80,7 +81,7 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
 
         skillName.text = passiveSkill.GetSkillName();
-        level = 0;
+        numOfStar = 0;
         icon.sprite = passiveSkill.GetIcon();
         description.text = passiveSkill.GetSkillDescription();
 
@@ -90,7 +91,7 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     // 레벨 반영하여 카드에 별 배치
     private void SetCardStar()
     {
-        for (int i = 0; i < level; i++)
+        for (int i = 0; i < numOfStar; i++)
         {
             Instantiate(starPrefab, stars.transform);
         }

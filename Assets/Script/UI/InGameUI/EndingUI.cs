@@ -15,9 +15,13 @@ public class EndingUI : MonoBehaviour
     [SerializeField] Button btn_ReturnToMainMenu;
     [SerializeField] Button btn_OpenNicknamePanel;
 
+
+    [SerializeField] private InputManager inputManager;
+
     private void OnEnable()
     {
-        Time.timeScale = 0f;
+        Time.timeScale = 1f;
+        inputManager.SetMovable(false);
         InputBlocker.Block();
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -25,6 +29,7 @@ public class EndingUI : MonoBehaviour
 
     private void OnDisable()
     {
+        inputManager.SetMovable(true);
         Time.timeScale = 1f;
         InputBlocker.Unblock();
     }
@@ -51,7 +56,7 @@ public class EndingUI : MonoBehaviour
     {
         InGameUIManager.Instance.HideEndingUI();
         SceneManager.LoadScene("Assets/Scenes/MainUI.unity");
-        Debug.Log("¸ŞÀÎ ¸Ş´º·Î ¹öÆ° ¹Ì±¸Çö");
+        Debug.Log("ë©”ì¸ ë©”ë‰´ë¡œ ë²„íŠ¼ ë¯¸êµ¬í˜„");
     }
 
     public void OnClickOpenNicknamePanel()

@@ -1,11 +1,11 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Scriptable Object/Passive Skill/Add stat")]
 public class PS_AddStatType : PassiveSkillBase
 {
-    [Tooltip("Áõ°¡ÇÏ´Â ½ºÅÈ Á¾·ù¿Í °ª")]
+    [Tooltip("ì¦ê°€í•˜ëŠ” ìŠ¤íƒ¯ ì¢…ë¥˜ì™€ ê°’")]
     public BuffStatType buffStatType;
     public int amount;
 }

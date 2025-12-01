@@ -21,35 +21,38 @@ public class MoveController : MonoBehaviour
     private PlayerAnimation playerAnimation;
 
     [Header("Skill Move Settings")]
-    [SerializeField] private bool isSkillMoving = false;   // ��ų Ư�� �̵� ������
-    [SerializeField] private bool skillUsesGravity = true; // Ư�� �̵����� �߷��� ��������
-    private Vector3 skillVelocity;                         // Ư�� �̵� �ӵ�
-    private float skillMoveRemaining = 0f;                 // ���� Ư�� �̵� �ð�
+    [SerializeField] private bool isSkillMoving = false;   // 스킬로 인한 특수 이동 중인지
+    [SerializeField] private bool skillUsesGravity = true; // 특수 이동에 중력을 적용할지 여부
+    private Vector3 skillVelocity;                         // 스킬 이동용 속도 벡터
+    private float skillMoveRemaining = 0f;                 // 남은 스킬 이동 시간
+    private bool useSkillMoveTimer = false;                // 타이머 기반 스킬인지(대시 등), 아니면 Impulse형(도약 등)인지
 
     private CharacterController controller;
-    private Vector3 velocity;      // �Ϲ� �̵��� ���� �ӵ�(y) ��
+    private Vector3 velocity;      // 일반 이동에 쓰는 속도(특히 y축)
     private Vector2 moveInput;
     private Vector2 lookInput;
     private bool isRunning;
     private float xRotation = 0f;
 
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip[] walkClips; // 걷는 소리 (여러 개 넣어서 랜덤 재생)
+    [SerializeField] private AudioClip[] walkClips; // 걷는 소리
     [SerializeField] private AudioClip[] runClips;  // 뛰는 소리
     [SerializeField] private AudioClip jumpClip;    // 점프 소리
 
+    [Range(0.1f, 2.0f)]
+    [SerializeField] private float walkDelay = 0.6f; // 걷기 발소리 간격
 
-    [Range(0.1f, 2.0f)] 
-    [SerializeField] private float walkDelay = 0.6f; // 걷을 때 소리 간격 (초)
-    
-    [Range(0.1f, 2.0f)] 
-    [SerializeField] private float runDelay = 0.35f; // 뛸 때 소리 간격 (초)
+    [Range(0.1f, 2.0f)]
+    [SerializeField] private float runDelay = 0.35f; // 달리기 발소리 간격
     private float stepTimer = 0f;
+
+    [Header("Leap Impulse Settings")]
+    [SerializeField] private float leapImpulseMultiplier = 0.1f; // AS_Leap에서 오는 power(데미지)를 속도로 바꾸는 배율
 
     void Awake()
     {
         controller = GetComponent<CharacterController>();
-        if (audioSource == null) 
+        if (audioSource == null)
         {
             audioSource = GetComponent<AudioSource>();
         }
@@ -62,7 +65,7 @@ public class MoveController : MonoBehaviour
 
     void Update()
     {
-        // ���콺 ȸ��(�þ�)�� Ư�� �̵� �߿��� �״�� ����
+        // 마우스 회전(시야)은 스킬 이동 중에도 그대로 유지
         transform.Rotate(Vector3.up * lookInput.x * lookSensitivity * Time.deltaTime);
 
         // minmap UI
@@ -74,16 +77,17 @@ public class MoveController : MonoBehaviour
         if (cameraMount != null)
             cameraMount.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-        // 1) ��ų Ư�� �̵� ���̸� ���⼭�� �̵� ó���ϰ� ����
+        // 1) 스킬 특수 이동 중이면 일반 이동 로직을 건너뛰고 여기서만 이동 처리
         if (isSkillMoving)
         {
             UpdateSkillMove();
             return;
         }
 
-        // 2) �Ϲ� �̵� ���� (���� �ڵ�)
+        // 2) 일반 이동 처리
         if (controller.isGrounded && velocity.y < 0)
         {
+            // 살짝 아래로 눌러줘서 땅에 붙어 있게
             velocity.y = -2f;
         }
 
@@ -94,45 +98,56 @@ public class MoveController : MonoBehaviour
 
         HandleFootstepsWithDelay();
 
+        // 중력 적용
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
 
-        // �̵� �ִϸ��̼� ���
+        // 이동 애니메이션 갱신
         UpdateMoveAnimation(moveDirection);
     }
 
-    // �ܺ�(��ų)���� ȣ���� Ư�� �̵� ���� �Լ�
-    public void StartSkillMove(Vector3 worldDirection, float horizontalSpeed, 
+    // 외부(스킬)에서 호출하는 "일반" 특수 이동 시작 함수 (대시 등 시간 기반 스킬용)
+    public void StartSkillMove(Vector3 worldDirection, float horizontalSpeed,
         float upwardSpeed, float duration, bool useGravity = true)
     {
         if (controller == null) return;
 
-        // ���� ����
+        // 월드 방향을 수평으로 제한
         worldDirection.y = 0f;
         if (worldDirection.sqrMagnitude < 0.0001f)
             worldDirection = transform.forward;
         worldDirection.Normalize();
 
-        // Ư�� �̵� �ӵ� ����
+        // 스킬 이동 속도 설정
         skillVelocity = worldDirection * horizontalSpeed;
         skillVelocity.y = upwardSpeed;
 
-        skillMoveRemaining = Mathf.Max(0f, duration);
+        if (duration > 0f)
+        {
+            skillMoveRemaining = duration;
+            useSkillMoveTimer = true;   // 시간 기반 스킬
+        }
+        else
+        {
+            skillMoveRemaining = 0f;
+            useSkillMoveTimer = false;  // 시간 미사용 (착지 등으로만 끝내고 싶을 때)
+        }
+
         skillUsesGravity = useGravity;
         isSkillMoving = true;
 
-        // �Ϲ� �̵� ���� �ʱ�ȭ(�ɼ������� ���� �ʼ�)
+        // 일반 입력 이동 초기화
         moveInput = Vector2.zero;
         velocity = Vector3.zero;
 
-        // �ִϸ��̼ǵ� ���⼭ ����/��� ���� �� ���� �� ����
+        // 애니메이션: 기본적으로 점프 포즈 재생
         if (playerAnimation != null)
         {
             playerAnimation.SetAnimation(AnimationType.Jump);
         }
     }
 
-    // Ư�� �̵� ������Ʈ
+    // 스킬 이동 업데이트
     private void UpdateSkillMove()
     {
         if (controller == null)
@@ -141,25 +156,33 @@ public class MoveController : MonoBehaviour
             return;
         }
 
-        // ���� �̵�
+        // 수평 이동
         Vector3 horizontal = new Vector3(skillVelocity.x, 0f, skillVelocity.z);
         controller.Move(horizontal * Time.deltaTime);
 
-        // ���� �̵�
+        // 수직 이동
         if (skillUsesGravity)
         {
             skillVelocity.y += gravity * Time.deltaTime;
         }
         controller.Move(Vector3.up * skillVelocity.y * Time.deltaTime);
 
-        // �ܿ� �ð� ����
-        skillMoveRemaining -= Time.deltaTime;
+        // 타이머 기반 스킬이면 시간 감소
+        if (useSkillMoveTimer)
+        {
+            skillMoveRemaining -= Time.deltaTime;
+        }
 
-        // �ִϸ��̼� ���� (����/���� ���δ� �Լ����� üũ)
+        // 애니메이션 갱신 (뛰는 상태로 유지)
         UpdateMoveAnimation(horizontal);
 
-        // ���� ����: �ð� �� �� �Ǵ� �ٴڿ� �����ϸ鼭 �������� ��
-        if (skillMoveRemaining <= 0f || (controller.isGrounded && skillVelocity.y <= 0f))
+        // 종료 조건:
+        //  - 시간 기반 스킬: 시간이 끝나면 종료
+        //  - Impulse형 스킬(Leap): 착지했고, 더 이상 위로 올라가는 중이 아니면 종료
+        bool timeOver = useSkillMoveTimer && skillMoveRemaining <= 0f;
+        bool landed = controller.isGrounded && skillVelocity.y <= 0f;
+
+        if (timeOver || landed)
         {
             isSkillMoving = false;
             skillVelocity = Vector3.zero;
@@ -172,7 +195,7 @@ public class MoveController : MonoBehaviour
 
     public void Jump()
     {
-        // Ư�� �̵� �߿��� ���� ����
+        // 스킬 이동 중에는 점프 금지
         if (isSkillMoving) return;
 
         if (controller.isGrounded)
@@ -181,7 +204,7 @@ public class MoveController : MonoBehaviour
                 playerAnimation.SetAnimation(AnimationType.Jump);
 
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
-            
+
             audioSource.pitch = 1.0f;
             audioSource.PlayOneShot(jumpClip);
         }
@@ -189,8 +212,8 @@ public class MoveController : MonoBehaviour
 
     private void HandleFootstepsWithDelay()
     {
-        
-        if (moveInput == Vector2.zero) 
+        // 입력이 없으면 발소리 타이머 리셋
+        if (moveInput == Vector2.zero)
         {
             stepTimer = 0f;
             return;
@@ -198,10 +221,8 @@ public class MoveController : MonoBehaviour
 
         stepTimer += Time.deltaTime;
 
-        
         float currentDelay = isRunning ? runDelay : walkDelay;
 
-        
         if (stepTimer >= currentDelay)
         {
             PlayFootstepAudio();
@@ -209,16 +230,16 @@ public class MoveController : MonoBehaviour
         }
     }
 
-    // 오디오 재생 함수
+    // 발소리 재생
     private void PlayFootstepAudio()
     {
         if (audioSource == null) return;
         AudioClip[] clips = isRunning ? runClips : walkClips;
-        
+
         if (clips != null && clips.Length > 0)
         {
             int index = Random.Range(0, clips.Length);
-            
+
             if (clips[index] != null)
             {
                 Debug.Log("발소리 출력중");
@@ -231,7 +252,7 @@ public class MoveController : MonoBehaviour
     private void UpdateMoveAnimation(Vector3 moveDirection)
     {
         if (playerAnimation == null) return;
-        if (!controller.isGrounded) return; // ����/���� �߿��� Jump �ִϸ��̼ǿ� �ñ�
+        if (!controller.isGrounded) return; // 공중에서는 Jump 애니메이션 유지
 
         Vector2 planar = new Vector2(moveDirection.x, moveDirection.z);
 
@@ -242,6 +263,40 @@ public class MoveController : MonoBehaviour
         else
         {
             playerAnimation.SetAnimation(AnimationType.Idle);
+        }
+    }
+
+    // AS_Leap에서 호출하는 도약 함수
+    // 전달받은 방향 벡터 + 수치(power)만으로 Impulse처럼 초기 속도만 준다.
+    public void Leap(Vector3 direction, float power)
+    {
+        if (controller == null) return;
+
+        // 방향이 0이면 전방으로 대체
+        if (direction.sqrMagnitude < 0.0001f)
+            direction = transform.forward;
+
+        // AS_Leap에서 이미 각도까지 포함해서 만들어준 방향이므로 y는 건드리지 않고 그대로 사용
+        direction.Normalize();
+
+        // AddForce(direction * power, ForceMode.Impulse) 느낌:
+        // power(예: 데미지)를 속도 값으로 변환하기 위해 배율(leapImpulseMultiplier)을 곱해준다.
+        skillVelocity = direction * power * leapImpulseMultiplier;
+
+        isSkillMoving = true;
+        skillUsesGravity = true;
+
+        // Impulse형: 타이머 사용 안 함 → 착지 시점에만 종료
+        useSkillMoveTimer = false;
+        skillMoveRemaining = 0f;
+
+        // 일반 입력/속도 초기화
+        moveInput = Vector2.zero;
+        velocity = Vector3.zero;
+
+        if (playerAnimation != null)
+        {
+            playerAnimation.SetAnimation(AnimationType.Jump);
         }
     }
 }

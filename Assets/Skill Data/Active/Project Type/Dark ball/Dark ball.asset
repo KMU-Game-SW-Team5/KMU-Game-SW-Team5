@@ -13,25 +13,26 @@ MonoBehaviour:
   m_Name: Dark ball
   m_EditorClassIdentifier: 
   skillName: 
-  icon: {fileID: 21300000, guid: e5f8e29c0eb39d74e9509b0469b5204c, type: 3}
+  icon: {fileID: 21300000, guid: ccb73df5fe270284a9801f5d9b2021e5, type: 3}
   descriptionTemplate: Throw Dark Ball {damage}
   baseValue: 10
   coefficient: 1
-  cooldown: 5
+  baseCooldown: 5
   prepareTime: 0.25
   castTime: 0
-  animationTypes: 06000000
+  animationTypes: 08000000
+  castClip: {fileID: 0}
   projectilePrefab: {fileID: 7914662257891743077, guid: 5af6aca17542d204eb028ec2744aef98, type: 3}
-  projectileSpeed: 20
+  projectileSpeed: 50
   lifeTime: 5
   penetrable: 0
   projectileMotion: {fileID: 11400000, guid: 4fde45d831405db46bbec451aae91804, type: 2}
   motionSpeed: 5
   distanceOffset: 10
-  branchCount: 21
-  burstCount: 20
+  branchCount: 5
+  burstCount: 5
   maxSpreadAngle: 60
   minInterval: 0.05
   maxInterval: 0.4
   decayK: 0.4
-  shotPositions: 
+  shotPositions: 00000000
