@@ -6515,6 +6515,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 7c518e8469a403b4c981664ecb28a79a, type: 3}
   attackClip: {fileID: 8300000, guid: 7ce1b3f097fe6dd4380d393b87e1f044, type: 3}
   deathClip: {fileID: 8300000, guid: f86d4d44eb7f16c4ba0dc0c337a6f337, type: 3}
+  walkSoundVolume: 0.1
 --- !u!195 &-474496693028300386
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -6557,8 +6558,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
+  MinDistance: 10
+  MaxDistance: 30
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
