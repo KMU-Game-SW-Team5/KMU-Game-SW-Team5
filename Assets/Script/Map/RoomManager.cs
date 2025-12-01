@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic; 
+using UnityEngine.AI; // [필수 추가] NavMesh 관련 기능을 위해 추가
 
 // 방의 종류와 상태 정의
 public enum RoomType { Start, Normal, Boss }
@@ -23,7 +24,6 @@ public class RoomManager : MonoBehaviour
     private List<Collider> doorColliders = new List<Collider>();    // 방의 자식으로 존재하는 문들을 저장할 리스트
 
     // 방의 설정 값을 정의 하는 함수 -> MapMaker 함수에서 호출
-    // [변경] difficulty 매개변수 추가
     public void Setup(RoomType newType, int minMonsters, int maxMonsters, int difficulty)
     {
         type = newType;
@@ -64,11 +64,12 @@ public class RoomManager : MonoBehaviour
 
         if (modules.Length == 0) return;
 
-        // 방모듈중에서 방을 무작위로 선택한다.
+        // 방모듈을 Plane의 자식 오브젝트로 설정
+        // [수정 권장] 모듈 생성 시 부모의 스케일 영향을 줄이기 위해 로직 유지하되, 
+        // 몬스터 생성 시에는 NavMesh 위를 찾도록 함.
         int randomIndex = Random.Range(0, modules.Length);
         GameObject selectedModule = modules[randomIndex];
-
-        // 방모듈을 Plane의 자식 오브젝트로 설정
+        
         GameObject instance = Instantiate(selectedModule, transform.position, Quaternion.identity);
         instance.transform.SetParent(transform);
     }
@@ -153,21 +154,17 @@ public class RoomManager : MonoBehaviour
                         targetColor = new Color(0.6f, 0f, 1f); // 보라색
                         shouldChangeColor = true;
                     }
-                    // 3. 그 외(일반방 평상시, 시작방 등)는 shouldChangeColor가 false이므로 색을 건드리지 않음
 
                     
                     // 파티클 시스템 처리
                     ParticleSystem[] allParticles = child.GetComponentsInChildren<ParticleSystem>(true);
                     foreach (ParticleSystem ps in allParticles)
                     {
-                        // 색상을 바꿔야 하는 경우에만 색 변경 코드를 실행
                         if (shouldChangeColor)
                         {
                             var main = ps.main;
                             main.startColor = targetColor;
                         }
-
-                        // 색 변경 여부와 상관없이 활성화됐으니 재생은 시킴
                         if (!ps.isPlaying) ps.Play();
                     }
 
@@ -199,7 +196,6 @@ public class RoomManager : MonoBehaviour
 
             if (!isSpawned)
             {
-                // [변경] Normal 방 또는 Boss 방 입장 시 문 잠그고 몬스터/보스 소환
                 if (type == RoomType.Normal)
                 {
                     LockDoors();
@@ -213,13 +209,13 @@ public class RoomManager : MonoBehaviour
             }
         }
     }
+
     // 보스 소환 로직
     public void SpawnBoss()
     {
         if (isSpawned) return;
         isSpawned = true;
 
-        // Resources/Boss 폴더 내의 모든 프리팹 로드
         GameObject[] bossPrefabs = Resources.LoadAll<GameObject>("Boss");
 
         if (bossPrefabs.Length == 0)
@@ -228,7 +224,6 @@ public class RoomManager : MonoBehaviour
             return;
         }
 
-        // 난이도에 따른 인덱스 제한
         int maxIndex = 0;
         switch (gameDifficulty)
         {
@@ -238,23 +233,20 @@ public class RoomManager : MonoBehaviour
             default: maxIndex = 2; break;
         }
 
-        // 배열 범위를 벗어나지 않도록 클램핑
         if (maxIndex >= bossPrefabs.Length) maxIndex = bossPrefabs.Length - 1;
 
-        // 랜덤 선택 (maxIndex + 1은 exclusive이므로 포함시키려면 +1)
         int selectedIndex = Random.Range(0, maxIndex + 1);
         GameObject selectedBoss = bossPrefabs[selectedIndex];
 
-        // [수정됨] 보스 소환 위치 계산
-        // transform.position은 이미 World 좌표입니다. 여기에 높이(Y)만 살짝 더해줍니다.
-        Vector3 spawnPos = transform.position;
-        spawnPos.y += 30f; // 30.0f는 너무 높을 수 있어 2.0f로 조정 (보스 크기에 따라 조절)
+        // [핵심 변경] 보스 스폰 위치를 NavMesh 위로 보정
+        // 방 중앙(transform.position) 주변 2.0f 반경 내의 안전한 바닥을 찾습니다.
+        Vector3 spawnPos = GetValidSpawnPosition(transform.position, 2.0f);
 
-        // [수정됨] TransformPoint 제거: 이미 World 좌표이므로 변환 불필요
-        // [수정됨] SetParent 제거: 몬스터 찌그러짐 방지를 위해 부모 미설정
         GameObject bossInstance = Instantiate(selectedBoss, spawnPos, Quaternion.identity);
         
-        // liveMonsters에 추가하여 죽음 감지 및 문 열림 로직과 연동
+        // 보스는 보통 크기가 커서 맵의 자식으로 넣으면 스케일 문제가 생길 수 있어 부모 설정 생략 권장
+        // bossInstance.transform.SetParent(transform); 
+        
         liveMonsters.Add(bossInstance);
         
         Debug.Log($"보스 스폰 완료: {bossInstance.name} (위치: {spawnPos})");
@@ -263,13 +255,11 @@ public class RoomManager : MonoBehaviour
 
     public void SpawnMonsters()
     {
-        if (isSpawned) return; // 중복 스폰 방지
+        if (isSpawned) return; 
         isSpawned = true;
 
-        // Resources/Monster 폴더 내의 모든 프리팹 로드
         GameObject[] monsterPrefabs = Resources.LoadAll<GameObject>("Monster");
-        
-        if (monsterPrefabs.Length == 0) return; // 몬스터가 없으면 리턴
+        if (monsterPrefabs.Length == 0) return; 
 
         int monsterCount = Random.Range(minMonsterCount, maxMonsterCount);
 
@@ -277,36 +267,61 @@ public class RoomManager : MonoBehaviour
         {
             GameObject selectedMonster = monsterPrefabs[Random.Range(0, monsterPrefabs.Length)];
 
-            // 방 scale에 맞춰서 랜덤 생성
-            float range = 4.0f; 
-            Vector3 randomPos = new Vector3(
-                Random.Range(-range, range), 
-                60, 
-                Random.Range(-range, range)
-            );
+            // [핵심 변경] 기존의 단순 transform.TransformPoint 방식 대신
+            // NavMesh.SamplePosition을 사용하여 "반드시 바닥 위"에 생성되도록 변경했습니다.
             
-            // 로컬 좌표를 월드 좌표로 변환
-            Vector3 spawnPos = transform.TransformPoint(randomPos);
+            // 1. 방의 크기(Scale)를 고려한 랜덤 반경 설정 (대략 바닥판 크기의 40% 정도 범위)
+            float spawnRadius = 4.0f * transform.localScale.x; 
+
+            // 2. 유효한 스폰 위치 계산 (함수 호출)
+            Vector3 spawnPos = GetValidSpawnPosition(transform.position, spawnRadius);
 
             GameObject monster = Instantiate(selectedMonster, spawnPos, Quaternion.identity);
             
-            // 자식으로 등록
+            // 몬스터를 방의 자식으로 넣을 때 스케일 왜곡 방지를 위해 주의 필요하지만,
+            // 기존 코드 유지를 위해 SetParent 유지 (필요 시 제거)
             monster.transform.SetParent(transform);
             
-            // 몬스터 리스트 추가
             liveMonsters.Add(monster);
         }
         Debug.Log($"{monsterCount}마리의 몬스터 스폰 완료.");
+    }
+
+    /// <summary>
+    /// [추가된 기능] 주어진 중심점과 반경 내에서 NavMesh(이동 가능한 바닥) 위의 유효한 좌표를 반환합니다.
+    /// 천장이나 장애물 위 스폰을 방지합니다.
+    /// </summary>
+    private Vector3 GetValidSpawnPosition(Vector3 center, float range)
+    {
+        int maxAttempts = 30; // 최대 시도 횟수
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            // 1. 중심 기준 랜덤 좌표 생성
+            Vector3 randomPoint = center + Random.insideUnitSphere * range;
+            
+            // Y축은 방의 현재 바닥 높이로 고정 (천장 스폰 방지 핵심)
+            randomPoint.y = center.y; 
+
+            NavMeshHit hit;
+            // 2. 해당 좌표 근처(5.0f)에 NavMesh가 있는지 확인
+            // NavMesh.AllAreas는 모든 구워진 NavMesh 영역을 의미합니다.
+            if (NavMesh.SamplePosition(randomPoint, out hit, 5.0f, NavMesh.AllAreas))
+            {
+                // 유효한 위치를 찾았다면 그 위치 반환
+                return hit.position;
+            }
+        }
+
+        // 유효한 위치를 못 찾으면 방의 중심 반환 (최후의 수단)
+        return center;
     }
 
     public void NotifyMonsterDied(GameObject monster)
     {
         if (liveMonsters.Contains(monster))
         {   
-            // 남은 몬스터에서 현재 제거된 몬스터를 삭제
             liveMonsters.Remove(monster);
 
-            // 모든 몬스터를 잡았는지 확인
             if (liveMonsters.Count == 0)
             {
                 RoomClear();
@@ -320,7 +335,6 @@ public class RoomManager : MonoBehaviour
         state = RoomState.Cleared;
         UnlockDoors();
 
-        // 보스방 클리어 시 추가 로직이 필요하면 여기에 작성
         if (type == RoomType.Boss)
         {
             Debug.Log("보스방 클리어!");
