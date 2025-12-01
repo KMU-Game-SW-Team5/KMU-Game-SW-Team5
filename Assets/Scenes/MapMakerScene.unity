@@ -377,7 +377,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2991035596834519195, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: baseMagicStat
-      value: 100
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 2991035596834519195, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: baseRequiredExp

@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: Arcane boost
   icon: {fileID: 21300000, guid: 28a795d1eb4bd1945a44d2b09dcce038, type: 3}
-  description: Increase magic stat by 20
+  description: Increase magic stat by 10
   buffStatType: 2
   amount: 10
