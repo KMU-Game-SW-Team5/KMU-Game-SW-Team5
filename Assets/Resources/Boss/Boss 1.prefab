@@ -151,7 +151,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 10000
-  moveSpeed: 7
+  exp: 100
+  moveSpeed: 30
   isFlying: 0
   detectionRange: 1000
   attackRange: 100
