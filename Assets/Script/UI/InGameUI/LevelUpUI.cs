@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +6,7 @@ using UnityEngine;
 public class LevelUpUI : MonoBehaviour
 {
     [SerializeField] private SkillCard[] cards;
+
     [Header("UI Animation")]
     [SerializeField] private float animDuration = 0.25f;
     [SerializeField] private Vector3 startScale = new Vector3(0.6f, 0.6f, 1f);
@@ -23,12 +24,19 @@ public class LevelUpUI : MonoBehaviour
 
     private void OnEnable()
     {
+        // 뽑기 세션 시작: 이번 레벨업에서 중복 방지용 초기화
+        SkillCard.BeginRollSession();
+
+        // 카드 3장(또는 N장) 생성 + 활성화
+        ShowCards();
+
+        // 게임 멈추고 입력 / 마우스 설정
         Time.timeScale = 0f;
         InputBlocker.Block();
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // 애니메이션 시작
+        // 팝업 애니메이션 시작
         PlayPopAnim();
     }
 
@@ -42,20 +50,28 @@ public class LevelUpUI : MonoBehaviour
 
     public void ShowCards()
     {
+        if (cards == null) return;
+
         for (int i = 0; i < cards.Length; i++)
         {
+            if (cards[i] == null) continue;
             Debug.Log($"Show i :: {i}");
-            cards[i].gameObject.SetActive(true);
+            cards[i].gameObject.SetActive(true);   // 여기서 SkillCard.OnEnable → 뽑기 발생
         }
     }
 
     public void CloseSkillChoiceUI()
     {
-        for (int i = 0; i < cards.Length; i++)
+        if (cards != null)
         {
-            cards[i].GetComponent<SkillCard>().Close();
+            for (int i = 0; i < cards.Length; i++)
+            {
+                if (cards[i] == null) continue;
+                cards[i].Close();   // 카드 비활성
+            }
         }
-        gameObject.SetActive(false);
+
+        gameObject.SetActive(false); // UI 꺼짐 → 다음에 켜질 때 다시 BeginRollSession + ShowCards
     }
 
     private void PlayPopAnim()
@@ -85,7 +101,7 @@ public class LevelUpUI : MonoBehaviour
             yield return null;
         }
 
-        // 2단계: overshoot → 1.0으로 살짝 되돌아오기 (탄성 줄어드는 느낌)
+        // 2단계: overshoot → 1.0으로 살짝 되돌아오기
         float t2 = 0f;
         float tail = animDuration - half;
         Vector3 from = Vector3.one * overshootScale;
@@ -108,5 +124,5 @@ public class LevelUpUI : MonoBehaviour
     private float EaseOutQuad(float x)
     {
         return 1f - (1f - x) * (1f - x);
-    }    
+    }
 }

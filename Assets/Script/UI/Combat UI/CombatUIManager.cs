@@ -32,8 +32,34 @@ public class CombatUIManager : MonoBehaviour
 
         // 추후 최적화 할 것
         magicStatText.text = SkillManager.Instance.GetMagicStat().ToString();
-        attackSpeedText.text = SkillManager.Instance.GetAttackSpeed().ToString();
+        attackSpeedText.text = FormatStat(SkillManager.Instance.GetAttackSpeed());
+
     }
+
+    // 필요한 만큼 소수 표시
+    string FormatStat(float value)
+    {
+        float absVal = Mathf.Abs(value);
+        float fractional = absVal - Mathf.Floor(absVal);
+
+        // 소수점 이하가 거의 없는 경우: 정수만
+        if (fractional < 0.0001f)
+            return ((int)value).ToString();
+
+        // 소수 첫째 자리
+        int first = (int)(fractional * 10) % 10;
+        // 소수 둘째 자리
+        int second = (int)(fractional * 100) % 10;
+
+        if (first == 0)
+            return ((int)value).ToString();              // 첫째 자리 = 0 → 정수만
+
+        if (second == 0)
+            return value.ToString("F1");                // 둘째 자리 = 0 → 첫째 자리만
+
+        return value.ToString("F2");                    // 둘 다 0 아님 → 둘째 자리까지
+    }
+
 
     // 적이 받은 피해 표시(MonsterBase.TakeDamage()에서 호출)
     public void ShowDamageText(float damage, Transform target, bool isCritical = false)

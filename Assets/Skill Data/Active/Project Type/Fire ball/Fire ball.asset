@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 308b2936cbe43b945885bc09b72d2cec, type: 3}
   m_Name: Fire ball
   m_EditorClassIdentifier: 
-  skillName: Fire Ball
+  skillName: Hell Fire
   icon: {fileID: 21300000, guid: c15755f9b990f804786cb44e32da6951, type: 3}
   descriptionTemplate: launches a fireball in the target direction that deals {damage}
     to the first enemy hit.

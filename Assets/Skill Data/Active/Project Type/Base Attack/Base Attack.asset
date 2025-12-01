@@ -17,7 +17,7 @@ MonoBehaviour:
   descriptionTemplate: Launches a fireball in the target direction that deals {damage}
     to the first enemy hit.
   baseValue: 0
-  coefficient: 0.4
+  coefficient: 0.8
   baseCooldown: 0
   cooldownDecreasePerStar: 1
   prepareTime: 0.1

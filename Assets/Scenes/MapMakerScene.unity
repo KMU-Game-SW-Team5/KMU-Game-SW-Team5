@@ -369,11 +369,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 621652012615075189, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: hp
-      value: 1000
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 621652012615075189, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: maxHealth
-      value: 1000
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 2991035596834519195, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: baseMagicStat
@@ -381,11 +381,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2991035596834519195, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: baseRequiredExp
-      value: 100
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 2991035596834519195, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: expIncrementPerLevel
-      value: 1
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 5215407885252488437, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -433,7 +433,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: attackSpeed
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: inputManager
@@ -1120,7 +1120,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 6295953918311475667, guid: a83ee13f5381c8a41948b3f4e24ac72e, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a83ee13f5381c8a41948b3f4e24ac72e, type: 3}
