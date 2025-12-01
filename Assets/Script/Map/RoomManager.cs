@@ -281,7 +281,7 @@ public class RoomManager : MonoBehaviour
             float range = 4.0f; 
             Vector3 randomPos = new Vector3(
                 Random.Range(-range, range), 
-                1, 
+                60, 
                 Random.Range(-range, range)
             );
             
