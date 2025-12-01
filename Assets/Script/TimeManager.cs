@@ -20,18 +20,17 @@ public class TimeManager : MonoBehaviour
 
     private void Awake()
     {
-        Init();
-    }
-
-    public void Init()
-    {
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnEnable()
+    {
+        ResetTimer();
     }
 
     void Update()
@@ -64,6 +63,11 @@ public class TimeManager : MonoBehaviour
         OnDayRatioChanged?.Invoke(DayRatio);
     }
 
+    public void ResetTimer()
+    {
+        elapsed = 0;
+        isDay = true;
+    }
     /*
     활용 예시
     void OnEnable()

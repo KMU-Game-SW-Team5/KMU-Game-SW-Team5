@@ -22,7 +22,6 @@ public class GameManager : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);  // 씬 이동 시 파괴되지 않음
 
         InitializeGameSettings();
     }

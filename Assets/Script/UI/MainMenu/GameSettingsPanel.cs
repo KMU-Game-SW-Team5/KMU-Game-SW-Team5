@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameSettingsPanel : MonoBehaviour
@@ -13,6 +14,9 @@ public class GameSettingsPanel : MonoBehaviour
 
     public void OnClickDifficulty(int idx)
     {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        if (currentSceneName != "MainUI") return;
+
         SettingsService.GameDifficulty = idx; 
         RefreshDifficultyUI(); 
     }
@@ -52,9 +56,12 @@ public class GameSettingsPanel : MonoBehaviour
 
     private void SetSelected(Button b, bool on)
     {
+        TextMeshProUGUI targetText = b.GetComponentInChildren<TextMeshProUGUI>(true);
+        float currentAlpha = targetText.color.a;
+
         if (b == null) return;
-        if (on) b.GetComponentInChildren<TextMeshProUGUI>(true).color = new Color(1f, 0.7f, 0.3f);
-        else b.GetComponentInChildren<TextMeshProUGUI>(true).color = new Color(1f, 1f, 1f);
+        if (on) targetText.color = new Color(1f, 0.7f, 0.3f, currentAlpha);
+        else targetText.color = new Color(1f, 1f, 1f, currentAlpha);
 
 
         var selectable = b.GetComponent<UnityEngine.UI.Selectable>();

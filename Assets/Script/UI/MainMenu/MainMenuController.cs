@@ -15,6 +15,11 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private GameObject menuPanel;
     [SerializeField] private GameObject difficultyPanel;
 
+    private void OnEnable()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
     public void ShowDifficultyPanel()
     {
         difficultyPanel?.SetActive(true);

@@ -1,3 +1,4 @@
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -66,6 +67,10 @@ public class MoveController : MonoBehaviour
     {
         // 마우스 회전(시야)은 스킬 이동 중에도 그대로 유지
         transform.Rotate(Vector3.up * lookInput.x * lookSensitivity * Time.deltaTime);
+
+        // minmap UI
+        float yaw = transform.eulerAngles.y;
+        InGameUIManager.Instance.UpdateRotation(yaw);
 
         xRotation -= lookInput.y * lookSensitivity * Time.deltaTime;
         xRotation = Mathf.Clamp(xRotation, minLookAngle, maxLookAngle);
@@ -237,6 +242,7 @@ public class MoveController : MonoBehaviour
 
             if (clips[index] != null)
             {
+                Debug.Log("발소리 출력중");
                 audioSource.pitch = Random.Range(0.9f, 1.1f);
                 audioSource.PlayOneShot(clips[index]);
             }

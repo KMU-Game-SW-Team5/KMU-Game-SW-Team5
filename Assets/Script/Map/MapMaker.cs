@@ -1,7 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.AI.Navigation;
+using UnityEngine;
 
 public class MapMaker : MonoBehaviour
 {
@@ -36,6 +37,11 @@ public class MapMaker : MonoBehaviour
 
     private Dictionary<Vector3, Transform> roomMap = new Dictionary<Vector3, Transform>();
 
+    public List<RoomManager> AllRooms => allRooms;
+    // KillCountUI와 연결(KillCounter 싱글톤 생성 시 알림)
+    public static event Action OnRoomsCreated;
+    public bool alreadyRoomsCreated = false;
+
     void Start()
     {
         ApplyDifficulty();
@@ -51,6 +57,9 @@ public class MapMaker : MonoBehaviour
         {
             navMeshSurface.BuildNavMesh();
             Debug.Log("NavMesh 굽기 완료 (파란색 지도가 생성됨)");
+
+            alreadyRoomsCreated=true;
+            OnRoomsCreated?.Invoke();
         }
         else
         {
@@ -142,7 +151,7 @@ public class MapMaker : MonoBehaviour
             for (int i = 0; i < 4; i++)
             {
                 // 무작위 인덱스 선택
-                int index = Random.Range(0, UDLRlist.Count);
+                int index = UnityEngine.Random.Range(0, UDLRlist.Count);
                 string selected = UDLRlist[index];
 
                 // q방이 생성될 위치를 nextPosition에 생성
@@ -177,7 +186,7 @@ public class MapMaker : MonoBehaviour
                     }
                     else
                     {
-                        if (Random.value < 0.5f)
+                        if (UnityEngine.Random.value < 0.5f)
                         {
                             roomCount--;
                             PositionQueue.Enqueue(nextPosition);
@@ -231,7 +240,7 @@ public class MapMaker : MonoBehaviour
             for (int i = 0; i < 4; i++)
             {
                 // 무작위 인덱스 선택
-                int index = Random.Range(0, UDLRlist.Count);
+                int index = UnityEngine.Random.Range(0, UDLRlist.Count);
                 string selected = UDLRlist[index];
 
                 // 벽을 만들 방향에 옆방이 존재 하는지 아닌지 확인
@@ -286,7 +295,7 @@ public class MapMaker : MonoBehaviour
                         {
                             WallSet.Add(wallPosition);
 
-                            if (Random.value < 0.2f) // 20% 확률로 벽을 만든다. 
+                            if (UnityEngine.Random.value < 0.2f) // 20% 확률로 벽을 만든다. 
                             {
                                 // 문이 있는 벽 생성
                                 GameObject doorWall = Instantiate(wallDoor, wallPosition, wallRotation);
