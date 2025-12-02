@@ -15,5 +15,8 @@ MonoBehaviour:
   skillName: Frenzy
   icon: {fileID: 21300000, guid: 63b30c77b2de31d4398b65d935f4713c, type: 3}
   description: Increase attack speed by 0.2
+  maxAcquireCount: 0
+  valuePerStack: 0
+  stackedDescriptionTemplate: Increase attack speed by {value}
   buffStatType: 4
   amount: 0.2

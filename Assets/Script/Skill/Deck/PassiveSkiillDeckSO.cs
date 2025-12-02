@@ -4,16 +4,23 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Scriptable Object/Deck/PassiveSkillDeck")]
 public class PassiveSkillDeckSO : ScriptableObject
 {
-    [Header("ÀÌ µ¦ÀÌ »ç¿ëÇÒ ÆĞ½Ãºê ½ºÅ³µé (ÀÎ½ºÆåÅÍ¿¡¼­ ¼¼ÆÃ)")]
+    [Header("ì´ ë±ì´ ì‚¬ìš©í•  íŒ¨ì‹œë¸Œ ìŠ¤í‚¬ë“¤ (ì¸ìŠ¤í™í„°ì—ì„œ ì„¸íŒ…)")]
     [SerializeField] private List<PassiveSkillBase> initialCards = new();
 
-    [Header("½ÇÁ¦ »Ì±â¿¡ ¾²ÀÌ´Â µ¦ »óÅÂ (µğ¹ö±×¿ë)")]
-    [SerializeField] private List<PassiveSkillBase> workingCards = new();  // Ç×»ó new ·Î ½ÃÀÛ
+    [Header("ì‹¤ì œ ë½‘ê¸°ì— ì“°ì´ëŠ” ë± ìƒíƒœ (ë””ë²„ê·¸ìš©)")]
+    [SerializeField] private List<PassiveSkillBase> workingCards = new();  // í•­ìƒ new ë¡œ ì‹œì‘
+
+    // ğŸ”¹ ì•„ì§ ë“œë¡œìš° ê°€ëŠ¥í•œ íŒ¨ì‹œë¸Œ ì¹´ë“œ ì¢…ë¥˜ ìˆ˜
+    // (MaxAcquireCount ë‹¤ ì°¬ ì¹´ë“œëŠ” RemoveCardì—ì„œ initialCardsì—ì„œ ë¹ ì§)
+    public int DrawableCount => initialCards?.Count ?? 0;
+
+    public IReadOnlyList<PassiveSkillBase> InitialCards => initialCards;
+    public IReadOnlyList<PassiveSkillBase> WorkingCards => workingCards;
 
     private void OnEnable()
     {
         ResetDeck();
-        DebugPrintDeck("[OnEnable] µ¦ ÃÊ±âÈ­");
+        DebugPrintDeck("[OnEnable] ë± ì´ˆê¸°í™”");
     }
 
     public void ResetDeck()
@@ -24,15 +31,15 @@ public class PassiveSkillDeckSO : ScriptableObject
             workingCards.Clear();
 
         workingCards.AddRange(initialCards);
-        DebugPrintDeck("[ResetDeck] µ¦ ¸®¼Â");
+        DebugPrintDeck("[ResetDeck] ë± ë¦¬ì…‹");
     }
 
     public PassiveSkillBase DrawWithoutReplacement()
     {
         if (workingCards == null || workingCards.Count == 0)
         {
-            Debug.LogWarning("[PassiveSkillDeckSO] DrawWithoutReplacement È£ÃâÇßÁö¸¸ workingCards °¡ null ¶Ç´Â ºñ¾îÀÖÀ½", this);
-            DebugPrintDeck("[DrawWithoutReplacement] ½ÇÆĞ »óÅÂ");
+            Debug.LogWarning("[PassiveSkillDeckSO] DrawWithoutReplacement í˜¸ì¶œí–ˆì§€ë§Œ workingCards ê°€ null ë˜ëŠ” ë¹„ì–´ìˆìŒ", this);
+            DebugPrintDeck("[DrawWithoutReplacement] ì‹¤íŒ¨ ìƒíƒœ");
             return null;
         }
 
@@ -40,7 +47,7 @@ public class PassiveSkillDeckSO : ScriptableObject
         PassiveSkillBase picked = workingCards[index];
         workingCards.RemoveAt(index);
 
-        DebugPrintDeck($"[DrawWithoutReplacement] '{picked?.name}' »ÌÀ½");
+        DebugPrintDeck($"[DrawWithoutReplacement] '{picked?.name}' ë½‘ìŒ");
         return picked;
     }
 
@@ -48,15 +55,15 @@ public class PassiveSkillDeckSO : ScriptableObject
     {
         if (initialCards == null || initialCards.Count == 0)
         {
-            Debug.LogWarning("[PassiveSkillDeckSO] DrawWithReplacement È£ÃâÇßÁö¸¸ initialCards °¡ null ¶Ç´Â ºñ¾îÀÖÀ½", this);
-            DebugPrintDeck("[DrawWithReplacement] ½ÇÆĞ »óÅÂ");
+            Debug.LogWarning("[PassiveSkillDeckSO] DrawWithReplacement í˜¸ì¶œí–ˆì§€ë§Œ initialCards ê°€ null ë˜ëŠ” ë¹„ì–´ìˆìŒ", this);
+            DebugPrintDeck("[DrawWithReplacement] ì‹¤íŒ¨ ìƒíƒœ");
             return null;
         }
 
         int index = Random.Range(0, initialCards.Count);
         PassiveSkillBase picked = initialCards[index];
 
-        Debug.Log($"[PassiveSkillDeckSO] [DrawWithReplacement] '{picked?.name}' »ÌÀ½", this);
+        Debug.Log($"[PassiveSkillDeckSO] [DrawWithReplacement] '{picked?.name}' ë½‘ìŒ", this);
         return picked;
     }
 
@@ -74,36 +81,51 @@ public class PassiveSkillDeckSO : ScriptableObject
             workingCards.Add(card);
         }
 
-        DebugPrintDeck($"[AddCard] '{card.name}' Ãß°¡ (working¿¡ Ãß°¡ ¿©ºÎ: {addToWorkingDeck})");
+        DebugPrintDeck($"[AddCard] '{card.name}' ì¶”ê°€ (workingì— ì¶”ê°€ ì—¬ë¶€: {addToWorkingDeck})");
     }
 
-    public IReadOnlyList<PassiveSkillBase> InitialCards => initialCards;
-    public IReadOnlyList<PassiveSkillBase> WorkingCards => workingCards;
+    // ë±ì—ì„œ ì¹´ë“œ ì œê±°
+    public void RemoveCard(PassiveSkillBase card)
+    {
+        if (card == null) return;
+
+        if (initialCards != null)
+            initialCards.Remove(card);
+
+        if (workingCards != null)
+        {
+            // ì—¬ëŸ¬ ë²ˆ ë“¤ì–´ ìˆì„ ìˆ˜ë„ ìˆìœ¼ë‹ˆ ì „ë¶€ ì œê±°
+            while (workingCards.Remove(card)) { }
+        }
+
+        DebugPrintDeck($"[RemoveCard] '{card.name}' ì œê±°");
+    }
+
 
     // =========================
-    // µğ¹ö±×¿ë À¯Æ¿ ÇÔ¼öµé
+    // ë””ë²„ê·¸ìš© ìœ í‹¸ í•¨ìˆ˜ë“¤
     // =========================
 
-    [ContextMenu("µğ¹ö±×/ÇöÀç µ¦ »óÅÂ Ãâ·Â")]
+    [ContextMenu("ë””ë²„ê·¸/í˜„ì¬ ë± ìƒíƒœ ì¶œë ¥")]
     private void ContextMenuPrintDeck()
     {
-        DebugPrintDeck("[ContextMenu] ¼öµ¿À¸·Î µ¦ »óÅÂ Ãâ·Â");
+        DebugPrintDeck("[ContextMenu] ìˆ˜ë™ìœ¼ë¡œ ë± ìƒíƒœ ì¶œë ¥");
     }
 
     private void DebugPrintDeck(string prefix)
     {
         string initialList = initialCards == null || initialCards.Count == 0
-            ? "(ºñ¾îÀÖÀ½)"
+            ? "(ë¹„ì–´ìˆìŒ)"
             : string.Join(", ", initialCards.ConvertAll(c => c ? c.name : "null"));
 
         string workingList = workingCards == null || workingCards.Count == 0
-            ? "(ºñ¾îÀÖÀ½)"
+            ? "(ë¹„ì–´ìˆìŒ)"
             : string.Join(", ", workingCards.ConvertAll(c => c ? c.name : "null"));
 
         Debug.Log(
             $"{prefix}\n" +
-            $"  InitialCards ({initialCards?.Count ?? 0}°³): {initialList}\n" +
-            $"  WorkingCards ({workingCards?.Count ?? 0}°³): {workingList}",
+            $"  InitialCards ({initialCards?.Count ?? 0}ê°œ): {initialList}\n" +
+            $"  WorkingCards ({workingCards?.Count ?? 0}ê°œ): {workingList}",
             this
         );
     }

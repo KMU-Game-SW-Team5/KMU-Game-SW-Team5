@@ -55,7 +55,6 @@ public class LevelUpUI : MonoBehaviour
         for (int i = 0; i < cards.Length; i++)
         {
             if (cards[i] == null) continue;
-            Debug.Log($"Show i :: {i}");
             cards[i].gameObject.SetActive(true);   // 여기서 SkillCard.OnEnable → 뽑기 발생
         }
     }

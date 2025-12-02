@@ -15,6 +15,9 @@ MonoBehaviour:
   skillName: Frost Shot
   icon: {fileID: 21300000, guid: 5c5cea040c7407c4ab75bf6251a28b9a, type: 3}
   description: stun enemy for 1 seconds, slow 2 seconds
+  maxAcquireCount: 1
+  valuePerStack: 0
+  stackedDescriptionTemplate: "{value} \uB9CC\uD07C \uC99D\uAC00 (\uD68D\uB4DD {count}\uD68C)"
   hitEffects:
   - {fileID: 11400000, guid: 5caede57ff2597b4fa2513b60a44e136, type: 2}
   - {fileID: 11400000, guid: fec412ecd7837894791250d91f6d2b6f, type: 2}

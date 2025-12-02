@@ -4,6 +4,8 @@ using UnityEngine;
 
 public abstract class ActiveSkillBase : ScriptableObject
 {
+    private const int MaxStar = 3;   // ⭐ 최대 성급 3성
+
     [Header("스킬 정보")]
     [SerializeField] private string skillName;     // 스킬 이름
     [SerializeField] private Sprite icon;          // 스킬 아이콘
@@ -13,15 +15,21 @@ public abstract class ActiveSkillBase : ScriptableObject
     [SerializeField]
     private string descriptionTemplate =
         "Launches a fireball in the target direction that deals {damage} to the first enemy hit.";
-    // 에디터에서 이 문자열을 직접 작성할 수 있음.
-    // {damage} 토큰을 우리가 수치/공식으로 치환해서 씀.
 
     [Header("수치")]
     [SerializeField] protected float baseValue = 10f;    // 기본 값 (예: 120)
     [SerializeField] protected float coefficient = 1.0f; // 계수 (예: 1.2 → 120% 마력)
-    [SerializeField] protected float baseCooldown = 5f;     // 설정된 기본 쿨타임
-    [SerializeField] protected float cooldownDecreasePerStar = 1.0f;    // 성급에 따른 쿨타임 감소량
-    protected float currentCooldown = 5f;      // 런타임에서 쓰이는 쿨타임(성급에 따라 변동)
+
+    [SerializeField] protected float baseCooldown = 5f;              // 설정된 기본 쿨타임
+    [SerializeField] protected float cooldownDecreasePerStar = 1.0f; // 성급당 쿨타임 감소량
+    protected float currentCooldown = 5f;                            // 런타임에서 쓰이는 쿨타임
+
+    [Header("성급 데미지 보너스")]
+    [Tooltip("2성에서 추가되는 데미지 비율 (0.4 = +40%)")]
+    [SerializeField] private float secondStarBonus = 0.4f; // 40%
+
+    [Tooltip("3성에서 추가되는 데미지 비율 (1.0 = +100%)")]
+    [SerializeField] private float thirdStarBonus = 1.0f;  // 100%
 
     [Header("시전 시간")]
     [SerializeField] protected float prepareTime = 0f;
@@ -35,7 +43,7 @@ public abstract class ActiveSkillBase : ScriptableObject
 
     private float lastUseTime = -999f;    // 마지막 사용 시각
     private float remainingCooldown = 0f; // 남은 쿨타임 (초)
-    private int star = 1;                 // 성급(획득 횟수)
+    private int star = 1;                 // 성급(획득 횟수) – 1~3
 
     // ============================
     // 데미지 / 수식 계산
@@ -48,8 +56,26 @@ public abstract class ActiveSkillBase : ScriptableObject
     {
         float magicStat = SkillManager.Instance.GetMagicStat();
         float baseDamage = baseValue + magicStat * coefficient;
-        float starMultiplier = 1f + 0.2f * (star - 1); // 중복 획득마다 20% 증가
+        float starMultiplier = GetStarDamageMultiplier();
         return baseDamage * starMultiplier;
+    }
+
+    /// <summary>
+    /// 성급에 따른 데미지 배율:
+    /// 1성: 1.0
+    /// 2성: 1.0 + secondStarBonus (기본 1.4)
+    /// 3성: 1.0 + thirdStarBonus  (기본 2.0)
+    /// </summary>
+    private float GetStarDamageMultiplier()
+    {
+        int clampedStar = Mathf.Clamp(star, 1, MaxStar);
+
+        if (clampedStar == 1)
+            return 1f;
+        if (clampedStar == 2)
+            return 1f + secondStarBonus;
+        // 3성 이상은 전부 3성 취급
+        return 1f + thirdStarBonus;
     }
 
     /// <summary>
@@ -62,7 +88,6 @@ public abstract class ActiveSkillBase : ScriptableObject
 
     /// <summary>
     /// "120 + (120% 마력)" 이런 형태의 공식 문자열 (성급은 반영 X, base+계수만)
-    /// 스킬 획득 팝업에서 사용하기 좋음.
     /// </summary>
     public string GetDamageFormulaString()
     {
@@ -72,8 +97,6 @@ public abstract class ActiveSkillBase : ScriptableObject
         return $"{baseInt} + ({coeffPerc}% Magic Stat)";
     }
 
-    // descriptionTemplate에서 {damage}를 숫자로 치환한 "평문" 설명
-    // (색 강조는 UI에서 책임진다)
     public string GetDynamicDescriptionPlain()
     {
         if (string.IsNullOrWhiteSpace(descriptionTemplate))
@@ -85,10 +108,6 @@ public abstract class ActiveSkillBase : ScriptableObject
         return desc;
     }
 
-    /// <summary>
-    /// 획득 시 보여줄 "공식 설명" (색 없음)
-    /// ex) "전방에 화염구를 발사하여 120 + (120% 마력)의 피해를 입힙니다."
-    /// </summary>
     public string GetAcquisitionDescriptionPlain()
     {
         string formula = GetDamageFormulaString();
@@ -102,10 +121,6 @@ public abstract class ActiveSkillBase : ScriptableObject
         return desc;
     }
 
-    /// <summary>
-    /// UI 쪽에서 직접 토큰 치환/색 입히고 싶을 때 쓸 수 있는 원본 템플릿
-    /// (전방에 화염구를 발사하여 {damage}의 피해를 입힙니다.)
-    /// </summary>
     public string GetDescriptionTemplate() => descriptionTemplate;
 
     // ============================
@@ -119,7 +134,6 @@ public abstract class ActiveSkillBase : ScriptableObject
         return remainingCooldown <= 0f;
     }
 
-
     public void UpdateCooldown()
     {
         if (remainingCooldown > 0f)
@@ -128,9 +142,9 @@ public abstract class ActiveSkillBase : ScriptableObject
         }
     }
 
-    public bool TryUse(GameObject user, Transform target)
+    public bool TryUse(GameObject user, Transform target, bool ignoreCooldown = false)
     {
-        if (!CanUse())
+        if (!ignoreCooldown && !CanUse())
             return false;
 
         lastUseTime = Time.time;
@@ -175,17 +189,34 @@ public abstract class ActiveSkillBase : ScriptableObject
     public void IncreaseBaseValue(float value) => baseValue += value;
     public void IncreaseCoefficient(float value) => coefficient += value;
 
+    /// <summary>
+    /// 성급을 1 증가시키되, 최대 3성까지.
+    /// 쿨타임은 성급에 따라 다시 계산.
+    /// </summary>
     public void IncreaseStar()
     {
+        if (star >= MaxStar)
+            return;
+
         star++;
-        currentCooldown = Mathf.Max(0.2f, currentCooldown - cooldownDecreasePerStar);
+        RecalculateCurrentCooldown();
     }
+
     public int GetNumOfStar() => star;
 
     public void ClearStar()
     {
         star = 1;
-        currentCooldown = baseCooldown;
+        RecalculateCurrentCooldown();
+    }
+
+    private void RecalculateCurrentCooldown()
+    {
+        // 1성: baseCooldown
+        // 2성: baseCooldown - 1 * cooldownDecreasePerStar
+        // 3성: baseCooldown - 2 * cooldownDecreasePerStar
+        int levelOffset = Mathf.Clamp(star - 1, 0, MaxStar - 1);
+        currentCooldown = Mathf.Max(0.2f, baseCooldown - cooldownDecreasePerStar * levelOffset);
     }
 
     // ============================
@@ -211,7 +242,7 @@ public abstract class ActiveSkillBase : ScriptableObject
     public virtual void Initialize()
     {
         star = 1;
-        currentCooldown = baseCooldown;
+        RecalculateCurrentCooldown();
         InitializeCooldown();
     }
 
@@ -224,6 +255,7 @@ public abstract class ActiveSkillBase : ScriptableObject
 
     public override string ToString()
     {
-        return skillName + star.ToString();
+        int clampedStar = Mathf.Clamp(star, 1, MaxStar);
+        return skillName + clampedStar.ToString();
     }
 }

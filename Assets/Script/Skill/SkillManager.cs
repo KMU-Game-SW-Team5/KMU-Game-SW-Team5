@@ -32,19 +32,7 @@ public class SkillManager : MonoBehaviour
     [SerializeField] public float frontDistance = 2f;
     [SerializeField] public float radius = 1f;
 
-    [Header("장착된 액티브 스킬 목록")]
-    [SerializeField] private List<ActiveSkillBase> activeSkills = new List<ActiveSkillBase>();
-    public List<ActiveSkillBase> GetActiveSkills() => activeSkills;
-    public int GetNumOfActiveSkills() => activeSkills.Count;
 
-    [Header("장착된 패시브 스킬 목록")]
-    [SerializeField] private List<PassiveSkillBase> passiveSkills = new List<PassiveSkillBase>();
-    public List<PassiveSkillBase> GetPassiveSkills() => passiveSkills;
-
-    [Header("스킬 덱 (ScriptableObject)")]
-    [SerializeField] private ActiveSkillDeckSO allActiveDeck;    // 전체 액티브 스킬 덱 (신규 뽑기용, 비복원)
-    [SerializeField] private ActiveSkillDeckSO ownedActiveDeck;  // 획득한 액티브 스킬 덱 (중복 뽑기용, 복원)
-    [SerializeField] private PassiveSkillDeckSO passiveSkillDeck; // 패시브 스킬 덱
 
     // 현재 적용 중인 적중시 효과 목록
     private readonly List<IHitEffect> runtimeEffects = new();
@@ -244,7 +232,7 @@ public class SkillManager : MonoBehaviour
         if (Time.time < lastBasicAttackTime + BasicAttackCooldown)
             return;
 
-        bool executed = basicAttackSkill.TryUse(gameObject, CreateSkillAnchor());
+        bool executed = basicAttackSkill.TryUse(gameObject, CreateSkillAnchor(), true);
 
 
         if (executed)
@@ -523,6 +511,23 @@ public class SkillManager : MonoBehaviour
 
     // ===================== 덱 기반 스킬 뽑기 API (UI에서 호출) ============================================================
 
+    [Header("장착된 액티브 스킬 목록")]
+    [SerializeField] private List<ActiveSkillBase> activeSkills = new List<ActiveSkillBase>();
+    public List<ActiveSkillBase> GetActiveSkills() => activeSkills;
+    public int GetNumOfActiveSkills() => activeSkills.Count;
+
+    [Header("장착된 패시브 스킬 목록")]
+    [SerializeField] private List<PassiveSkillBase> passiveSkills = new List<PassiveSkillBase>();
+    public List<PassiveSkillBase> GetPassiveSkills() => passiveSkills;
+
+    [Header("스킬 덱 (ScriptableObject)")]
+    [SerializeField] private ActiveSkillDeckSO allActiveDeck;    // 전체 액티브 스킬 덱 (신규 뽑기용, 비복원)
+    [SerializeField] private ActiveSkillDeckSO ownedActiveDeck;  // 획득한 액티브 스킬 덱 (중복 뽑기용, 복원)
+    [SerializeField] private PassiveSkillDeckSO passiveSkillDeck; // 패시브 스킬 덱
+    // 패시브 스킬 획득 횟수 (런타임 전용)
+    private readonly Dictionary<PassiveSkillBase, int> passiveAcquireCounts = new();
+
+
     // 신규 액티브 스킬 한 장 뽑기 (미리보기용, 비복원 후보)
     public ActiveSkillBase PreviewNewActiveSkillFromDeck()
     {
@@ -559,25 +564,12 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-
-    // 패시브 스킬은 어차피 WithReplacement 추출이라 기존 그대로 써도 됨
-    public PassiveSkillBase DrawPassiveSkillFromDeck()
-    {
-        if (passiveSkillDeck == null) return null;
-
-        var skill = passiveSkillDeck.DrawWithReplacement();
-        if (skill == null) return null;
-
-        return skill;
-    }
-
-
-    // ✅ 액티브 스킬 선택 확정 시 호출
+    //  액티브 스킬 선택 확정 시 호출
     public void CommitActiveSkillSelection(ActiveSkillBase skill)
     {
         if (skill == null) return;
 
-        // 아직 스킬 4개 미만 → 신규 획득 확정
+        // 아직 장착된 액티브 스킬이 4개 미만 → 신규 획득
         if (activeSkills.Count < 4)
         {
             // 전체 덱에서 실제로 제거 (비복원)
@@ -586,17 +578,130 @@ public class SkillManager : MonoBehaviour
             // 획득/중복 덱에 추가
             ownedActiveDeck.AddRuntimeCard(skill);
 
-            // 처음 얻을 때는 기획대로 초기 별 처리
+            // 처음 얻을 때는 1성으로 초기화
             skill.ClearStar();
         }
         else
         {
-            // 이미 스킬 4개 이상 → 중복 강화 (별 +1)
-            skill.IncreaseStar();
+            // 이미 스킬 4개 이상 → 중복 강화
+            skill.IncreaseStar();   // 내부에서 최대 3성까지 캡
+
+            // ⭐ 3성에 도달하면, 중복 액티브 덱에서 제거
+            if (skill.GetNumOfStar() >= 3 && ownedActiveDeck != null)
+            {
+                ownedActiveDeck.RemoveRuntimeCard(skill);
+            }
         }
 
-        // 실제 보유 리스트에 반영 (기존에 하던 로직)
+        // 실제 보유 리스트에 반영
         AddActiveSkill(skill);
+    }
+
+    /// <summary>
+    /// 액티브 4종을 모두 획득한 이후,
+    /// 중복 액티브 덱 + 패시브 덱을 하나로 합쳐서
+    /// "이번 카드가 액티브가 될지"를 결정한다.
+    /// </summary>
+    public bool ShouldDrawActiveFromCombinedDeck()
+    {
+        int activeCount = 0;
+        int passiveCount = 0;
+
+        // 중복 액티브 덱에서 여전히 뽑을 수 있는 카드 수 (3성은 Commit에서 제거됨)
+        if (ownedActiveDeck != null)
+            activeCount = ownedActiveDeck.RuntimeCount;
+
+        // 패시브 덱에서 여전히 뽑을 수 있는 카드 수
+        if (passiveSkillDeck != null)
+            passiveCount = passiveSkillDeck.DrawableCount;
+
+        int total = activeCount + passiveCount;
+        if (total <= 0)
+            return false;   // 의미상 패시브 선택 (어차피 둘 다 없으면 나중에 null)
+
+        int index = Random.Range(0, total);
+        // 0 ~ activeCount-1 → 액티브, 나머지 → 패시브
+        return index < activeCount;
+    }
+
+
+    // ---패시브 스킬---
+
+    // 패시브 스킬 한 장 뽑기 (미리보기용)
+    // - 각 패시브의 MaxAcquireCount와 현재 획득 횟수를 고려하여
+    //   더 이상 획득 불가능한 카드는 뽑지 않는다.
+    public PassiveSkillBase PreviewPassiveSkillFromDeck()
+    {
+        if (passiveSkillDeck == null) return null;
+
+        const int maxTry = 30;
+        PassiveSkillBase candidate = null;
+
+        for (int i = 0; i < maxTry; i++)
+        {
+            candidate = passiveSkillDeck.DrawWithReplacement();
+            if (candidate == null)
+                return null;
+
+            int max = candidate.MaxAcquireCount;
+            int current = 0;
+            passiveAcquireCounts.TryGetValue(candidate, out current);
+
+            // max <= 0 이면 '무제한'으로 처리
+            if (max <= 0 || current < max)
+            {
+                // 아직 획득 여유가 있는 카드면 사용
+                return candidate;
+            }
+
+            // 이미 최대 횟수에 도달한 카드면 다시 뽑기 시도
+            candidate = null;
+        }
+
+        // 모든 카드가 제한에 걸려있는 경우 등
+        return candidate;
+    }
+
+    // 패시브 스킬 드로우
+    public PassiveSkillBase DrawPassiveSkillFromDeck()
+    {
+        return PreviewPassiveSkillFromDeck();
+    }
+
+
+    // 패시브 스킬 선택 확정 시 호출.
+    /// - 획득 횟수 증가
+    /// - 최대 횟수에 도달하면 덱에서 제거
+    /// - 실제 보유 패시브 목록에 반영 (AddPassiveSkill)
+    public void CommitPassiveSkillSelection(PassiveSkillBase skill)
+    {
+        if (skill == null) return;
+
+        // 현재까지 획득 횟수
+        int current = 0;
+        passiveAcquireCounts.TryGetValue(skill, out current);
+        current++;
+        passiveAcquireCounts[skill] = current;
+
+        int max = skill.MaxAcquireCount;
+
+        // max > 0 이고, 횟수가 다 찼으면 덱에서 제거
+        if (max > 0 && current >= max && passiveSkillDeck != null)
+        {
+            passiveSkillDeck.RemoveCard(skill);
+        }
+
+        // 실제 패시브 스킬 보유 목록에 반영 (기존에 쓰던 로직)
+        AddPassiveSkill(skill);
+    }
+
+    // 패시브 스킬 획득 횟수 조회
+    public int GetPassiveAcquireCount(PassiveSkillBase skill)
+    {
+        if (skill == null) return 0;
+        if (passiveAcquireCounts.TryGetValue(skill, out int count))
+            return count;
+        return 0;
     }
 
 
@@ -636,7 +741,6 @@ public class SkillManager : MonoBehaviour
                 shotPos_RightDown.position = center + (right - up).normalized * radius;
         }
     }
-#endif
 
     // Start()에서 호출되어야 하는 테스트 함수들의 집합
     public void TestMethodsInStart()
@@ -745,4 +849,6 @@ public class SkillManager : MonoBehaviour
         Debug.Log($"[SkillManager] 초기 패시브 스킬 {passiveSkills.Count}개 적용됨, " +
                   $"런타임 효과 {runtimeEffects.Count}개 생성됨.");
     }
+#endif
+
 }

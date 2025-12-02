@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -74,7 +74,7 @@ public class SkillUI_SkillPanel : MonoBehaviour
 
         if (isActiveSkill && activeSkillRef != null)
         {
-            // 🔹 설명 갱신 (데미지 숫자에만 색 입히기)
+            // 🔹 액티브는 기존 로직 그대로
             string template = activeSkillRef.GetDescriptionTemplate();  // "…{damage}…"
             int dmg = activeSkillRef.GetDamageInt();
             string dmgStr = dmg.ToString();
@@ -84,7 +84,6 @@ public class SkillUI_SkillPanel : MonoBehaviour
 
             descText.text = template.Replace("{damage}", colored);
 
-            // 🔹 성급이 바뀌었을 수 있으니 스킬 데이터에서 다시 읽어서 UI 갱신
             int currentStar = activeSkillRef.GetNumOfStar();
             if (currentStar != numOfStars)
             {
@@ -93,10 +92,55 @@ public class SkillUI_SkillPanel : MonoBehaviour
         }
         else if (!isActiveSkill && passiveSkillRef != null)
         {
-            // 패시브는 기존 방식대로
-            descText.text = passiveSkillRef.GetSkillDescription();
+            // 🔹 패시브는 "획득 횟수 + 누적 수치"를 강조색으로 표시
+            int count = 1;
+
+            if (SkillManager.Instance != null)
+            {
+                int acquired = SkillManager.Instance.GetPassiveAcquireCount(passiveSkillRef);
+                if (acquired > 0)
+                    count = acquired;
+            }
+
+            float per = passiveSkillRef.ValuePerStack;
+            string result;
+
+            // 강조색 코드 만들기 (액티브랑 같은 색)
+            string hex = ColorUtility.ToHtmlStringRGB(damageHighlightColor);
+
+            if (Mathf.Approximately(per, 0f))
+            {
+                // 수치 정보가 없으면: 기본 설명 + (x{count})에 count만 강조
+                string baseDesc = passiveSkillRef.GetSkillDescription();
+                string coloredCount = $"<color=#{hex}>{count}</color>";
+                result = $"{baseDesc} (x{coloredCount})";
+            }
+            else
+            {
+                // 수치 정보가 있으면: 템플릿 기반으로 value / count 둘 다 강조
+                float total = per * count;
+
+                string template = passiveSkillRef.StackedDescriptionTemplate;
+
+                string coloredValue = $"<color=#{hex}>{total}</color>";
+                string coloredCount = $"<color=#{hex}>{count}</color>";
+
+                result = template
+                    .Replace("{value}", coloredValue)
+                    .Replace("{count}", coloredCount);
+            }
+
+            descText.text = result;
         }
+
     }
+
+    // 획득시 중복 체크에 쓰이는 판별 함수
+    public bool IsSamePassive(PassiveSkillBase skill)
+    {
+        return !isActiveSkill && passiveSkillRef == skill;
+    }
+
 
     // 스킬 획득 팝업 등에 쓰고 싶으면 이런 것도 가능:
     public string GetAcquisitionDescriptionForPopup()

@@ -147,8 +147,8 @@ public class SkillPanel : MonoBehaviour
             {
                 var slot = Instantiate(activeSkillUIPrefab, activeSkillContainer);
                 var slotComponent = slot.GetComponent<SkillUI_SkillPanel>();
-                slotComponent.Setup(skill);        // 액티브 스킬 참조 넘김
-                slotComponent.UpdateDescription(); // 현재 스탯 기반 설명/별 갱신
+                slotComponent.Setup(skill);
+                slotComponent.UpdateDescription();
                 activeSlots.Add(slotComponent);
             }
         }
@@ -157,16 +157,25 @@ public class SkillPanel : MonoBehaviour
         var passives = SkillManager.Instance.GetPassiveSkills();
         if (passives != null)
         {
+            // 같은 패시브 여러 개 들고 있어도 UI에는 한 번만 표시
+            var seen = new HashSet<PassiveSkillBase>();
+
             foreach (var skill in passives)
             {
+                if (skill == null || seen.Contains(skill))
+                    continue;
+
+                seen.Add(skill);
+
                 var slot = Instantiate(passiveSkillUIPrefab, passiveSkillContainer);
                 var slotComponent = slot.GetComponent<SkillUI_SkillPanel>();
-                slotComponent.Setup(skill);        // 패시브 스킬 참조 넘김
-                slotComponent.UpdateDescription(); // 설명/별 갱신
+                slotComponent.Setup(skill);
+                slotComponent.UpdateDescription();
                 passiveSlots.Add(slotComponent);
             }
         }
     }
+
 
     /// <summary>
     /// 스킬 설명 + 별 개수만 전부 업데이트 (스탯 변동 / 강화 후 호출).
@@ -202,20 +211,31 @@ public class SkillPanel : MonoBehaviour
         activeSlots.Add(slotComponent);
     }
 
-    /// <summary>
-    /// 패시브 스킬을 새로 배웠을 때 UI에 즉시 슬롯 추가.
-    /// </summary>
+    // 신규 획득이면 추가, 중복 획득이면 수정
     public void OnLearnPassiveSkill(PassiveSkillBase newSkill)
     {
         if (newSkill == null || passiveSkillUIPrefab == null || passiveSkillContainer == null)
             return;
 
-        var slot = Instantiate(passiveSkillUIPrefab, passiveSkillContainer);
-        var slotComponent = slot.GetComponent<SkillUI_SkillPanel>();
-        slotComponent.Setup(newSkill);
-        slotComponent.UpdateDescription();
-        passiveSlots.Add(slotComponent);
+        // 이미 같은 패시브를 표시 중인 슬롯이 있다면, 새로 만들지 않고 설명만 갱신
+        var existing = passiveSlots.Find(slot =>
+            slot != null && slot.IsSamePassive(newSkill));
+
+        if (existing != null)
+        {
+            existing.UpdateDescription();
+        }
+        else
+        {
+            // 처음 배우는 패시브면 슬롯 생성
+            var slot = Instantiate(passiveSkillUIPrefab, passiveSkillContainer);
+            var slotComponent = slot.GetComponent<SkillUI_SkillPanel>();
+            slotComponent.Setup(newSkill);
+            slotComponent.UpdateDescription();
+            passiveSlots.Add(slotComponent);
+        }
     }
+
 
     // -----------------------------
     // 내부 헬퍼

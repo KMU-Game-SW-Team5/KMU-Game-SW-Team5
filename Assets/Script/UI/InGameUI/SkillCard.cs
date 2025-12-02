@@ -47,25 +47,81 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         usedPassiveSkills.Clear();
     }
 
-    // Active, Passive 카드 중 랜덤 선택
+    // Active, Passive 카드 중 변동 확률로 선택
     private void DrawSkillCard()
     {
-        // 보유한 액티브 스킬 개수가 3개 이하이고, 액티브 스킬을 뽑을 확률에 들어갈 때 true
-        isActive = UnityEngine.Random.Range(0, 100) <= activeSKillPercent;
-
-        if (isActive)
+        var sm = SkillManager.Instance;
+        if (sm == null)
         {
-            selectedActiveSkill = DrawActiveSkill();
-            if (selectedActiveSkill == null)
+            Debug.LogError("SkillManager.Instance is null");
+            return;
+        }
+
+        int equippedActiveCount = sm.GetNumOfActiveSkills();
+
+        if (equippedActiveCount < 4)
+        {
+            // ─────────────────────────────
+            // ① 액티브 4종 전까지: 액티브 확률 고정 30%
+            // ─────────────────────────────
+            const float ACTIVE_PROB_BEFORE_FULL = 0.3f;
+
+            bool tryActive = UnityEngine.Random.value <= ACTIVE_PROB_BEFORE_FULL;
+
+            if (tryActive)
             {
-                Debug.Log("selected Active skill is null");
+                isActive = true;
+                selectedActiveSkill = DrawActiveSkill();  // 여기서는 항상 신규(PreviewActiveSkillAutoFromDeck에서 처리)
+
+                if (selectedActiveSkill == null)
+                {
+                    // 액티브 뽑기 실패 → 패시브로 폴백
+                    isActive = false;
+                    selectedPassiveSkill = DrawPassiveSkill();
+                }
+            }
+            else
+            {
+                isActive = false;
+                selectedPassiveSkill = DrawPassiveSkill();
             }
         }
         else
         {
-            selectedPassiveSkill = DrawPassiveSkill();
+            // ─────────────────────────────
+            // ② 액티브 4종 이후:
+            //    중복 액티브 덱 + 패시브 덱을 하나로 보고
+            //    카드 개수 비율대로 완전 랜덤
+            // ─────────────────────────────
+            bool drawActive = sm.ShouldDrawActiveFromCombinedDeck();
+
+            if (drawActive)
+            {
+                isActive = true;
+                selectedActiveSkill = DrawActiveSkill();   // 여기서는 중복(ownedActiveDeck)에서 나옴
+
+                if (selectedActiveSkill == null)
+                {
+                    // 액티브 덱이 비어있으면 패시브로 폴백
+                    isActive = false;
+                    selectedPassiveSkill = DrawPassiveSkill();
+                }
+            }
+            else
+            {
+                isActive = false;
+                selectedPassiveSkill = DrawPassiveSkill();
+
+                if (selectedPassiveSkill == null)
+                {
+                    // 패시브 덱이 비어있으면 액티브로 폴백
+                    isActive = true;
+                    selectedActiveSkill = DrawActiveSkill();
+                }
+            }
         }
     }
+
 
     private ActiveSkillBase DrawActiveSkill()
     {
@@ -127,10 +183,11 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         for (int i = 0; i < maxTry; i++)
         {
-            passiveSkill = SkillManager.Instance.DrawPassiveSkillFromDeck();
+            passiveSkill = SkillManager.Instance.PreviewPassiveSkillFromDeck();
             if (passiveSkill == null)
                 return null;
 
+            // 이번 레벨업 세션에서 이미 나온 카드인지 검사 (중복 카드 방지)
             if (!usedPassiveSkills.Contains(passiveSkill))
                 break;
 
@@ -139,7 +196,8 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         if (passiveSkill == null)
         {
-            passiveSkill = SkillManager.Instance.DrawPassiveSkillFromDeck();
+            // 정말 후보 풀이 적어서 중복밖에 없으면, 마지막 한 번은 허용
+            passiveSkill = SkillManager.Instance.PreviewPassiveSkillFromDeck();
             if (passiveSkill == null)
                 return null;
         }
@@ -149,12 +207,13 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         selectedPassiveSkill = passiveSkill;
 
         skillName.text = passiveSkill.GetSkillName();
-        numOfStar = 0;
+        numOfStar = 0;  // 패시브는 별 시스템 안 쓰면 0 고정
         icon.sprite = passiveSkill.GetIcon();
         description.text = passiveSkill.GetSkillDescription();
 
         return passiveSkill;
     }
+
 
 
     // 레벨 반영하여 카드에 별 배치
@@ -174,19 +233,19 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (isActive)
         {
             Debug.Log(selectedActiveSkill + " was selected");
-
-            // ✅ 여기서 덱 제거 / 이동 / 별 조정까지 한 번에 처리
             SkillManager.Instance.CommitActiveSkillSelection(selectedActiveSkill);
         }
         else
         {
             Debug.Log(selectedPassiveSkill + " was selected");
-            SkillManager.Instance.AddPassiveSkill(selectedPassiveSkill);
-            // 패시브도 나중에 필요하면 별/중복 처리 로직 분리 가능
+
+            // ✅ 패시브 선택 확정 시 덱/카운트 반영
+            SkillManager.Instance.CommitPassiveSkillSelection(selectedPassiveSkill);
         }
 
         gameObject.transform.parent.GetComponent<LevelUpUI>().CloseSkillChoiceUI();
     }
+
 
 
     public void OnPointerEnter(PointerEventData eventData)
