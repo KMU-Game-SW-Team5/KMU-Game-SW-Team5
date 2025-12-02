@@ -18,6 +18,7 @@ MonoBehaviour:
     seconds
   maxAcquireCount: 1
   valuePerStack: 0
-  stackedDescriptionTemplate: "{value} \uB9CC\uD07C \uC99D\uAC00 (\uD68D\uB4DD {count}\uD68C)"
+  stackedDescriptionTemplate: All attack inflicts debuff that increase damage taken
+    by 50% for 5 seconds
   hitEffects:
   - {fileID: 11400000, guid: ac1436625301a8f41bf78aef17c4067f, type: 2}

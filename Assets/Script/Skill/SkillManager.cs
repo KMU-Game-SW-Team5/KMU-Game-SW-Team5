@@ -46,10 +46,8 @@ public class SkillManager : MonoBehaviour
     private float attackSpeed = 1f;
     public float GetAttackSpeed() => attackSpeed;
     public void AddAttackSpeed(float value) { attackSpeed += value; }
-
     // 내부용: 마지막 기본 공격 시각
     private float lastBasicAttackTime = -999f;
-
     // rate → 쿨타임(초) 변환
     private float BasicAttackCooldown
     {
@@ -59,7 +57,11 @@ public class SkillManager : MonoBehaviour
             return 1f / attackSpeed;
         }
     }
+    // 시전 중에는 스킬 입력을 막기 위한 플래그
+    private bool isCasting = false;
 
+
+    //=======================================마력 스탯 관련===================================================================
     private float magicStat = 100f;  // 마력 스탯 
 
     public void SetMagicStat(int value) { magicStat = value; }
@@ -68,6 +70,53 @@ public class SkillManager : MonoBehaviour
     public void AddMagicStat(float value) { magicStat += value; }
 
     public void AddMagicStatPercent(float percent) { magicStat *= 1 + percent; }
+
+    // =========================================치명타 관련=========================================================
+    [Header("치명타 설정")]
+    [SerializeField, Tooltip("기본 치명타 확률(%)")]
+    private float baseCritChance = 5f;      // 예: 5%
+    [SerializeField, Tooltip("기본 치명타 피해 배율 (2.0 = 200%)")]
+    private float baseCritDamage = 2.0f;    // 예: 2배
+    // 런타임 현재 값
+    private float currentCritChance;        // % 단위 (0~100)
+    private float currentCritDamage;        // 배율 (2.0 = 2배)
+    public float CritChance => currentCritChance;
+    public float CritDamage => currentCritDamage;
+    public void AddCritChance(float delta) { currentCritChance += delta; }
+    public void AddCritDamage(float delta) { currentCritDamage += delta; }
+    public void SetCritChance(float value) {  currentCritChance = value; }
+    public void SetCritDamage(float value) { currentCritDamage = value; }
+    // 기본값으로 리셋 (버프 초기화용)
+    public void ResetCritStats()
+    {
+        currentCritChance = baseCritChance;
+        currentCritDamage = baseCritDamage;
+    }
+
+    // 치명타 확률 / 데미지를 반영하여 증폭률을 리턴
+    public float GetCritMultiplier(out bool isCritical)
+    {
+        // 치명타 확률이 0 이하이면 증폭 안함
+        if (currentCritChance <= 0f)
+        {
+            isCritical = false;
+            return 1f;
+        }
+
+        // 치명타 확률 안에 들어가면 치명타 데미지 리턴
+        float roll = Random.Range(0f, 100f);  // 0 이상 100 미만
+        if (roll < currentCritChance)
+        {
+            isCritical = true;
+            return currentCritDamage;    // 예: 2.1f
+        }
+
+        // 치명타가 안 터진 경우
+        isCritical = false;
+        return 1f;
+    }
+
+    // ======================================== 스킬 시전 위치 관련=======================================================
 
     [Header("스킬 시전용 앵커 프리팹")]
     [Tooltip("스킬 타겟용 앵커 프리팹 (없으면 기본 빈 오브젝트 생성)")]
@@ -80,15 +129,59 @@ public class SkillManager : MonoBehaviour
     [SerializeField] float maxSpellDistance = 1000f;      // 최대 시전 거리
     [SerializeField] float anchorLifetime = 10f;          // 앵커 오브젝트의 수명(최적화 변수)
 
-    [Header("스킬 UI")]
+    // 스킬 쿨타임 UI
     List<SkillSlotUI> skillSlots;
     List<TextMeshProUGUI> cooldownTexts;  // 쿨다운 텍스트 배열
 
     [Header("사운드")]
     [SerializeField] private AudioSource skillAudioSource;
 
-    // 시전 중에는 스킬 입력을 막기 위한 플래그
-    private bool isCasting = false;
+    // 바라보는 방향에 가장 먼저 맞은 곳에 프리팹을 생성해서 그 트랜스폼을 리턴함.
+    public Transform CreateSkillAnchor()
+    {
+        Vector3 origin = GetCameraPosition();
+        UpdateForwardDirection();
+        Vector3 direction = forwardDirection;
+
+        GameObject anchorObj;
+        Vector3 spawnPos;
+        Transform targetTransform = null;
+
+        if (Physics.Raycast(origin, direction, out RaycastHit hit,
+                            maxSpellDistance, mask, QueryTriggerInteraction.Collide))
+        {
+            spawnPos = hit.point;
+            targetTransform = hit.transform;
+
+            if (hit.collider.CompareTag("Monster") || hit.collider.CompareTag("Boss"))
+            {
+                targetTransform = hit.transform.root;
+            }
+
+        }
+        else
+        {
+            spawnPos = origin + direction * maxSpellDistance;
+            Debug.Log("[SkillManager] Raycast hit nothing. Anchor at max distance.");
+        }
+
+        if (skillAnchorPrefab != null)
+            anchorObj = Instantiate(skillAnchorPrefab, spawnPos, Quaternion.identity);
+        else
+            anchorObj = new GameObject("SkillAnchor (Fallback)");
+
+        SkillAnchor anchor = anchorObj.GetComponentInChildren<SkillAnchor>();
+        if (anchor != null && targetTransform != null)
+        {
+            anchor.AttachTo(targetTransform, spawnPos);
+        }
+
+        Destroy(anchorObj, anchorLifetime);
+        return anchorObj.transform;
+    }
+
+
+    // ===========================================초기화 관련 및 Update===================================================
 
     private void Awake()
     {
@@ -118,6 +211,9 @@ public class SkillManager : MonoBehaviour
 
         // 기본 공격 초기화
         basicAttackSkill.Initialize();
+
+        // 🔹 치명타 스탯 기본값으로 초기화
+        ResetCritStats();
 
         // 액티브 스킬 쿨타임 초기화
         foreach (var skill in activeSkills)
@@ -173,6 +269,8 @@ public class SkillManager : MonoBehaviour
         HandleSkillInput();
     }
 
+    // ===================================각종 트랜스폼을 제공하는 함수들===============================================
+
     // 전방 방향 리턴하는 클래스 함수
     public static Vector3 GetForwardDirection()
     {
@@ -218,6 +316,8 @@ public class SkillManager : MonoBehaviour
                 return shotPos_Staff;
         }
     }
+
+    //=========================================입력과 스킬 관리===================================================================
 
     // 기본 공격 입력 처리 (좌클릭)
     private void HandleBasicAttackInput()
@@ -319,96 +419,6 @@ public class SkillManager : MonoBehaviour
         yield return new WaitForSeconds(duration);
         isCasting = false;
     }
-
-    // 액티브 스킬 추가 (획득 시 호출)
-    public void AddActiveSkill(ActiveSkillBase newSkill)
-    {
-        if (newSkill == null) return;
-
-        bool isNew = !activeSkills.Contains(newSkill);
-
-        if (isNew)
-        {
-            activeSkills.Add(newSkill);
-
-            newSkill.Initialize();
-            newSkill.InitializeCooldown();
-
-            int idx = activeSkills.Count - 1;
-            UpdateSkillIcon(idx);
-            if (SkillPanel.Instance == null)
-            {
-                Init();
-                Debug.Log("SkillPanel is null");
-            }
-            SkillPanel.Instance.OnLearnActiveSkill(newSkill);
-        }
-
-        // 🔹 덱에 넣는 건 "완전 신규 획득"일 때만
-        if (ownedActiveDeck != null && isNew)
-            ownedActiveDeck.AddRuntimeCard(newSkill);
-    }
-
-    // 덱은 건드리지 않고, 장착 목록 + UI만 관리
-    public void AddActiveSkillToListAndUI(ActiveSkillBase newSkill)
-    {
-        if (newSkill == null) return;
-
-        if (!activeSkills.Contains(newSkill))
-        {
-            activeSkills.Add(newSkill);
-
-            newSkill.Initialize();
-            newSkill.InitializeCooldown();
-
-            int idx = activeSkills.Count - 1;
-            UpdateSkillIcon(idx);
-            if (SkillPanel.Instance == null)
-            {
-                Init();
-                Debug.Log("SkillPanel is null");
-            }
-            SkillPanel.Instance.OnLearnActiveSkill(newSkill);
-        }
-    }
-
-
-
-    // 액티브 스킬 제거
-    public void RemoveAcvtiveSkill(ActiveSkillBase skill)
-    {
-        if (activeSkills.Contains(skill))
-            activeSkills.Remove(skill);
-    }
-
-    // 패시브 스킬 추가
-    public void AddPassiveSkill(PassiveSkillBase newSkill)
-    {
-        if (newSkill == null) return;
-
-        // 중복 획득 어떻게 처리할지 생각하기
-        //if (!passiveSkills.Contains(skill))
-        //    passiveSkills.Add(skill);
-        passiveSkills.Add(newSkill);
-        if (SkillPanel.Instance == null)
-        {
-            Debug.Log("skill panel instance is null");
-            return;
-        }
-        SkillPanel.Instance.OnLearnPassiveSkill(newSkill);
-
-        if (newSkill is PS_AddHitEffectType addHitSkill)
-        {
-            foreach (var effSO in addHitSkill.hitEffects)
-                runtimeEffects.Add(effSO.CreateEffectInstance());
-        }
-        if (newSkill is PS_AddStatType addStatSkill)
-        {
-            buffApplier.ApplyBuff(addStatSkill.buffStatType, addStatSkill.amount);
-        }
-    }
-
-
     // 스킬 적중 발생시 호출
     public void OnHit(HitContext ctx)
     {
@@ -416,8 +426,6 @@ public class SkillManager : MonoBehaviour
             if (eff.CanApply(ctx))
                 eff.Apply(ctx);
     }
-
-
     // 스킬들 쿨타임 감소
     public void UpdateSkillsCooldown()
     {
@@ -430,7 +438,6 @@ public class SkillManager : MonoBehaviour
             }
         }
     }
-
     // 스킬 쿨타임 UI 업데이트
     public void UpdateSkillCoolDownUI(int skillIndex)
     {
@@ -461,73 +468,14 @@ public class SkillManager : MonoBehaviour
     }
 
 
-    // 바라보는 방향에 가장 먼저 맞은 곳에 프리팹을 생성해서 그 트랜스폼을 리턴함.
-    public Transform CreateSkillAnchor()
-    {
-        Vector3 origin = GetCameraPosition();
-        UpdateForwardDirection();
-        Vector3 direction = forwardDirection;
 
-        GameObject anchorObj;
-        Vector3 spawnPos;
-        Transform targetTransform = null;
+    // ===================== 덱 기반 스킬 뽑기 API (UI에서 호출) ============================================================
 
-        if (Physics.Raycast(origin, direction, out RaycastHit hit,
-                            maxSpellDistance, mask, QueryTriggerInteraction.Collide))
-        {
-            spawnPos = hit.point;
-            targetTransform = hit.transform;
-
-            if (hit.collider.CompareTag("Monster") || hit.collider.CompareTag("Boss"))
-            {
-                targetTransform = hit.transform.root;
-            }
-
-        }
-        else
-        {
-            spawnPos = origin + direction * maxSpellDistance;
-            Debug.Log("[SkillManager] Raycast hit nothing. Anchor at max distance.");
-        }
-
-        if (skillAnchorPrefab != null)
-            anchorObj = Instantiate(skillAnchorPrefab, spawnPos, Quaternion.identity);
-        else
-            anchorObj = new GameObject("SkillAnchor (Fallback)");
-
-        SkillAnchor anchor = anchorObj.GetComponentInChildren<SkillAnchor>();
-        if (anchor != null && targetTransform != null)
-        {
-            anchor.AttachTo(targetTransform, spawnPos);
-        }
-
-        Destroy(anchorObj, anchorLifetime);
-        return anchorObj.transform;
-    }
-
-    // 스킬 아이콘 업데이트, 스킬 습득시 호출
-    public void UpdateSkillIcon(int skillIndex)
-    {
-        if (skillSlots == null || skillSlots.Count == 0) return;
-        if (skillIndex < 0 || skillIndex >= skillSlots.Count) return;
-        if (skillIndex >= activeSkills.Count) return;
-
-        var skill = activeSkills[skillIndex];
-        if (skill == null) return;
-
-        var icon = skill.GetIcon();
-        if (icon == null)
-        {
-            Debug.Log("아이콘 발견 안됨.");
-            return;
-        }
-
-        var slot = skillSlots[skillIndex];
-        Debug.Log($"slot: {slot}, skill: {skill}, icon: {icon}");
-        slot.SetIcon(icon);
-    }
-
-    // 액티브 스킬들 초기화
+    [Header("장착된 액티브 스킬 목록")]
+    [SerializeField] private List<ActiveSkillBase> activeSkills = new List<ActiveSkillBase>();
+    public List<ActiveSkillBase> GetActiveSkills() => activeSkills;
+    public int GetNumOfActiveSkills() => activeSkills.Count;
+    // 액티브 스킬 덱 초기화
     public void InitalizeActiveSkills()
     {
         foreach (var skill in activeSkills)
@@ -536,13 +484,6 @@ public class SkillManager : MonoBehaviour
                 skill.Initialize();
         }
     }
-
-    // ===================== 덱 기반 스킬 뽑기 API (UI에서 호출) ============================================================
-
-    [Header("장착된 액티브 스킬 목록")]
-    [SerializeField] private List<ActiveSkillBase> activeSkills = new List<ActiveSkillBase>();
-    public List<ActiveSkillBase> GetActiveSkills() => activeSkills;
-    public int GetNumOfActiveSkills() => activeSkills.Count;
 
     [Header("장착된 패시브 스킬 목록")]
     [SerializeField] private List<PassiveSkillBase> passiveSkills = new List<PassiveSkillBase>();
@@ -555,6 +496,56 @@ public class SkillManager : MonoBehaviour
     // 패시브 스킬 획득 횟수 (런타임 전용)
     private readonly Dictionary<PassiveSkillBase, int> passiveAcquireCounts = new();
 
+
+    // 액티브 스킬 추가. 덱은 건드리지 않고, 장착 목록 + UI만 관리
+    public void AddActiveSkillToListAndUI(ActiveSkillBase newSkill)
+    {
+        if (newSkill == null) return;
+
+        if (!activeSkills.Contains(newSkill))
+        {
+            activeSkills.Add(newSkill);
+
+            newSkill.Initialize();
+            newSkill.InitializeCooldown();
+
+            int idx = activeSkills.Count - 1;
+            UpdateSkillIcon(idx);
+            if (SkillPanel.Instance == null)
+            {
+                Init();
+                Debug.Log("SkillPanel is null");
+            }
+            SkillPanel.Instance.OnLearnActiveSkill(newSkill);
+        }
+    }
+
+    // 패시브 스킬 추가
+    public void AddPassiveSkill(PassiveSkillBase newSkill)
+    {
+        if (newSkill == null) return;
+
+        // 중복 획득 어떻게 처리할지 생각하기
+        //if (!passiveSkills.Contains(skill))
+        //    passiveSkills.Add(skill);
+        passiveSkills.Add(newSkill);
+        if (SkillPanel.Instance == null)
+        {
+            Debug.Log("skill panel instance is null");
+            return;
+        }
+        SkillPanel.Instance.OnLearnPassiveSkill(newSkill);
+
+        if (newSkill is PS_AddHitEffectType addHitSkill)
+        {
+            foreach (var effSO in addHitSkill.hitEffects)
+                runtimeEffects.Add(effSO.CreateEffectInstance());
+        }
+        if (newSkill is PS_AddStatType addStatSkill)
+        {
+            buffApplier.ApplyBuff(addStatSkill.buffStatType, addStatSkill.amount);
+        }
+    }
 
     // 신규 액티브 스킬 한 장 뽑기 (미리보기용, 비복원 후보)
     public ActiveSkillBase PreviewNewActiveSkillFromDeck()
@@ -625,11 +616,7 @@ public class SkillManager : MonoBehaviour
         AddActiveSkillToListAndUI(skill);
     }
 
-    /// <summary>
-    /// 액티브 4종을 모두 획득한 이후,
-    /// 중복 액티브 덱 + 패시브 덱을 하나로 합쳐서
-    /// "이번 카드가 액티브가 될지"를 결정한다.
-    /// </summary>
+    // 액티브 스킬을 4 종 획득한 이후엔 중복 액티브 덱과 패시브 덱을 섞어서 드로우. 액티브가 나왔는지 리턴.
     public bool ShouldDrawActiveFromCombinedDeck()
     {
         int activeCount = 0;
@@ -652,13 +639,8 @@ public class SkillManager : MonoBehaviour
         return index < activeCount;
     }
 
-
-    // ---패시브 스킬---
-
-    // 패시브 스킬 한 장 뽑기 (미리보기용)
-    // - 각 패시브의 MaxAcquireCount와 현재 획득 횟수를 고려하여
-    //   더 이상 획득 불가능한 카드는 뽑지 않는다.
-    public PassiveSkillBase PreviewPassiveSkillFromDeck()
+    // 패시브 스킬 드로우. 중복 드로우 횟수를 반영함.
+    public PassiveSkillBase DrawPassiveSkillFromDeck()
     {
         if (passiveSkillDeck == null) return null;
 
@@ -690,17 +672,7 @@ public class SkillManager : MonoBehaviour
         return candidate;
     }
 
-    // 패시브 스킬 드로우
-    public PassiveSkillBase DrawPassiveSkillFromDeck()
-    {
-        return PreviewPassiveSkillFromDeck();
-    }
-
-
-    // 패시브 스킬 선택 확정 시 호출.
-    /// - 획득 횟수 증가
-    /// - 최대 횟수에 도달하면 덱에서 제거
-    /// - 실제 보유 패시브 목록에 반영 (AddPassiveSkill)
+    // 패시브 스킬 카드 선택시 호출. 획득 횟수를 늘리고, 최대 획득 횟수에 도달하면 덱에서 제거함. UI 목록에도 추가
     public void CommitPassiveSkillSelection(PassiveSkillBase skill)
     {
         if (skill == null) return;
@@ -732,7 +704,29 @@ public class SkillManager : MonoBehaviour
         return 0;
     }
 
+    // 스킬 아이콘 업데이트, 스킬 습득시 호출
+    public void UpdateSkillIcon(int skillIndex)
+    {
+        if (skillSlots == null || skillSlots.Count == 0) return;
+        if (skillIndex < 0 || skillIndex >= skillSlots.Count) return;
+        if (skillIndex >= activeSkills.Count) return;
 
+        var skill = activeSkills[skillIndex];
+        if (skill == null) return;
+
+        var icon = skill.GetIcon();
+        if (icon == null)
+        {
+            Debug.Log("아이콘 발견 안됨.");
+            return;
+        }
+
+        var slot = skillSlots[skillIndex];
+        Debug.Log($"slot: {slot}, skill: {skill}, icon: {icon}");
+        slot.SetIcon(icon);
+    }
+
+    //===================================================================================================================
     // ===============================================테스트 함수들======================================================
 #if UNITY_EDITOR
     private void OnValidate()

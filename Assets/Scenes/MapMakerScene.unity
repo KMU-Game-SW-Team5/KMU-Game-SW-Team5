@@ -509,11 +509,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2991035596834519195, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: baseRequiredExp
-      value: 200
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2991035596834519195, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: expIncrementPerLevel
-      value: 20
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5215407885252488437, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -568,6 +568,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1086943313}
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
+      propertyPath: baseCritChance
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: skillAudioSource
       value: 
       objectReference: {fileID: 1086943304}
@@ -582,7 +586,7 @@ PrefabInstance:
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: activeSkills.Array.data[0]
       value: 
-      objectReference: {fileID: 11400000, guid: d296c5fb661c8ea42bde2e86bb221330, type: 2}
+      objectReference: {fileID: 11400000, guid: a392258e60bdd0441aea1e85e458f279, type: 2}
     - target: {fileID: 6106417556462171900, guid: 6bd7d3e67989dd94a90991a49c4879e1, type: 3}
       propertyPath: activeSkills.Array.data[1]
       value: 

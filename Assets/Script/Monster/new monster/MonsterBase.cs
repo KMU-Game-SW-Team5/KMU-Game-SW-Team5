@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public abstract class MonsterBase : MonoBehaviour
 {
@@ -182,10 +182,12 @@ public abstract class MonsterBase : MonoBehaviour
         if (isDead) return;
 
         float finalDamage = dmg * (1f + additionalDamageRate);
+        bool isCritical;
+        finalDamage *= SkillManager.Instance.GetCritMultiplier(out isCritical);   // 치명타 반영
         currentHealth -= finalDamage;
 
         // 🔹 데미지 텍스트
-        CombatUIManager.Instance?.ShowDamageText(finalDamage, GetDamageTextAnchor(), false);
+        CombatUIManager.Instance?.ShowDamageText(finalDamage, GetDamageTextAnchor(), isCritical);
 
         // 🔹 에임 포인터에 타격 효과 전달
         CombatUIManager.Instance?.aimPointer.OnDealDamage(finalDamage);

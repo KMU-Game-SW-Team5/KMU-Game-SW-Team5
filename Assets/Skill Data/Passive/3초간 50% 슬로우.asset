@@ -17,6 +17,6 @@ MonoBehaviour:
   description: All attack slows down enemy for 3 seconds by 50%
   maxAcquireCount: 1
   valuePerStack: 0
-  stackedDescriptionTemplate: "{value} \uB9CC\uD07C \uC99D\uAC00 (\uD68D\uB4DD {count}\uD68C)"
+  stackedDescriptionTemplate: All attack slows down enemy for 3 seconds by 50%
   hitEffects:
   - {fileID: 11400000, guid: fec412ecd7837894791250d91f6d2b6f, type: 2}
