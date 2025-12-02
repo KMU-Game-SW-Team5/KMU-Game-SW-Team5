@@ -325,7 +325,9 @@ public class SkillManager : MonoBehaviour
     {
         if (newSkill == null) return;
 
-        if (!activeSkills.Contains(newSkill))
+        bool isNew = !activeSkills.Contains(newSkill);
+
+        if (isNew)
         {
             activeSkills.Add(newSkill);
 
@@ -342,9 +344,35 @@ public class SkillManager : MonoBehaviour
             SkillPanel.Instance.OnLearnActiveSkill(newSkill);
         }
 
-        if (ownedActiveDeck != null)
+        // 🔹 덱에 넣는 건 "완전 신규 획득"일 때만
+        if (ownedActiveDeck != null && isNew)
             ownedActiveDeck.AddRuntimeCard(newSkill);
     }
+
+    // 덱은 건드리지 않고, 장착 목록 + UI만 관리
+    public void AddActiveSkillToListAndUI(ActiveSkillBase newSkill)
+    {
+        if (newSkill == null) return;
+
+        if (!activeSkills.Contains(newSkill))
+        {
+            activeSkills.Add(newSkill);
+
+            newSkill.Initialize();
+            newSkill.InitializeCooldown();
+
+            int idx = activeSkills.Count - 1;
+            UpdateSkillIcon(idx);
+            if (SkillPanel.Instance == null)
+            {
+                Init();
+                Debug.Log("SkillPanel is null");
+            }
+            SkillPanel.Instance.OnLearnActiveSkill(newSkill);
+        }
+    }
+
+
 
     // 액티브 스킬 제거
     public void RemoveAcvtiveSkill(ActiveSkillBase skill)
@@ -593,8 +621,8 @@ public class SkillManager : MonoBehaviour
             }
         }
 
-        // 실제 보유 리스트에 반영
-        AddActiveSkill(skill);
+        // 🔹 이제 여기서는 목록/아이콘/패널만 갱신
+        AddActiveSkillToListAndUI(skill);
     }
 
     /// <summary>
