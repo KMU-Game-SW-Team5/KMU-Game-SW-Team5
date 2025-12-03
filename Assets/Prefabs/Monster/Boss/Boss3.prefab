@@ -3734,8 +3734,8 @@ MonoBehaviour:
   phase2AttackRange: 100
   detectionRange: 300
   attackCooldown: 2
-  bulletPrefab: {fileID: 0}
-  muzzleTransform: {fileID: 0}
+  bulletPrefab: {fileID: 2521581984461153819, guid: 2a988c19fab954740a312c0c48820e68, type: 3}
+  muzzleTransform: {fileID: 7160960910339047962}
   spreadAngle: 3
   attack1Delay: 0.5
   attack2Delay: 0.5
