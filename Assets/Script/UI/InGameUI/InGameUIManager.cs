@@ -50,6 +50,18 @@ public class InGameUIManager : MonoBehaviour
 
     private void Start()
     {
+        if (TimeManager.Instance == null)
+        {
+            Debug.LogWarning("[InGameUIManager] TimeManager.Instance is null in Start(). Skipping waveTimer subscription.");
+            return;
+        }
+
+        if (waveTimerUI == null)
+        {
+            Debug.LogWarning("[InGameUIManager] waveTimerUI is not assigned in Start(). Skipping waveTimer subscription.");
+            return;
+        }
+
         waveTimerUI.SetRatio(TimeManager.Instance.DayRatio);
         TimeManager.Instance.OnCycleProgress += waveTimerUI.UpdateRotation;
         TimeManager.Instance.OnDayRatioChanged += waveTimerUI.SetRatio;
@@ -57,8 +69,20 @@ public class InGameUIManager : MonoBehaviour
 
     void OnDestroy()
     {
-        TimeManager.Instance.OnCycleProgress -= waveTimerUI.UpdateRotation;
-        TimeManager.Instance.OnDayRatioChanged -= waveTimerUI.SetRatio;
+        try
+        {
+            if (TimeManager.Instance != null && waveTimerUI != null)
+            {
+                TimeManager.Instance.OnCycleProgress -= waveTimerUI.UpdateRotation;
+                TimeManager.Instance.OnDayRatioChanged -= waveTimerUI.SetRatio;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[InGameUIManager] Exception during event unsubscription: {ex}");
+        }
+
+        if (Instance == this) Instance = null;
     }
 
     private void Update()

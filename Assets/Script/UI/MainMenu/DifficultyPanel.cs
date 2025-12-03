@@ -20,12 +20,14 @@ public class DifficultyPanel : MonoBehaviour
     private void StartGame()
     {
         /*
-        // GameSceneÀÌ ºôµå ¼¼ÆÃ¿¡ Æ÷ÇÔµÇ¾î ÀÖ¾î¾ß ÇÔ
+        // GameSceneì´ ë¹Œë“œ ì„¸íŒ…ì— í¬í•¨ë˜ì–´ ìˆì–´ì•¼ í•¨
         if (Application.CanStreamedLevelBeLoaded("GameScene"))
             SceneManager.LoadScene("GameScene");
         else
-            Debug.LogWarning("GameSceneÀÌ Build Settings¿¡ µî·ÏµÇ¾î ÀÖÁö ¾Ê½À´Ï´Ù");
+            Debug.LogWarning("GameSceneì´ Build Settingsì— ë“±ë¡ë˜ì–´ ìˆì§€ ì•ŠìŠµë‹ˆë‹¤");
         */
         SceneManager.LoadScene("Assets/Scenes/MapMakerScene.unity");
+
+
     }
 }

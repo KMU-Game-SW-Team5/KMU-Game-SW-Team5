@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class BossDragon : BossMonsterBase
@@ -174,6 +174,8 @@ public class BossDragon : BossMonsterBase
                 StopCoroutine(deathGravityCo);
             deathGravityCo = StartCoroutine(DeathExtraGravityRoutine());
         }
+
+        spawnedRoom.NotifyMonsterDied(this.gameObject);
 
         Destroy(gameObject, deathAnimationDuration + 10f);
     }

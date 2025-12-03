@@ -101,6 +101,7 @@ public class RoomManager : MonoBehaviour
             foreach (Collider col in doorColliders)
             {
                 col.isTrigger = true;
+                col.gameObject.layer = LayerMask.NameToLayer("Default"); // 문 레이어를 Default로 변경하여 투사체 막음
                 SetPortalActive(col, true);
             }
         }
@@ -113,6 +114,7 @@ public class RoomManager : MonoBehaviour
         foreach (Collider col in doorColliders)
         {
             col.isTrigger = false; // 물리적 벽 (잠금)
+            col.gameObject.layer = LayerMask.NameToLayer("Default"); // 문 레이어를 Default로 변경하여 투사체 막음
             SetPortalActive(col, true);
         }
     }
@@ -123,6 +125,7 @@ public class RoomManager : MonoBehaviour
         foreach (Collider col in doorColliders)
         {
             col.isTrigger = true; // 통과 가능 (해제)
+            col.gameObject.layer = LayerMask.NameToLayer("Projectile"); // 문 레이어를 Projectile로 변경하여 투사체 통과 허용
             SetPortalActive(col, false);
         }
     }
@@ -244,8 +247,15 @@ public class RoomManager : MonoBehaviour
 
         GameObject bossInstance = Instantiate(selectedBoss, spawnPos, Quaternion.identity);
 
+        BossMonsterBase bossComponent = bossInstance.GetComponent<BossMonsterBase>();
+        bossComponent.SetRoom(this);    // 보스 방 참조 전달
+        // 보스의 난이도 설정: (총 보스 처치 수 + 1) * (게임 난이도 + 1)
+        // 난이도당 체력과 공격력이 올라가는 정도는 각 보스에서 설정
+        bossComponent.SetDifficulty((KillCounter.Instance.TotalBossKills + 1) 
+            * (gameDifficulty + 1));
+
         // 보스는 보통 크기가 커서 맵의 자식으로 넣으면 스케일 문제가 생길 수 있어 부모 설정 생략 권장
-        // bossInstance.transform.SetParent(transform); 
+        //bossInstance.transform.SetParent(transform);
 
         liveMonsters.Add(bossInstance);
 
@@ -281,6 +291,9 @@ public class RoomManager : MonoBehaviour
             Vector3 spawnPos = transform.TransformPoint(randomPos);
 
             GameObject monster = Instantiate(selectedMonster, spawnPos, Quaternion.identity);
+            MonsterBase monsterComponent = monster.GetComponent<MonsterBase>();
+            monsterComponent.SetDifficulty((KillCounter.Instance.TotalBossKills + 1) 
+                * (gameDifficulty + 1));
 
             // [복구됨] 자식으로 등록
             monster.transform.SetParent(transform);
@@ -322,6 +335,7 @@ public class RoomManager : MonoBehaviour
 
     public void NotifyMonsterDied(GameObject monster)
     {
+        Debug.Log($"몬스터 사망 알림 받음: {monster.name}");
         if (liveMonsters.Contains(monster))
         {
             liveMonsters.Remove(monster);

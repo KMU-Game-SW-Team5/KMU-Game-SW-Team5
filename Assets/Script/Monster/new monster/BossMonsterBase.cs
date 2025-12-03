@@ -1,8 +1,15 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 public abstract class BossMonsterBase : MonsterBase
 {
+    protected RoomManager spawnedRoom;
+    public void SetRoom(RoomManager room)
+    {
+        spawnedRoom = room;
+    }
+
+
     [Header("Boss Phase")]
     [SerializeField] protected bool hasEnteredPhase2 = false;
     [SerializeField] protected float phase2Threshold = 500f; // 이 값은 보스별로 인스펙터에서 조절

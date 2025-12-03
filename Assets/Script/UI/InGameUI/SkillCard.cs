@@ -17,7 +17,7 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     [SerializeField] private GameObject starPrefab;
 
     [Header("뽑기 설정")]
-    [SerializeField][Range(0, 100)] private int activeSKillPercent = 20;
+    [SerializeField][Range(0, 100)] private int activeSKillPercent = 40;
 
     // 뽑은 카드
     ActiveSkillBase selectedActiveSkill;

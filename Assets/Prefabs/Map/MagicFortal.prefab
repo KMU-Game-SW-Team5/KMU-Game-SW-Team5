@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1169899311303704543}
   - component: {fileID: 1169899311303704542}
   - component: {fileID: 1169899311303704541}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5025,7 +5025,7 @@ GameObject:
   - component: {fileID: 1373401077090428722}
   - component: {fileID: 3077275610092836006}
   - component: {fileID: 8202791188845029050}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MagicFortal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9917,7 +9917,7 @@ GameObject:
   - component: {fileID: 1902507684476854093}
   - component: {fileID: 1368219737990174799}
   - component: {fileID: 325148399658452144}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: DarkSparks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14756,7 +14756,7 @@ GameObject:
   - component: {fileID: 3654462411310602420}
   - component: {fileID: 241465659875411293}
   - component: {fileID: 7866860305144822984}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sparks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19595,7 +19595,7 @@ GameObject:
   - component: {fileID: 2015415831857675499}
   - component: {fileID: 3529733773876103213}
   - component: {fileID: 4787748593154012958}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sides
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -7,8 +7,8 @@ using UnityEngine;
 public class Boss2 : BossMonsterBase
 {
     [Header("Boss 2 Settings")]
-    [SerializeField] private float detectionRange = 300f;
-    [SerializeField] private float attackCooldown = 2f;
+    [SerializeField] private float detectionRangeOverride = 300f;
+    [SerializeField] private float attackCooldownOverride = 2f;
     
     // 이동 히스테리시스용 변수
     private bool isMovingState = false; 
@@ -24,11 +24,18 @@ public class Boss2 : BossMonsterBase
     private float originalVolume = 0.3f;
     private Coroutine currentFadeCoroutine;
 
-    // Start 함수 오류 수정: 
-    // 1. 필요한 컴포넌트를 확실하게 다시 할당
-    // 2. FindPlayer 함수 복구
     protected void Start()
     {
+        // 부모(MonsterBase)의 필드에 override 값 반영
+        if (detectionRangeOverride > 0f)
+        {
+            detectionRange = detectionRangeOverride;
+        }
+
+        if (attackCooldownOverride > 0f)
+        {
+            attackCooldown = attackCooldownOverride;
+        }
 
         // 초기화 안전 장치
         if (rb == null) rb = GetComponent<Rigidbody>();
@@ -36,15 +43,21 @@ public class Boss2 : BossMonsterBase
         if (animator == null) animator = GetComponentInChildren<Animator>();
 
         // [Boss2 설정] Rigidbody 제약
-        rb.useGravity = true;
-        rb.isKinematic = false;
-        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        if (rb != null)
+        {
+            rb.useGravity = true;
+            rb.isKinematic = false;
+            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        }
 
         // [Boss2 설정] 오디오 초기화
-        audioSource.loop = true;
-        audioSource.clip = moveLoopClip;
-        audioSource.playOnAwake = false;
-        audioSource.volume = 0f;
+        if (audioSource != null)
+        {
+            audioSource.loop = true;
+            audioSource.clip = moveLoopClip;
+            audioSource.playOnAwake = false;
+            audioSource.volume = 0f;
+        }
 
         // 플레이어 찾기 시작
         InvokeRepeating("FindPlayer", 0f, 0.5f);
@@ -54,7 +67,7 @@ public class Boss2 : BossMonsterBase
     {
         if (isDead)
         {
-            if (audioSource.isPlaying) audioSource.Stop();
+            if (audioSource != null && audioSource.isPlaying) audioSource.Stop();
             return;
         }
 
@@ -113,13 +126,10 @@ public class Boss2 : BossMonsterBase
             currentIsMoving = false;
         }
 
-        // ★ 삭제됨: 체력 50% 미만일 때 스탯(사거리 등) 강제 변경 로직 삭제
-
         // 이동 사운드 페이드 처리
         HandleFadeSound(currentIsMoving);
     }
 
-    // InvokeRepeating을 위해 복구된 플레이어 찾기 함수
     void FindPlayer()
     {
         if (player == null || !player.gameObject.activeInHierarchy)
@@ -159,8 +169,6 @@ public class Boss2 : BossMonsterBase
         {
             if (playerScript != null)
             {
-                // 공격 모션 분기 (스탯 변경은 없지만, 모션은 다양화를 위해 유지)
-                // 만약 모션도 1개로 통일하고 싶다면 if-else를 지우고 Attack1만 남기면 됩니다.
                 if (currentHealth > maxHealth / 2)
                 {
                     if (animator != null) animator.SetTrigger("Attack1");
@@ -171,7 +179,6 @@ public class Boss2 : BossMonsterBase
                 {
                     if (animator != null) animator.SetTrigger("Attack2");
                     PlayGlobalSound(attack2Clip);
-                    // 데미지는 기본 데미지의 2배 적용 (원래 로직 유지)
                     playerScript.TakeDamage(attackDamage * 2);
                 }
                 lastAttackTime = Time.time;
@@ -195,18 +202,21 @@ public class Boss2 : BossMonsterBase
 
         if (animator != null) animator.SetTrigger("Die");
         
-        rb.isKinematic = true;
-        rb.velocity = Vector3.zero;
-        GetComponent<Collider>().enabled = false;
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.velocity = Vector3.zero;
+        }
+
+        var col = GetComponent<Collider>();
+        if (col != null) col.enabled = false;
 
         KillCounter.Instance?.AddBossKill();
 
+        spawnedRoom.NotifyMonsterDied(this.gameObject);
+
         Destroy(gameObject, 3f); 
     }
-
-    // -----------------------------------------------------------------------
-    // Boss2 고유 기능 (오디오 페이드, 글로벌 사운드)
-    // -----------------------------------------------------------------------
 
     void HandleFadeSound(bool isMoving)
     {

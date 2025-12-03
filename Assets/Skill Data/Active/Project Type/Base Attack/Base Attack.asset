@@ -17,10 +17,12 @@ MonoBehaviour:
   descriptionTemplate: Launches a fireball in the target direction that deals {damage}
     to the first enemy hit.
   baseValue: 0
-  coefficient: 0.8
+  coefficient: 1
   baseCooldown: 0
   cooldownDecreasePerStar: 1
-  prepareTime: 0.1
+  secondStarBonus: 0.4
+  thirdStarBonus: 1
+  prepareTime: 0.01
   castTime: 0
   animationTypes: 08000000
   castClip: {fileID: 8300000, guid: e3298e35eed19c942b6f4d2d41cd21ba, type: 3}

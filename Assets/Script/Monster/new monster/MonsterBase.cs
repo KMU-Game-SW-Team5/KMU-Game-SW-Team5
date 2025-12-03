@@ -2,6 +2,18 @@ using UnityEngine;
 
 public abstract class MonsterBase : MonoBehaviour
 {
+    [Header("=== Difficulty Scaling ===")]
+    [Tooltip("보스를 잡을 때마다 증가하는 비율(0.2면 20% 증가")]
+    protected float healthMultiplier = 0.5f;
+    protected float damageMultiplier = 0.5f;
+
+    // 입력한 값만큼 체력과 공격력에 배율 적용
+    public void SetDifficulty(int difficultyLevel)
+    {
+        maxHealth *= (int)(healthMultiplier * (float)difficultyLevel);
+        currentHealth = maxHealth;
+        attackDamage *= (int)(damageMultiplier * (float)difficultyLevel);
+    }
     [Header("=== HP ===")]
     public int maxHealth = 1000;
     protected float currentHealth;

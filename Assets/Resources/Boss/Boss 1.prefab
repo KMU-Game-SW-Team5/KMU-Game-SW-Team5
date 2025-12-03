@@ -150,14 +150,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 523f6ee94275bb74cba5701126c96e0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100000
-  exp: 100
+  maxHealth: 10000
+  exp: 1000
   moveSpeed: 30
   isFlying: 0
   detectionRange: 1000
   attackRange: 100
   lockYToSelf: 1
-  attackDamage: 10
+  attackDamage: 30
   attackCooldown: 1
   deathAnimationDuration: 3
   Color_AdditionalDamage: {r: 1, g: 0.4, b: 0.4, a: 1}
@@ -165,8 +165,10 @@ MonoBehaviour:
   additionalDamageRate: 0
   damageTextAnchor: {fileID: 4145160905026327524}
   isCCImmune: 1
+  healthMultiplier: 1
+  damageMultiplier: 0.2
   hasEnteredPhase2: 0
-  phase2Threshold: 50000
+  phase2Threshold: 5000
   phase2AttackRange: 200
   phase2RiseHeight: 100
   phase2RiseDuration: 2

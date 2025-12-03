@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1724673531392828874}
   - component: {fileID: 1666993418016072022}
+  - component: {fileID: 1016021661559240377}
   m_Layer: 0
   m_Name: MapMaker
   m_TagString: Untagged
@@ -44,12 +45,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b899dfb1e5142bc04a182b3ed284a00a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  navMeshSurface: {fileID: 1016021661559240377}
   roomCount: 20
   roomSize: 40
   floor: {fileID: 8368730452213065613, guid: f2472ab0bab8c2091a3256d67e1b90f7, type: 3}
   wall: {fileID: 3098698459111696107, guid: 9365670580c6b0f7f94ac7642fe2d6bc, type: 3}
   wallDoor: {fileID: 7891159075151969132, guid: 27f0420f6fb56753696ccb3b35815626, type: 3}
   ceiling: {fileID: 8368730452213065613, guid: 4ff4717d98446913fb05bebeab1f30f9, type: 3}
-  boss: {fileID: 6072527696459845188, guid: 5994ca917e5b2e94b8dbcd745e4a7c6a, type: 3}
   monsterMin: 15
   monsterMax: 15
+  alreadyRoomsCreated: 0
+--- !u!114 &1016021661559240377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580661432080838635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 513
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 0}
+  m_BuildHeightMesh: 0

@@ -7,8 +7,8 @@ using UnityEngine;
 public class Boss3 : BossMonsterBase
 {
     [Header("Boss 3 Settings")]
-    [SerializeField] private float detectionRange = 300f;
-    [SerializeField] private float attackCooldown = 2f;
+    [SerializeField] private float detectionRangeOverride = 300f;
+    [SerializeField] private float attackCooldownOverride = 2f;
 
     [Header("Boss 3 Attack Settings")]
     public GameObject bulletPrefab; 
@@ -25,14 +25,24 @@ public class Boss3 : BossMonsterBase
     [SerializeField] private AudioClip attack1Clip; 
     [SerializeField] private AudioClip attack2Clip;
 
-    // Boss3Controller의 고유 변수들
+    // Boss3 고유 변수들
     private bool isPhase2 = false; 
     private float lastProgress = 0f; 
 
     protected void Start()
     {
+        // 부모(MonsterBase)의 detectionRange에 override 값 반영
+        if (detectionRangeOverride > 0f)
+        {
+            detectionRange = detectionRangeOverride;
+        }
 
-        // [Boss3 설정] Rigidbody
+        if (attackCooldownOverride > 0f)
+        {
+            attackCooldown = attackCooldownOverride;
+        }
+
+        // Rigidbody 초기화
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
@@ -41,7 +51,7 @@ public class Boss3 : BossMonsterBase
             rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         }
         
-        // [Boss3 설정] AudioSource
+        // AudioSource 초기화
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
 
         if (animator == null) animator = GetComponentInChildren<Animator>();
@@ -50,7 +60,6 @@ public class Boss3 : BossMonsterBase
         InvokeRepeating("FindPlayer", 0f, 0.5f);
     }
 
-    // Boss3Controller의 Update 로직 (2페이즈 진입 감지)
     protected override void Update()
     {
         base.Update(); // 부모 Update 호출
@@ -64,7 +73,6 @@ public class Boss3 : BossMonsterBase
         }
     }
 
-    // Boss3Controller의 FixedUpdate 로직 통합
     protected override void FixedUpdate()
     {
         if (isDead) return; 
@@ -253,6 +261,9 @@ public class Boss3 : BossMonsterBase
         GetComponent<Collider>().enabled = false;
 
         KillCounter.Instance?.AddBossKill();
+
+
+        spawnedRoom.NotifyMonsterDied(this.gameObject);
 
         Destroy(gameObject, 3f); // deathAnimationDuration
     }
