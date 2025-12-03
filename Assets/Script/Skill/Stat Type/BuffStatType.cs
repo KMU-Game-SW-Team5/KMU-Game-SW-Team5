@@ -1,13 +1,15 @@
 public enum BuffStatType
 {
-    Heal,               // È¸º¹
-    IncreaseMaxHealth,  // ÃÖ´ë Ã¼·Â Áõ°¡
-    Magic,          // ¸¶·Â
-    MoveSpeed,      // ÀÌµ¿ ¼Óµµ
-    AttackSpeed,    // °ø°İ ¼Óµµ
-    PermanentMagic, // ¸¶·Â ¿µ±¸
-    PermanentMoveSpeed,   // ÀÌ¼Ó ¿µ±¸
-    permanentAttackSpeed,   // °ø¼Ó ¿µ±¸
-    CoolDownSpeed,  // Äğ°¨ ¼Óµµ Áõ°¡
-    CoolDownDecrase // ÄğÅ¸ÀÓ °íÁ¤ °¨¼Ò
+    Heal,               // íšŒë³µ
+    IncreaseMaxHealth,  // ìµœëŒ€ ì²´ë ¥ ì¦ê°€
+    Magic,          // ë§ˆë ¥
+    MoveSpeed,      // ì´ë™ ì†ë„
+    AttackSpeed,    // ê³µê²© ì†ë„
+    PermanentMagic, // ë§ˆë ¥ ì˜êµ¬
+    CritRate,       // ì¹˜ëª…íƒ€ í™•ë¥ 
+    CritDamage,     // ì¹˜ëª…íƒ€ ë°ë¯¸ì§€
+    PermanentMoveSpeed,   // ì´ì† ì˜êµ¬
+    permanentAttackSpeed,   // ê³µì† ì˜êµ¬
+    CoolDownSpeed,  // ì¿¨ê° ì†ë„ ì¦ê°€
+    CoolDownDecrase // ì¿¨íƒ€ì„ ê³ ì • ê°ì†Œ
 }

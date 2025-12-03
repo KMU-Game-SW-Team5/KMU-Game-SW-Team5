@@ -19,10 +19,19 @@ public class CombatUIManager : MonoBehaviour
     [Header("Stat Panel")]
     [SerializeField] private TextMeshProUGUI magicStatText;
     [SerializeField] private TextMeshProUGUI attackSpeedText;
+    [SerializeField] private TextMeshProUGUI criticalRateText;
+    [SerializeField] private TextMeshProUGUI criticalDamageText;
+    [SerializeField] private TextMeshProUGUI moveSpeedText; // 현재 이동속도 퍼센트 표시
+
+    [SerializeField] private MoveController moveController;
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+
+        // 한 번만 찾아서 캐시
+        moveController = FindObjectOfType<MoveController>();
     }
 
     private void Update()
@@ -31,9 +40,20 @@ public class CombatUIManager : MonoBehaviour
         SkillPanel.Instance.Toggle(Input.GetKey(KeyCode.Tab));
 
         // 추후 최적화 할 것
-        magicStatText.text = SkillManager.Instance.GetMagicStat().ToString();
-        attackSpeedText.text = FormatStat(SkillManager.Instance.GetAttackSpeed());
+        if (SkillManager.Instance != null)
+        {
+            magicStatText.text = SkillManager.Instance.GetMagicStat().ToString();
+            attackSpeedText.text = FormatStat(SkillManager.Instance.GetAttackSpeed());
+            // 치명타 관련 텍스트 갱신
+            criticalRateText.text = SkillManager.Instance.GetCritRateText();
+            criticalDamageText.text = SkillManager.Instance.GetCritDamageText();
+        }
 
+        // 이동속도 퍼센트 표시 업데이트
+        if (moveController != null && moveSpeedText != null)
+        {
+            moveSpeedText.text = moveController.GetMoveSpeedText();
+        }
     }
 
     // 필요한 만큼 소수 표시

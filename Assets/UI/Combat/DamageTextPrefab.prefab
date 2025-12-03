@@ -180,7 +180,7 @@ MonoBehaviour:
   maxFontSize: 60
   fontSizeScaler: 100
   lowDamageColor: {r: 1, g: 1, b: 1, a: 1}
-  highDamageColor: {r: 1, g: 0.2, b: 0.2, a: 1}
+  highDamageColor: {r: 1, g: 0.90196085, b: 0.20000002, a: 1}
   fontColorScaler: 30
-  critColor: {r: 1, g: 0.9, b: 0.2, a: 1}
+  critColor: {r: 0.9339623, g: 0.118948035, b: 0.23313853, a: 1}
   critFontScale: 1.3

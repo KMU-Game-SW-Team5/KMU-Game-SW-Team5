@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BuffApplier : MonoBehaviour
 {
-    [Header("ÂüÁ¶")]
+    [Header("ì°¸ì¡°")]
     [SerializeField] private MoveController moveController;
 
     private void Awake()
@@ -12,13 +12,13 @@ public class BuffApplier : MonoBehaviour
             moveController = GetComponent<MoveController>();
     }
 
-    // ÀÔ·Â ½Ã°£ µ¿¾È Àû¿ë
+    // ì…ë ¥ ì‹œê°„ ë™ì•ˆ ì ìš©
     public void ApplyBuffFor(BuffStatType statType, float amount, float duration)
     {
         StartCoroutine(BuffRoutine(statType, amount, duration));
     }
 
-    // ¿µ±¸ Àû¿ë
+    // ì˜êµ¬ ì ìš©
     public void ApplyBuff(BuffStatType type, float amount)
     {
         AddBuff(type, amount);
@@ -26,12 +26,12 @@ public class BuffApplier : MonoBehaviour
 
     private IEnumerator BuffRoutine(BuffStatType statType, float amount, float duration)
     {
-        // ¹öÇÁ Àû¿ë
+        // ë²„í”„ ì ìš©
         AddBuff(statType, amount);
 
         yield return new WaitForSeconds(duration);
 
-        // ¹öÇÁ ÇØÁ¦ (°°Àº ¾çÀ» ¹İ´ë·Î Àû¿ë)
+        // ë²„í”„ í•´ì œ (ê°™ì€ ì–‘ì„ ë°˜ëŒ€ë¡œ ì ìš©)
         AddBuff(statType, -amount);
     }
 
@@ -51,25 +51,37 @@ public class BuffApplier : MonoBehaviour
                 SkillManager.Instance.AddAttackSpeed(amount);
                 break;
 
+            case BuffStatType.CritRate:
+                SkillManager.Instance.AddCritRate(amount);
+                break;
 
-            //case BuffStatType.MoveSpeed:
-            //    if (moveController != null)
-            //    {
-            //        moveController.AddMoveSpeed(amount);
-            //    }
-            //    break;
+            case BuffStatType.CritDamage:
+                SkillManager.Instance.AddCritDamage(amount);
+                break;
 
-            //case BuffStatType.AttackSpeed:
-            //    if (skillManager != null)
-            //    {
-            //        skillManager.AddAttackSpeed(amount);
-            //    }
-            //    break;
+            case BuffStatType.MoveSpeed:
+                moveController.AddMoveSpeed(amount);
+                break;
 
-            //case BuffStatType.Defense:
-            //    // ³ªÁß¿¡ ¹æ¾î·Â ½Ã½ºÅÛÀ» ¸¸µé¸é ¿©±â¼­ À§ÀÓ
-            //    // if (playerDefense != null) playerDefense.AddDefense(amount);
-            //    break;
+
+                //case BuffStatType.MoveSpeed:
+                //    if (moveController != null)
+                //    {
+                //        moveController.AddMoveSpeed(amount);
+                //    }
+                //    break;
+
+                //case BuffStatType.AttackSpeed:
+                //    if (skillManager != null)
+                //    {
+                //        skillManager.AddAttackSpeed(amount);
+                //    }
+                //    break;
+
+                //case BuffStatType.Defense:
+                //    // ë‚˜ì¤‘ì— ë°©ì–´ë ¥ ì‹œìŠ¤í…œì„ ë§Œë“¤ë©´ ì—¬ê¸°ì„œ ìœ„ì„
+                //    // if (playerDefense != null) playerDefense.AddDefense(amount);
+                //    break;
         }
     }
 }

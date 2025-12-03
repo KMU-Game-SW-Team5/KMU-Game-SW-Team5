@@ -28,9 +28,12 @@ public class InGameUIManager : MonoBehaviour
     [SerializeField] EntryUI playerEntryUI;
     [Header("Options UI")]
     [SerializeField] OptionsPanel optionsUI;
+    [SerializeField] KeyCode optionToggleKey = KeyCode.Escape;
     [Header("FullMap UI")]
     [SerializeField] MinimapUI minimapUI;
     [SerializeField] GameObject fullMap;
+    [SerializeField] KeyCode fullMapToggleKey = KeyCode.C;
+
     [Header("Etc")]
     [SerializeField] WaveTimerUI waveTimerUI;
     [HideInInspector] public List<SkillSlotUI> skillSlots = new List<SkillSlotUI>();    // 동적 List
@@ -87,16 +90,17 @@ public class InGameUIManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(optionToggleKey))
         {
             ToggleOptionsPanel();
         }
 
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            ToggleFullMap();
-        }
+        // 전체 맵: 누르고 있는 동안만 보이도록 변경
+        bool mapKeyHeld = Input.GetKey(fullMapToggleKey);
+        ToggleFullMap(mapKeyHeld);
     }
+
+
 
     //void OnEnable()
     //{
@@ -192,10 +196,30 @@ public class InGameUIManager : MonoBehaviour
     // -----------------------------
     // About FullMap
     // -----------------------------
+    // 기존 토글(다른 코드에서 사용될 수 있으니 유지)
     public void ToggleFullMap()
     {
+        if (fullMap == null) return;
         fullMap.SetActive(!fullMap.activeSelf);
     }
+
+    // SkillPanel.Toggle(bool)와 동일한 동작: show가 true일 때 열고, false일 때 닫음
+    public void ToggleFullMap(bool show)
+    {
+        if (fullMap == null) return;
+
+        bool isOpen = fullMap.activeSelf;
+
+        if (show && !isOpen)
+        {
+            fullMap.SetActive(true);
+        }
+        else if (!show && isOpen)
+        {
+            fullMap.SetActive(false);
+        }
+    }
+
     public void UpdateCurrentRoom(Vector2Int gridPos)
     {
         foreach (var ui in MinimapUI.Instances)

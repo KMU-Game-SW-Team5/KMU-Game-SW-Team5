@@ -74,22 +74,31 @@ public class SkillManager : MonoBehaviour
     // =========================================치명타 관련=========================================================
     [Header("치명타 설정")]
     [SerializeField, Tooltip("기본 치명타 확률(%)")]
-    private float baseCritChance = 5f;      // 예: 5%
+    private float baseCritRate = 5f;      // 예: 5%
     [SerializeField, Tooltip("기본 치명타 피해 배율 (2.0 = 200%)")]
     private float baseCritDamage = 2.0f;    // 예: 2배
     // 런타임 현재 값
-    private float currentCritChance;        // % 단위 (0~100)
+    private float currentCritRate;        // % 단위 (0~100)
     private float currentCritDamage;        // 배율 (2.0 = 2배)
-    public float CritChance => currentCritChance;
+    public float CritRate => currentCritRate;
+    public string GetCritRateText() => CritRate.ToString("F0") + "%";
+    public string GetCritDamageText() => (CritDamage*100).ToString("F0") + "%";
     public float CritDamage => currentCritDamage;
-    public void AddCritChance(float delta) { currentCritChance += delta; }
-    public void AddCritDamage(float delta) { currentCritDamage += delta; }
-    public void SetCritChance(float value) {  currentCritChance = value; }
-    public void SetCritDamage(float value) { currentCritDamage = value; }
+
+    // 크확 % 증가. 최대 100%
+    public void AddCritRate(float percent) => currentCritRate = Mathf.Min(currentCritRate + percent, 100);
+
+    // 크뎀 % 증가.
+    public void AddCritDamage(float percent)
+    {
+        Debug.Log("currentCritDamage before: " + currentCritDamage);
+        currentCritDamage += (percent / 100);
+        Debug.Log("currentCritDamage after: " + currentCritDamage);
+    }
     // 기본값으로 리셋 (버프 초기화용)
     public void ResetCritStats()
     {
-        currentCritChance = baseCritChance;
+        currentCritRate = baseCritRate;
         currentCritDamage = baseCritDamage;
     }
 
@@ -97,7 +106,7 @@ public class SkillManager : MonoBehaviour
     public float GetCritMultiplier(out bool isCritical)
     {
         // 치명타 확률이 0 이하이면 증폭 안함
-        if (currentCritChance <= 0f)
+        if (currentCritRate <= 0f)
         {
             isCritical = false;
             return 1f;
@@ -105,7 +114,7 @@ public class SkillManager : MonoBehaviour
 
         // 치명타 확률 안에 들어가면 치명타 데미지 리턴
         float roll = Random.Range(0f, 100f);  // 0 이상 100 미만
-        if (roll < currentCritChance)
+        if (roll < currentCritRate)
         {
             isCritical = true;
             return currentCritDamage;    // 예: 2.1f
@@ -203,6 +212,10 @@ public class SkillManager : MonoBehaviour
         InitalizeActiveSkills();
         if (skillAudioSource == null) skillAudioSource = GetComponent<AudioSource>();
         if (inputManager == null) inputManager = GetComponent<InputManager>();
+
+        // 치명타 기본값을 가능한 한 빨리 초기화하여
+        // 다른 컴포넌트가 Awake() 단계에서 AddCrit* 를 호출해도 안전하도록 함.
+        ResetCritStats();
     }
 
     private void Start()
@@ -255,8 +268,8 @@ public class SkillManager : MonoBehaviour
 
     private void Update()
     {
-        // 테스트용 코드
-        TestMethodsInUpdate();
+        //// 테스트용 코드
+        //TestMethodsInUpdate();
 
         // 쿨타임 갱신
         UpdateSkillsCooldown();

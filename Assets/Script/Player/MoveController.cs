@@ -11,8 +11,18 @@ public class MoveController : MonoBehaviour
     [SerializeField] private float minLookAngle = -6f;
 
     [Header("Movement Settings")]
-    [SerializeField] private float walkSpeed = 5.0f;
-    [SerializeField] private float runSpeed = 10.0f;
+    [SerializeField, Tooltip("기본(디폴트) 걷기 속도. 게임 시작 및 '디폴트 기준' 증감은 이 값을 기준으로 합니다.")]
+    private float defaultWalkSpeed = 5.0f;
+
+    // 런타임에서 사용하는 현재 걷기 속도(디폴트와 구분)
+    private float walkSpeed;
+
+    // 현재 이동속도를 백분율로 저장 (초기값 100 = 100%)
+    private float moveSpeedPercent = 100f;
+
+    // runSpeed는 항상 walkSpeed의 2배가 되어야 하므로 값을 직접 저장하지 않고 프로퍼티로 계산함
+    private float RunSpeed => walkSpeed * 2f;
+
     [SerializeField] private float jumpForce = 8.0f;
     [SerializeField] private float gravity = -20.0f;
 
@@ -60,6 +70,15 @@ public class MoveController : MonoBehaviour
     private void Start()
     {
         playerAnimation = GetComponent<PlayerAnimation>();
+
+        // 시작 시 디폴트 속도로 현재 속도를 초기화
+        if (defaultWalkSpeed < 0f) defaultWalkSpeed = 0f;
+
+        // 초기 퍼센트는 100%
+        moveSpeedPercent = 100f;
+        // 현재 walkSpeed는 default 기준에 퍼센트 적용
+        walkSpeed = defaultWalkSpeed * (moveSpeedPercent / 100f);
+        // RunSpeed는 프로퍼티로 계산되므로 별도 초기화 불필요
     }
 
     void Update()
@@ -90,7 +109,7 @@ public class MoveController : MonoBehaviour
             velocity.y = -2f;
         }
 
-        float currentSpeed = isRunning ? runSpeed : walkSpeed;
+        float currentSpeed = isRunning ? RunSpeed : walkSpeed;
         Vector3 moveDirection = (transform.right * moveInput.x + transform.forward * moveInput.y).normalized;
 
         controller.Move(moveDirection * currentSpeed * Time.deltaTime);
@@ -298,4 +317,22 @@ public class MoveController : MonoBehaviour
             playerAnimation.SetAnimation(AnimationType.Jump);
         }
     }
+
+    // 디폴트 속도를 기준으로 현재 이동 속도의 퍼센트를 변경.
+    // moveSpeedPercent는 기본 100이며, AddMoveSpeed(5) 호출 시 5만큼 증가 => 105.
+    // percent는 퍼센트 포인트 단위로 입력 (예: 20 => +20%).
+    public void AddMoveSpeed(float percent)
+    {
+        moveSpeedPercent += percent;
+        if (moveSpeedPercent < 0f) moveSpeedPercent = 0f;
+
+        // 퍼센트 변경에 따라 현재 walkSpeed 갱신 (기본 속도를 기준으로)
+        walkSpeed = defaultWalkSpeed * (moveSpeedPercent / 100f);
+    }
+
+    // 현재 이동속도 퍼센트 반환 (예: 105)
+    public float GetMoveSpeedPercent() => moveSpeedPercent;
+
+    // 현재 이동속도 퍼센트를 텍스트로 반환. 예: "105%"
+    public string GetMoveSpeedText() => GetMoveSpeedPercent().ToString("F0") + "%";
 }
