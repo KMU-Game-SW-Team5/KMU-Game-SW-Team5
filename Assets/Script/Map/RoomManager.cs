@@ -270,10 +270,10 @@ public class RoomManager : MonoBehaviour
             GameObject selectedMonster = monsterPrefabs[Random.Range(0, monsterPrefabs.Length)];
 
             // [복구됨] 방 scale에 맞춰서 랜덤 생성 (이미지의 빨간색 영역)
-            float range = 2.0f;
+            float range = 1.0f;
             Vector3 randomPos = new Vector3(
                 Random.Range(-range, range),
-                10, // 원래 코드에 있던 고정 높이값
+                0, // 원래 코드에 있던 고정 높이값
                 Random.Range(-range, range)
             );
 

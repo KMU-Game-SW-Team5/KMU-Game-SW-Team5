@@ -6,10 +6,14 @@ public class ActiveSkillDeckSO : ScriptableObject
 {
     [Header("초기 카드 풀 (디자인용, 인스펙터에서 세팅)")]
     [SerializeField] private List<ActiveSkillBase> initialCards = new();
+    public IReadOnlyList<ActiveSkillBase> InitialCards => initialCards;
 
     // 🔹 런타임에서만 사용하는 작업용 리스트 (씬/플레이마다 리셋)
     [SerializeField]
     private List<ActiveSkillBase> runtimeCards = new();
+
+    // 🔹 런타임 덱에 들어있는 카드 개수 (중복 액티브 덱에서 사용)
+    public int RuntimeCount => runtimeCards?.Count ?? 0;
 
     private void OnEnable()
     {
@@ -93,5 +97,4 @@ public class ActiveSkillDeckSO : ScriptableObject
             runtimeCards.Add(card);
     }
 
-    public IReadOnlyList<ActiveSkillBase> InitialCards => initialCards;
 }

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using TMPro;
 
 public class DamageTextUI : MonoBehaviour
@@ -7,9 +7,9 @@ public class DamageTextUI : MonoBehaviour
     [SerializeField] private float lifeTime = 0.7f;
     [SerializeField] private GameObject DamageTextObjectRef;
 
-
     [Header("스크린 좌표에서 상하좌우 랜덤 오프셋 범위 (픽셀)")]
     [SerializeField] private float screenJitterRadius = 40f;    // 좌우/상하 랜덤
+
     [Header("위로 떠오르는 픽셀 거리")]
     [SerializeField] private float floatUpPixels = 40f;
 
@@ -28,7 +28,9 @@ public class DamageTextUI : MonoBehaviour
     [SerializeField] private Color highDamageColor = new Color(1f, 0.2f, 0.2f); // 강한 피해(진한 빨강)
     [SerializeField] private float fontColorScaler = 100f;                 // 색 변화 스케일
 
-
+    [Header("크리티컬 연출")]
+    [SerializeField] private Color critColor = new Color(1f, 0.9f, 0.2f);   // 크리티컬 전용 강조 색
+    [SerializeField] private float critFontScale = 1.3f;                    // 크리티컬 시 폰트 크기 배율 (1.3 = 30% 증가)
 
     private Transform target;          // 몬스터가 넘겨준 기준점(머리 위치용)
     private float timer = 0f;
@@ -45,24 +47,26 @@ public class DamageTextUI : MonoBehaviour
             text.text = Mathf.RoundToInt(damage).ToString();
 
             // 🔸 1) 데미지를 0~1로 압축하는 포화 함수
-            // t_font  : 폰트 크기용
-            // t_color : 색상용
             float t_font = damage / (damage + fontSizeScaler);
             float t_color = damage / (damage + fontColorScaler);
 
             // 🔸 2) 폰트 크기 보간
             float fontSize = Mathf.Lerp(minFontSize, maxFontSize, t_font);
-            text.fontSize = fontSize;
 
             // 🔸 3) 기본 색상(데미지에 따른 색)
             Color baseColor = Color.Lerp(lowDamageColor, highDamageColor, t_color);
 
-            // 🔸 4) 크리티컬이면 추가 튜닝 (현재 미구현)
+            // 🔸 4) 크리티컬이면 추가 연출 (폰트 더 크게 + 색상 변경)
             if (isCritical)
             {
-                // 이걸 할 일이 있을까?
+                // 폰트 조금 더 키우기
+                fontSize *= critFontScale;
+
+                // 기존 색과 크리티컬 색을 섞어서 더 눈에 띄게
+                baseColor = Color.Lerp(baseColor, critColor, 0.8f);
             }
 
+            text.fontSize = fontSize;
             text.color = baseColor;   // RGB 세팅 (알파는 UpdateVisual에서 따로 처리)
         }
 
@@ -70,8 +74,6 @@ public class DamageTextUI : MonoBehaviour
         screenOffset = Random.insideUnitCircle * screenJitterRadius;
         UpdateVisual(0f);   // 첫 프레임 렌더 전에 바로 위치/알파 세팅
     }
-
-
 
     private void Update()
     {
