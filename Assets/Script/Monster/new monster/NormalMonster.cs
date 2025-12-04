@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+// NavMeshAgent를 사용하지 않고 Rigidbody로만 이동할 경우,
+// 장애물 충돌은 Rigidbody와 Collider에 의존합니다.
+// 몬스터가 겹치지 않게 하려면 Rigidbody의 Y축 움직임을 제한합니다.
 [RequireComponent(typeof(AudioSource))]
 public class NormalMonster : MonsterBase
 {
@@ -34,13 +37,17 @@ public class NormalMonster : MonsterBase
             audioSource.spatialBlend = 1f;
         }
 
-        // Rigidbody 설정 강제 교정 (코드로 해결)
+        // Rigidbody 설정 강제 교정
         if (rb != null)
         {
             rb.isKinematic = false; // 물리 켜기
             rb.useGravity = true;   // 중력 켜기
-            // 회전만 잠그고 위치 이동은 허용
-            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            
+            // ★ 수정: 몬스터가 다른 몬스터 위로 올라타거나 공중에 뜨는 것을 방지
+            // Y축 위치 잠금 (FreezePositionY) 추가
+            rb.constraints = RigidbodyConstraints.FreezeRotationX | 
+                             RigidbodyConstraints.FreezeRotationZ |
+                             RigidbodyConstraints.FreezePositionY; // Y축 위치 이동 잠금
         }
 
         // 초기 배회 타이머
@@ -129,7 +136,7 @@ public class NormalMonster : MonsterBase
         }
     }
 
-    // ★ 이동 로직 (부모 클래스 대신 직접 작성하여 문제 원인 차단)
+    // ★ 수정된 이동 로직 (맵 통과 버그 완화를 위해 velocity 사용)
     protected new void MoveTowards(Vector3 target)
     {
         if (rb == null) return;
@@ -139,16 +146,10 @@ public class NormalMonster : MonsterBase
         lookPos.y = transform.position.y; // 높이는 무시하고 수평 회전
         transform.LookAt(lookPos);
 
-        // 2. 이동 (MovePosition 사용)
+        // 2. 이동 (velocity 사용: 물리 엔진에 이동을 맡겨 충돌 감지 활용)
         Vector3 dir = (target - transform.position).normalized;
-        
-        // 현재 위치에서 목표 방향으로 조금 이동한 위치 계산
-        Vector3 nextPos = transform.position + (dir * moveSpeed * Time.fixedDeltaTime);
-        
-        // Y축(높이)은 현재 높이 유지 (바닥 꺼짐 방지)
-        nextPos.y = transform.position.y; 
-
-        rb.MovePosition(nextPos);
+        // Y축 속도는 0으로 설정하여 현재 높이 유지 (FreezePositionY와 시너지)
+        rb.velocity = new Vector3(dir.x * moveSpeed, 0f, dir.z * moveSpeed);
     }
 
     private void DoPatrol()
@@ -162,6 +163,8 @@ public class NormalMonster : MonsterBase
                 isPatrolMoving = false;
                 patrolTimer = patrolWaitTime;
                 SetMoveAnimation(false);
+                // 이동이 끝났으면 멈추기
+                if (rb != null) rb.velocity = Vector3.zero; 
             }
             else
             {
@@ -171,6 +174,8 @@ public class NormalMonster : MonsterBase
                 Vector2 randomCircle = Random.insideUnitCircle.normalized;
                 Vector3 randomDir = new Vector3(randomCircle.x, 0, randomCircle.y);
                 patrolTargetPosition = transform.position + randomDir * 5f;
+                // ★ 수정: 목표 위치의 Y축을 현재 몬스터의 Y축으로 고정
+                patrolTargetPosition.y = transform.position.y;
             }
         }
 
