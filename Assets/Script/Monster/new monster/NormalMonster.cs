@@ -63,7 +63,7 @@ public class NormalMonster : MonsterBase
         {
             if(agent.isOnNavMesh) agent.isStopped = true;
             SetMoveAnimation(false);
-            return;
+            
         }
 
         float distance = Vector3.Distance(transform.position, player.position);
