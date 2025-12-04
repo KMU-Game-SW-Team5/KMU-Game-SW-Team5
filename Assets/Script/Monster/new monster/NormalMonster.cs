@@ -194,7 +194,7 @@ public class NormalMonster : MonsterBase
         if (lockYToSelf) lookPos.y = transform.position.y;
         transform.LookAt(lookPos);
 
-        if (animator != null) animator.SetTrigger("BasicAttack"); 
+        if (animator != null) animator.SetTrigger("Attack"); 
         PlayOneShotSound(attackClip);
         ApplyBasicAttackToPlayer();
     }
