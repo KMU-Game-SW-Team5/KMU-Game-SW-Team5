@@ -6439,7 +6439,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8356257967704896390}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 5aa80429de8d44f90b434fc1291e0d30, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -6515,6 +6515,7 @@ MonoBehaviour:
   audioSource: {fileID: 6576892519391648609}
   walkClips:
   - {fileID: 8300000, guid: 7c518e8469a403b4c981664ecb28a79a, type: 3}
+  attackClip: {fileID: 0}
   deathClip: {fileID: 8300000, guid: f86d4d44eb7f16c4ba0dc0c337a6f337, type: 3}
   walkSoundVolume: 0.1
 --- !u!82 &6576892519391648609

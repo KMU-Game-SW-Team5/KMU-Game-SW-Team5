@@ -1054,7 +1054,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4760060167350795485}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 5aa80429de8d44f90b434fc1291e0d30, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1101,6 +1101,7 @@ MonoBehaviour:
   audioSource: {fileID: 3567104805057595423}
   walkClips:
   - {fileID: 8300000, guid: ebc13f2fc3212444c99c40873118b63d, type: 3}
+  attackClip: {fileID: 0}
   deathClip: {fileID: 8300000, guid: f86d4d44eb7f16c4ba0dc0c337a6f337, type: 3}
   walkSoundVolume: 0.1
 --- !u!82 &3567104805057595423
