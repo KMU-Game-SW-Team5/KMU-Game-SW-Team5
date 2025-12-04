@@ -60,7 +60,7 @@ MonoBehaviour:
   description: {fileID: 6730838781068613181}
   stars: {fileID: 6356225032731782372}
   starPrefab: {fileID: 7942188361662521722, guid: 0fed17e52fd52db4999b0480f06056e0, type: 3}
-  activeSKillPercent: 20
+  activeSKillPercent: 30
 --- !u!114 &122514170224195352
 MonoBehaviour:
   m_ObjectHideFlags: 0

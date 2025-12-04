@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 523f6ee94275bb74cba5701126c96e0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10000
+  maxHealth: 30000
   exp: 1000
   moveSpeed: 30
   isFlying: 0
@@ -167,7 +167,7 @@ MonoBehaviour:
   damageTextAnchor: {fileID: 4145160905026327524}
   isCCImmune: 1
   hasEnteredPhase2: 0
-  phase2Threshold: 5000
+  phase2Threshold: 15000
   phase2AttackRange: 200
   audioSource: {fileID: 8402963082270903756}
   walkClips:

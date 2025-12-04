@@ -281,7 +281,7 @@ public class RoomManager : MonoBehaviour
             float range = 1.0f;
             Vector3 randomPos = new Vector3(
                 Random.Range(-range, range),
-                0, // 원래 코드에 있던 고정 높이값
+                1, // 원래 코드에 있던 고정 높이값
                 Random.Range(-range, range)
             );
 

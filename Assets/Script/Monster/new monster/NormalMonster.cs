@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 [RequireComponent(typeof(AudioSource))]
@@ -40,7 +40,6 @@ public class NormalMonster : MonsterBase
             rb.isKinematic = false; // 물리 켜기
             rb.useGravity = true;   // 중력 켜기
             // 회전만 잠그고 위치 이동은 허용
-            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         }
 
         // 초기 배회 타이머
