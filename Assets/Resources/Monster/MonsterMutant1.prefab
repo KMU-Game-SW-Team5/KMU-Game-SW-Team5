@@ -6361,7 +6361,6 @@ GameObject:
   - component: {fileID: 5435836412188418645}
   - component: {fileID: 1043927589351098807}
   - component: {fileID: 4222296884759190761}
-  - component: {fileID: -474496693028300386}
   - component: {fileID: 6576892519391648609}
   m_Layer: 0
   m_Name: MonsterMutant1
@@ -6479,7 +6478,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
@@ -6510,34 +6509,14 @@ MonoBehaviour:
   additionalDamageRate: 0
   damageTextAnchor: {fileID: 2669299936233055319}
   isCCImmune: 0
+  minPatrolMoveTime: 1
+  maxPatrolMoveTime: 3
+  patrolWaitTime: 2
   audioSource: {fileID: 6576892519391648609}
   walkClips:
   - {fileID: 8300000, guid: 7c518e8469a403b4c981664ecb28a79a, type: 3}
-  attackClip: {fileID: 8300000, guid: 7ce1b3f097fe6dd4380d393b87e1f044, type: 3}
   deathClip: {fileID: 8300000, guid: f86d4d44eb7f16c4ba0dc0c337a6f337, type: 3}
   walkSoundVolume: 0.1
---- !u!195 &-474496693028300386
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8356257967704896390}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 40
-  m_Acceleration: 80
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!82 &6576892519391648609
 AudioSource:
   m_ObjectHideFlags: 0

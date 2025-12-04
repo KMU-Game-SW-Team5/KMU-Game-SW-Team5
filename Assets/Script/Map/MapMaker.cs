@@ -1,12 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.AI.Navigation;
 using UnityEngine;
 
 public class MapMaker : MonoBehaviour
 {
-    public NavMeshSurface navMeshSurface;
+    
     [Header("방의 개수")]
     public int roomCount = 10;              // 생성할 방의 개수
 
@@ -51,20 +50,9 @@ public class MapMaker : MonoBehaviour
         RoomManagerInitailize();
 
         Debug.Log("맵 배치 완료.");
-
-        // [핵심] 맵과 장애물이 다 깔린 뒤에 네비게이션 굽기 실행
-        if (navMeshSurface != null)
-        {
-            navMeshSurface.BuildNavMesh();
-            Debug.Log("NavMesh 굽기 완료 (파란색 지도가 생성됨)");
-
-            alreadyRoomsCreated=true;
-            OnRoomsCreated?.Invoke();
-        }
-        else
-        {
-            Debug.LogError("NavMeshSurface가 연결되지 않았습니다!");
-        }
+        alreadyRoomsCreated = true;
+        OnRoomsCreated?.Invoke();
+        
     }
 
     void ApplyDifficulty()

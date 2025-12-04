@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.AI; // [필수 추가] NavMesh 관련 기능을 위해 추가
 
 // 방의 종류와 상태 정의
 public enum RoomType { Start, Normal, Boss }
@@ -241,9 +240,8 @@ public class RoomManager : MonoBehaviour
         int selectedIndex = Random.Range(0, maxIndex + 1);
         GameObject selectedBoss = bossPrefabs[selectedIndex];
 
-        // [핵심 변경] 보스 스폰 위치를 NavMesh 위로 보정
-        // 방 중앙(transform.position) 주변 2.0f 반경 내의 안전한 바닥을 찾습니다.
-        Vector3 spawnPos = GetValidSpawnPosition(transform.position, 2.0f);
+        
+        Vector3 spawnPos = transform.position;
 
         GameObject bossInstance = Instantiate(selectedBoss, spawnPos, Quaternion.identity);
 
@@ -304,35 +302,7 @@ public class RoomManager : MonoBehaviour
         Debug.Log($"{monsterCount}마리의 몬스터 스폰 완료.");
     }
 
-    /// <summary>
-    /// [추가된 기능] 주어진 중심점과 반경 내에서 NavMesh(이동 가능한 바닥) 위의 유효한 좌표를 반환합니다.
-    /// 천장이나 장애물 위 스폰을 방지합니다.
-    /// </summary>
-    private Vector3 GetValidSpawnPosition(Vector3 center, float range)
-    {
-        int maxAttempts = 30; // 최대 시도 횟수
-        for (int i = 0; i < maxAttempts; i++)
-        {
-            // 1. 중심 기준 랜덤 좌표 생성
-            Vector3 randomPoint = center + Random.insideUnitSphere * range;
-
-            // Y축은 방의 현재 바닥 높이로 고정 (천장 스폰 방지 핵심)
-            randomPoint.y = center.y;
-
-            NavMeshHit hit;
-            // 2. 해당 좌표 근처(5.0f)에 NavMesh가 있는지 확인
-            // NavMesh.AllAreas는 모든 구워진 NavMesh 영역을 의미합니다.
-            if (NavMesh.SamplePosition(randomPoint, out hit, 5.0f, NavMesh.AllAreas))
-            {
-                // 유효한 위치를 찾았다면 그 위치 반환
-                return hit.position;
-            }
-        }
-
-        // 유효한 위치를 못 찾으면 방의 중심 반환 (최후의 수단)
-        return center;
-    }
-
+   
     public void NotifyMonsterDied(GameObject monster)
     {
         Debug.Log($"몬스터 사망 알림 받음: {monster.name}");

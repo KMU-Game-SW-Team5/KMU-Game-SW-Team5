@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 6901838235018459367}
   - component: {fileID: 3979622502558621713}
   - component: {fileID: 6374717502109514978}
-  - component: {fileID: 2926094044714083291}
   - component: {fileID: 754567360434018284}
   m_Layer: 0
   m_Name: SmallMonster1
@@ -85,7 +84,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
@@ -158,34 +157,14 @@ MonoBehaviour:
   additionalDamageRate: 0
   damageTextAnchor: {fileID: 1199581505930514966}
   isCCImmune: 0
+  minPatrolMoveTime: 1
+  maxPatrolMoveTime: 3
+  patrolWaitTime: 2
   audioSource: {fileID: 754567360434018284}
   walkClips:
   - {fileID: 8300000, guid: ebc13f2fc3212444c99c40873118b63d, type: 3}
-  attackClip: {fileID: 8300000, guid: 82aadba9397076f4387340c7cbfd275e, type: 3}
   deathClip: {fileID: 8300000, guid: f86d4d44eb7f16c4ba0dc0c337a6f337, type: 3}
   walkSoundVolume: 0.1
---- !u!195 &2926094044714083291
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 16739788032466195}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 30
-  m_Acceleration: 80
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!82 &754567360434018284
 AudioSource:
   m_ObjectHideFlags: 0
