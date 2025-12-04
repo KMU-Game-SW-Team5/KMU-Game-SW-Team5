@@ -41,6 +41,16 @@ public abstract class ActiveSkillBase : ScriptableObject
     [Header("사운드")]
     [SerializeField] public AudioClip castClip;
 
+    [Header("화면 이팩트")]
+    [SerializeField] private Color screenFlashColor = new Color(0f, 0f, 0f, 0f);
+    [SerializeField] private float screenFlashDuration = 0f;
+    [SerializeField] private float screenFlashPeriod = 0f;
+
+    [Header("카메라 흔들기")]
+    [SerializeField] private float camShakeDelay = 0f;      // 카메라 흔들기 지연 시간
+    [SerializeField] private float camShakeIntensity = 0f; // 카메라 흔들기 세기(0이면 안 흔듬)
+    [SerializeField] private float camShakeDuration = 0f;  // 카메라 흔들기 지속 시간
+
     private float lastUseTime = -999f;    // 마지막 사용 시각
     private float remainingCooldown = 0f; // 남은 쿨타임 (초)
     private int star = 1;                 // 성급(획득 횟수) – 1~3
@@ -163,6 +173,26 @@ public abstract class ActiveSkillBase : ScriptableObject
         if (prepareTime > 0f)
             yield return new WaitForSeconds(prepareTime);
 
+        // 카메라 흔들기가 설정되어 있다면 흔듬
+        if (camShakeIntensity > 0f && camShakeDuration > 0f)
+        {
+            // 지연 후 카메라 흔들기
+            SkillManager.Instance.StartCoroutine(PlayCameraShakeAfterDelay());
+        }
+
+        // 화면 효과가 있다면 적용
+        Debug.Log(screenFlashColor.a.ToString() + " " + screenFlashDuration.ToString());
+        if (screenFlashColor.a > 0f && screenFlashDuration > 0f)
+        {
+            Debug.Log("ActiveSkillBase: 화면 플래시 효과 재생");
+            CombatUIManager.Instance?.PlayScreenColorEffect(
+                screenFlashDuration,
+                screenFlashColor,
+                screenFlashPeriod
+            );
+        }
+
+        // 스킬 실행
         Execute(user, target);
 
         if (castTime > 0f)
@@ -257,5 +287,12 @@ public abstract class ActiveSkillBase : ScriptableObject
     {
         int clampedStar = Mathf.Clamp(star, 1, MaxStar);
         return skillName + clampedStar.ToString();
+    }
+
+    // 지정한 시간 후 카메라 흔들기
+    private IEnumerator PlayCameraShakeAfterDelay()
+    {
+        yield return new WaitForSeconds(camShakeDelay);
+        CombatUIManager.Instance.PlayCameraShake(camShakeIntensity, camShakeDuration);
     }
 }

@@ -237,10 +237,9 @@ public class RoomManager : MonoBehaviour
 
         if (maxIndex >= bossPrefabs.Length) maxIndex = bossPrefabs.Length - 1;
 
-        int selectedIndex = Random.Range(0, maxIndex + 1);
-        GameObject selectedBoss = bossPrefabs[selectedIndex];
+        // 보스 순차적 생성
+        GameObject selectedBoss = bossPrefabs[GameManager.Instance.bossIdx++];
 
-        
         Vector3 spawnPos = transform.position;
 
         GameObject bossInstance = Instantiate(selectedBoss, spawnPos, Quaternion.identity);

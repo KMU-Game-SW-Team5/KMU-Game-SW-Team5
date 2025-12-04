@@ -6,14 +6,25 @@ using UnityEngine;
 public class Player : MonoBehaviour, IDamageable
 {
     [Header("체력 관련")]
-    public int maxHealth = 100;
-    public int hp = 100;
+    private int maxHealth = 100;
+    private int hp = 100;
     [SerializeField] private float lowHpRatio = 0.2f;
     public float hpRatio => (float)hp/(float)maxHealth;
 
-    public void IncreaseEXP(int value)
-    {
+    // 싱글톤 인스턴스
+    public static Player Instance { get; private set; }
 
+    public void SetMaxHp(int value)
+    {
+        maxHealth = value;
+        hp = maxHealth;
+    }
+
+    public void AddMaxHp(int value)
+    {
+        maxHealth += value;
+        hp += value;
+        OnHPChanged?.Invoke(hp, maxHealth); // UI 적용
     }
 
     private MoveController moveController;
@@ -26,6 +37,17 @@ public class Player : MonoBehaviour, IDamageable
 
     // HP 변화 이벤트 -> UI 연결
     public event Action<int, int> OnHPChanged;
+
+    private void Awake()
+    {
+        // 싱글톤 기본 코드
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
 
     void Start()
     {

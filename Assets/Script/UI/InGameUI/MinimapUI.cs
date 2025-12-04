@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,7 +21,7 @@ public class MinimapUI : MonoBehaviour
 
     private Vector2 centerOffset;
 
-    readonly Color NotClearNotVisitColor = new Color(0.35f, 0.35f, 0.35f, 1f);
+    readonly Color NotClearNotVisitColor = new Color(0.6f, 0.6f, 0.6f, 1f);
     readonly Color VisitedColor = new Color(1f, 1f, 1f, 1f);
 
     public static readonly List<MinimapUI> Instances = new List<MinimapUI>();

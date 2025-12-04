@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class CameraEffectorUI : MonoBehaviour
@@ -60,6 +61,9 @@ public class CameraEffectorUI : MonoBehaviour
             GenerateVignette(lowHpImage);
             lastAspect = GetCurrentAspect();
         }
+
+        if (skillScreenEffectCanvas != null)
+            skillScreenEffectCanvas.alpha = 0f;
     }
 
     private void Start()
@@ -211,6 +215,67 @@ public class CameraEffectorUI : MonoBehaviour
 
         hitFlashCanvas.alpha = 0f;
         hitFlashRoutine = null;
+    }
+
+    [SerializeField] Image skillScreenEffectImage;
+    [SerializeField] CanvasGroup skillScreenEffectCanvas;
+    private Coroutine skillScreenEffectRoutine;
+
+    public void StartScreenColorEffect(float duration, Color color, float blinkPeriod)
+    {
+        Debug.Log("CameraEffectorUI: 화면 색상 효과 시작");
+        if (skillScreenEffectImage == null || skillScreenEffectCanvas == null)
+            return;
+
+        // 이전 코루틴 중복 방지
+        if (skillScreenEffectRoutine != null)
+            StopCoroutine(skillScreenEffectRoutine);
+
+        skillScreenEffectRoutine = StartCoroutine(SkillScreenEffectCoroutine(duration, color, blinkPeriod));
+    }
+
+    private IEnumerator SkillScreenEffectCoroutine(float duration, Color color, float blinkPeriod)
+    {
+        Debug.Log("CameraEffectorUI: 화면 색상 효과 코루틴 실행"); 
+        if (skillScreenEffectImage == null || skillScreenEffectCanvas == null)
+            yield break;
+
+        // 안전값
+        if (duration <= 0f) yield break;
+        blinkPeriod = Mathf.Max(0.0001f, blinkPeriod);
+
+        // 이미지는 색상의 RGB를 유지하되 알파는 1으로 두고,
+        // CanvasGroup.alpha를 애니메이트해서 최종 alpha를 color.a로 만들자.
+        skillScreenEffectImage.color = new Color(color.r, color.g, color.b, 1f);
+        float targetAlpha = Mathf.Clamp01(color.a);
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+
+            // 현재 사이클 위치: 0..1
+            float cyclePos = (elapsed % blinkPeriod) / blinkPeriod;
+
+            // 0..0.5 : 증가, 0.5..1 : 감소
+            float phase = cyclePos * 2f;
+            float alphaFactor;
+            if (phase <= 1f)
+            {
+                alphaFactor = Mathf.SmoothStep(0f, 1f, phase); // 부드러운 증가
+            }
+            else
+            {
+                alphaFactor = Mathf.SmoothStep(1f, 0f, phase - 1f); // 부드러운 감소
+            }
+
+            skillScreenEffectCanvas.alpha = targetAlpha * alphaFactor;
+
+            yield return null;
+        }
+
+        skillScreenEffectCanvas.alpha = 0f;
+        skillScreenEffectRoutine = null;
     }
 
 

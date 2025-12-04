@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 937e23e5ecefa2945aafbaaac61a052a, type: 3}
-  m_Name: Attack Speed + 10
+  m_Name: "\uACF5\uC18D \uC99D\uAC00"
   m_EditorClassIdentifier: 
   skillName: Rage
   icon: {fileID: 21300000, guid: ca6dcc3743947654dafb58b80788fe9c, type: 3}
@@ -19,10 +19,18 @@ MonoBehaviour:
   coefficient: 0
   baseCooldown: 10
   cooldownDecreasePerStar: 1
+  secondStarBonus: 0.4
+  thirdStarBonus: 1
   prepareTime: 0
   castTime: 0
   animationTypes: 06000000
   castClip: {fileID: 8300000, guid: dddde2397affa4973880bcc238b6ad30, type: 3}
+  screenFlashColor: {r: 1, g: 0.7437094, b: 0, a: 0.36862746}
+  screenFlashDuration: 3
+  screenFlashPeriod: 1
+  camShakeDelay: 0
+  camShakeIntensity: 0
+  camShakeDuration: 0
   targetStat: 4
   isPermanent: 0
   buffDuration: 3

@@ -138,6 +138,13 @@ public class CombatUIManager : MonoBehaviour
     {
         cameraEffector?.StartCameraShake(intensity, duration);
     }
+
+    // 스크린 색상 효과
+    public void PlayScreenColorEffect(float duration, Color color, float blinkPeriod)
+    {
+        Debug.Log("CombatUIManager: 화면 색상 효과 재생 요청");
+        cameraEffector?.StartScreenColorEffect(duration, color, blinkPeriod);
+    }
 }
 
 

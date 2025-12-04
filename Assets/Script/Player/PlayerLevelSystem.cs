@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,6 +17,10 @@ public class PlayerLevelSystem : MonoBehaviour
     [Header("마력 증가 규칙")]
     [SerializeField] private int baseMagicStat = 1000;
     [SerializeField] private int magicStatIncrementPerLevel = 10;
+
+    [Header("최대 체력 증가 규칙")]
+    [SerializeField] private int baseMaxHp = 100;
+    [SerializeField] private int maxHpIncrementPerLevel = 10;
 
     public int Level { get; private set; }
     public int CurrentExp { get; private set; }
@@ -71,6 +75,7 @@ public class PlayerLevelSystem : MonoBehaviour
             CurrentExp -= RequiredExp;
             Level++;
             IncreaseMagicStat();
+            IncreaseMaxHp();
             OnLevelUp?.Invoke(Level);
         }
 
@@ -86,5 +91,10 @@ public class PlayerLevelSystem : MonoBehaviour
     private void IncreaseMagicStat()
     {
         SkillManager.Instance.AddMagicStat(magicStatIncrementPerLevel);
+    }
+
+    private void IncreaseMaxHp()
+    {
+        Player.Instance.AddMaxHp(maxHpIncrementPerLevel);
     }
 }

@@ -10,19 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 937e23e5ecefa2945aafbaaac61a052a, type: 3}
-  m_Name: Heal 100 + 100%
+  m_Name: Heal
   m_EditorClassIdentifier: 
   skillName: Heal
   icon: {fileID: 21300000, guid: 2fdadb4dd2872284c8ac0a2600293981, type: 3}
-  descriptionTemplate: Heal self 100 + {damage}
-  baseValue: 100
+  descriptionTemplate: Heal self {damage}
+  baseValue: 50
   coefficient: 0.1
   baseCooldown: 5
   cooldownDecreasePerStar: 0.2
+  secondStarBonus: 0.4
+  thirdStarBonus: 1
   prepareTime: 0
   castTime: 0.2
   animationTypes: 06000000
   castClip: {fileID: 8300000, guid: 87a2e502ddd174591af0e35f76e448a2, type: 3}
+  screenFlashColor: {r: 0, g: 0, b: 0, a: 0}
+  screenFlashDuration: 0
+  screenFlashPeriod: 0
+  camShakeDelay: 0
+  camShakeIntensity: 0
+  camShakeDuration: 0
   targetStat: 0
   isPermanent: 1
   buffDuration: 0

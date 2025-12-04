@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 937e23e5ecefa2945aafbaaac61a052a, type: 3}
-  m_Name: Magic Stat + 1000
+  m_Name: "\uB9C8\uB825 \uC99D\uAC00"
   m_EditorClassIdentifier: 
   skillName: Overload
   icon: {fileID: 21300000, guid: 2456dd2824f5ec540830760922f5bac6, type: 3}
@@ -19,10 +19,18 @@ MonoBehaviour:
   coefficient: 0
   baseCooldown: 10
   cooldownDecreasePerStar: 0
+  secondStarBonus: 0.4
+  thirdStarBonus: 1
   prepareTime: 0
   castTime: 0
   animationTypes: 06000000
   castClip: {fileID: 8300000, guid: 5dc0d27bde15c4bb7bafcde9f394bc12, type: 3}
+  screenFlashColor: {r: 0.41320753, g: 0.78955656, b: 1, a: 0.19215687}
+  screenFlashDuration: 5
+  screenFlashPeriod: 1
+  camShakeDelay: 0
+  camShakeIntensity: 0
+  camShakeDuration: 0
   targetStat: 2
   isPermanent: 0
   buffDuration: 5

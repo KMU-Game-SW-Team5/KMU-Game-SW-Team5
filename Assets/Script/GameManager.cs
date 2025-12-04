@@ -5,17 +5,20 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     public bool IsPaused { get; private set; }
 
-    [SerializeField] private LayerMask ignoreLayerMaskWithRay;  // ½ºÅ³ Å¸°ÙÆÃ¿¡¼­ ¹«½ÃÇÒ ·¹ÀÌ¾î
+    [SerializeField] private LayerMask ignoreLayerMaskWithRay;  // ìŠ¤í‚¬ íƒ€ê²ŸíŒ…ì—ì„œ ë¬´ì‹œí•  ë ˆì´ì–´
 
-    // EndingÀ» À§ÇÑ ÇÊµå
+    // Endingì„ ìœ„í•œ í•„ë“œ
     [SerializeField] private InGameUIManager inGameUIManager;
     [SerializeField] private TimeManager timeManager;
     [SerializeField] private PlayerLevelSystem playerLevelSystem;
     [SerializeField] private KillCounter killCounter;
 
+    // ë³´ìŠ¤ ìˆœì°¨ì  ìƒì„±ì„ ìœ„í•œ ë³€ìˆ˜
+    public int bossIdx = 0;
+
     private void Awake()
     {
-        // ½Ì±ÛÅæ Áßº¹ ¹æÁö
+        // ì‹±ê¸€í†¤ ì¤‘ë³µ ë°©ì§€
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -26,20 +29,23 @@ public class GameManager : MonoBehaviour
         InitializeGameSettings();
     }
 
-    // °¢Á¾ Àü¿ª ¼¼ÆÃ ÃÊ±âÈ­
+    // ê°ì¢… ì „ì—­ ì„¸íŒ… ì´ˆê¸°í™”
     private void InitializeGameSettings()
     {
         int projectile = LayerMask.NameToLayer("Projectile");
         int player = LayerMask.NameToLayer("Player");
         int skillAnchor = LayerMask.NameToLayer("SkillAnchor");
 
-        // --- Projectile °ü·Ã Ãæµ¹ ÀüºÎ ¹«½Ã ---
-        Physics.IgnoreLayerCollision(projectile, projectile);     // Åõ»çÃ¼³¢¸®
-        Physics.IgnoreLayerCollision(player, projectile);         // ÇÃ·¹ÀÌ¾î¿Í Åõ»çÃ¼
-        Physics.IgnoreLayerCollision(projectile, skillAnchor);    // Åõ»çÃ¼¿Í ½ºÅ³ ¾ŞÄ¿
+        // --- Projectile ê´€ë ¨ ì¶©ëŒ ì „ë¶€ ë¬´ì‹œ ---
+        Physics.IgnoreLayerCollision(projectile, projectile);     // íˆ¬ì‚¬ì²´ë¼ë¦¬
+        Physics.IgnoreLayerCollision(player, projectile);         // í”Œë ˆì´ì–´ì™€ íˆ¬ì‚¬ì²´
+        Physics.IgnoreLayerCollision(projectile, skillAnchor);    // íˆ¬ì‚¬ì²´ì™€ ìŠ¤í‚¬ ì•µì»¤
 
-        // --- ½ºÅ³ Å¸°ÙÆÃ¿ë ¹«½Ã ·¹ÀÌ¾î ---
+        // --- ìŠ¤í‚¬ íƒ€ê²ŸíŒ…ìš© ë¬´ì‹œ ë ˆì´ì–´ ---
         ignoreLayerMaskWithRay = LayerMask.GetMask("Projectile", "SkillAnchor");
+
+        // ë³´ìŠ¤ ì¸ë±ìŠ¤ ì´ˆê¸°í™”
+        bossIdx = 0;
     }
 
 
@@ -49,7 +55,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// °ÔÀÓ Á¾·á ½Ã È£Ãâ (¸Å°³º¯¼ö´Â bool°ªÀÌ¸ç, true : Clear, false : Game Over)
+    /// ê²Œì„ ì¢…ë£Œ ì‹œ í˜¸ì¶œ (ë§¤ê°œë³€ìˆ˜ëŠ” boolê°’ì´ë©°, true : Clear, false : Game Over)
     /// </summary>
     public void EndGame(bool isClear)
     {
@@ -80,13 +86,13 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// °ÔÀÓ »óÅÂ ¿äÃ» ÇÔ¼ö (¸Å°³º¯¼ö´Â bool°ªÀÌ¸ç, true : Clear, false : Game Over)
+    /// ê²Œì„ ìƒíƒœ ìš”ì²­ í•¨ìˆ˜ (ë§¤ê°œë³€ìˆ˜ëŠ” boolê°’ì´ë©°, true : Clear, false : Game Over)
     /// </summary>
     public GameResult GetGameResult(bool isClear)
     {
         if (timeManager == null || playerLevelSystem == null || killCounter == null)
         {
-            Debug.LogError("GameManager : ÂüÁ¶ null");
+            Debug.LogError("GameManager : ì°¸ì¡° null");
             return new GameResult();
         }
 
