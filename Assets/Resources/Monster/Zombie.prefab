@@ -836,7 +836,7 @@ MonoBehaviour:
   audioSource: {fileID: 104861835714328096}
   walkClips:
   - {fileID: 8300000, guid: 7c518e8469a403b4c981664ecb28a79a, type: 3}
-  attackClip: {fileID: 0}
+  attackClip: {fileID: 8300000, guid: 7ce1b3f097fe6dd4380d393b87e1f044, type: 3}
   deathClip: {fileID: 8300000, guid: a347abc1b1972ca4c90043b100f050b9, type: 3}
   walkSoundVolume: 0.1
 --- !u!82 &104861835714328096
