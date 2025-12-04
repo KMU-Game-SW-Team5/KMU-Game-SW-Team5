@@ -8,11 +8,16 @@ public abstract class MonsterBase : MonoBehaviour
     protected float damageMultiplier = 0.5f;
 
     // 입력한 값만큼 체력과 공격력에 배율 적용
+    // 입력한 값만큼 체력과 공격력에 배율 적용
     public void SetDifficulty(int difficultyLevel)
     {
-        maxHealth *= (int)(healthMultiplier * (float)difficultyLevel);
+        float multiplier = 1f + (healthMultiplier * (float)difficultyLevel);
+
+        maxHealth = (int)(maxHealth * multiplier);
         currentHealth = maxHealth;
-        attackDamage *= (int)(damageMultiplier * (float)difficultyLevel);
+
+        // 공격력도 동일하게 적용
+        attackDamage = (int)(attackDamage * multiplier);
     }
     [Header("=== HP ===")]
     public int maxHealth = 1000;
