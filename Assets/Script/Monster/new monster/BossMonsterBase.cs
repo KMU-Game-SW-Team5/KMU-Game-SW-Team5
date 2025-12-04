@@ -34,6 +34,9 @@ public abstract class BossMonsterBase : MonsterBase
 
     protected override void FixedUpdate()
     {
+
+
+
         base.FixedUpdate();
 
         if (!IsAlive || isDead)

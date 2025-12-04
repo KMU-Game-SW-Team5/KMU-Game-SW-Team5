@@ -739,9 +739,6 @@ public class SkillManager : MonoBehaviour
         slot.SetIcon(icon);
     }
 
-    //===================================================================================================================
-    // ===============================================테스트 함수들======================================================
-#if UNITY_EDITOR
     private void OnValidate()
     {
         if (!Application.isPlaying)
@@ -884,6 +881,6 @@ public class SkillManager : MonoBehaviour
         Debug.Log($"[SkillManager] 초기 패시브 스킬 {passiveSkills.Count}개 적용됨, " +
                   $"런타임 효과 {runtimeEffects.Count}개 생성됨.");
     }
-#endif
+
 
 }
