@@ -1,8 +1,27 @@
 using UnityEngine;
 using System.Collections;
 
+
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(AudioSource))]
 public class BossDragon : BossMonsterBase
 {
+    [Header("=== Audio Settings (New) ===")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] walkClips;   // 걷는 소리
+    [SerializeField] private AudioClip deathClip;     // 사망 소리
+    
+
+    [Header("=== Attack Audio & Logic ===")]
+    [SerializeField] private AudioClip basicAttackClip;
+    [SerializeField] private AudioClip clawAttackClip;
+    [SerializeField] private AudioClip flameAttackClip;
+    [SerializeField] private AudioClip flyAttackClip;
+
+    // 발자국 소리 재생을 위한 변수
+    private float lastNormalizedTime;
+
+
     [Header("Phase 2 Flight")]
     [SerializeField] private float phase2RiseHeight = 10f;   // 2페에서 올라갈 높이
     [SerializeField] private float phase2RiseDuration = 2f;  // 상승에 걸리는 시간(초)
@@ -29,21 +48,120 @@ public class BossDragon : BossMonsterBase
     [SerializeField] private float landingShakeDuration = 0.3f;// 카메라 흔들림 시간
     private bool hasLandedAfterDeath = false;
 
+    protected override void Awake()
+    {
+        base.Awake(); 
+
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.spatialBlend = 1f;
+        }
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        // ★ 오디오 추가: 걷는 소리 체크 (죽지 않았고, 날지 않으며, 움직이는 중일 때)
+        if (!isDead && !isFlying && animator != null)
+        {
+            // Animator의 "Speed" 파라미터가 0.1보다 크면 걷는 중으로 간주
+            if (animator.GetFloat("Speed") > 0.1f)
+            {
+                CheckAnimationLoopAndPlaySound();
+            }
+        }
+    }
+
     // 공격 패턴
     protected override void TryAttack()
     {
-        if (!CanAttack() || playerScript == null)
-            return;
+        if (!CanAttack() || playerScript == null) return;
 
         transform.LookAt(player.position);
 
-        if (animator == null)
-            return;
+        if (animator == null) return;
 
-        animator.SetTrigger("BasicAttack");
-        playerScript.TakeDamage(attackDamage);
+        // 체력 비율 계산
+        float hpPercent = (float)currentHealth / maxHealth;
+        
+        // 거리 체크
+        float dist = Vector3.Distance(transform.position, player.position);
+        if (dist > attackRange + 2f) return; 
+
+        // 공격 시 정지
+        if (rb != null) rb.velocity = Vector3.zero;
+
+        Debug.Log($"보스 공격 시도 (HP: {hpPercent * 100:F1}%)");
+
+        // ★ 수정 포인트: (int)를 붙여서 소수점을 버리고 정수로 변환함
+        if (hpPercent > 0.8f) // 80% 초과
+        {
+            animator.SetTrigger("BasicAttack");
+            PlayOneShotSound(basicAttackClip);
+            // 기본 데미지
+            playerScript.TakeDamage(attackDamage); 
+        }
+        else if (hpPercent > 0.6f) // 60% ~ 80%
+        {
+            animator.SetTrigger("ClawAttack");
+            PlayOneShotSound(clawAttackClip);
+            
+            playerScript.TakeDamage((int)(attackDamage * 1.2f)); 
+        }
+        else if (hpPercent > 0.5f) // 50% ~ 60%
+        {
+            animator.SetTrigger("FlameAttack");
+            PlayOneShotSound(flameAttackClip);
+            
+            playerScript.TakeDamage((int)(attackDamage * 1.5f)); 
+        }
+        else // 50% 이하
+        {
+            animator.SetTrigger("FlyAttack");
+            PlayOneShotSound(flyAttackClip);
+            
+            playerScript.TakeDamage((int)(attackDamage * 2f)); 
+        }
 
         lastAttackTime = Time.time;
+    }
+    private void CheckAnimationLoopAndPlaySound()
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        // 애니메이션 재생 시간(normalizedTime)의 정수 부분이 바뀌었는지 체크 (루프 돌 때마다 재생)
+        if ((int)stateInfo.normalizedTime > (int)lastNormalizedTime)
+        {
+            PlayWalkSound();
+        }
+        lastNormalizedTime = stateInfo.normalizedTime;
+    }
+
+    // 발자국 소리 재생
+    private void PlayWalkSound()
+    {
+        if (audioSource == null || walkClips == null || walkClips.Length == 0) return;
+
+        int index = Random.Range(0, walkClips.Length);
+        if (walkClips[index] != null)
+        {
+            // 피치(음정)를 살짝 랜덤하게 하여 자연스럽게
+            audioSource.pitch = Random.Range(0.8f, 0.95f);
+            audioSource.PlayOneShot(walkClips[index]);
+        }
+    }
+
+    // 일반 사운드 재생 헬퍼
+    private void PlayOneShotSound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.pitch = Random.Range(0.95f, 1.05f);
+            audioSource.PlayOneShot(clip);
+        }
     }
 
     protected override void OnHit(GameObject attacker)
@@ -133,6 +251,12 @@ public class BossDragon : BossMonsterBase
 
         isDead = true;
         Debug.Log($"{name} died.");
+
+        if (deathClip != null)
+        {
+            // 3D 공간에서 소리 재생
+            AudioSource.PlayClipAtPoint(deathClip, transform.position, 1.0f);
+        }
 
         // 2페이즈 상승 코루틴이 돌고 있으면 강제 종료
         if (phase2FlightCoroutine != null)
