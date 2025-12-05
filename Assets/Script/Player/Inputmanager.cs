@@ -14,7 +14,6 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
-
         MoveInput();
         MouseInput();
     }
@@ -29,7 +28,7 @@ public class InputManager : MonoBehaviour
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
         Vector2 moveInput = new Vector2(horizontal, vertical);
-        
+
         moveController.SetMoveInput(moveInput);
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -41,7 +40,7 @@ public class InputManager : MonoBehaviour
         moveController.SetRunning(isRunning);
     }
 
-    
+
     private void MouseInput()
     {
         if (!movable)
@@ -52,6 +51,7 @@ public class InputManager : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
         Vector2 mouseDelta = new Vector2(mouseX, mouseY);
+
         moveController.SetLookInput(mouseDelta);
     }
 

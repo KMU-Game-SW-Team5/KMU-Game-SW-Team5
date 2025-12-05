@@ -35,7 +35,7 @@ public static class SettingsService
 
     public static float MasterVolume
     {
-        get => PlayerPrefs.GetFloat("audio.volume", 0.8f); 
+        get => PlayerPrefs.GetFloat("audio.volume", 0.8f);
         set
         {
             float v = Mathf.Clamp01(value);
@@ -48,7 +48,7 @@ public static class SettingsService
 
     public static bool Tooltips
     {
-        get => PlayerPrefs.GetInt("ui.tooltips", 1) == 1; 
+        get => PlayerPrefs.GetInt("ui.tooltips", 1) == 1;
         set
         {
             if (value == Tooltips) return;
@@ -63,38 +63,44 @@ public static class SettingsService
     // -----------------------------
     public static bool InvertMouse
     {
-        get => PlayerPrefs.GetInt("controls.invert", 0) == 1; 
+        get => PlayerPrefs.GetInt("controls.invert", 0) == 1;
         set
         {
-            if(value == InvertMouse) return;
+            if (value == InvertMouse) return;
             PlayerPrefs.SetInt("controls.invert", value ? 1 : 0);
             PlayerPrefs.Save();
             OnInvertMouseChanged?.Invoke(value);
         }
     }
 
+    // ì €ì¥ ë²”ìœ„ë¥¼ ì•„ì£¼ ë„“ê²Œ í—ˆìš©: multiplier ì‚¬ìš© ì‹œ ê·¹ë‹¨ì ì¸ ì‘ì€ ê°’ë„ ì €ì¥ë˜ë„ë¡ í•¨
+    private const float StoredSensitivityMin = 0.0001f;
+    private const float StoredSensitivityMax = 100f;
+
     public static float MouseSensitivity
     {
-        get => PlayerPrefs.GetFloat("controls.mouseSens", 1.0f); 
+        get => PlayerPrefs.GetFloat("controls.mouseSens", 1.0f);
         set
         {
-            float v = Mathf.Clamp(value, 0.1f, 10f);
-            if (Mathf.Approximately(v, MouseSensitivity     )) return;
+            float v = Mathf.Clamp(value, StoredSensitivityMin, StoredSensitivityMax);
+            if (Mathf.Approximately(v, MouseSensitivity)) return;
             PlayerPrefs.SetFloat("controls.mouseSens", v);
             PlayerPrefs.Save();
+            Debug.Log($"[SettingsService] MouseSensitivity saved -> {v}");
             OnMouseSensitivityChanged?.Invoke(v);
         }
     }
 
     public static float CameraSensitivity
     {
-        get => PlayerPrefs.GetFloat("controls.camSens", 1.0f); 
+        get => PlayerPrefs.GetFloat("controls.camSens", 1.0f);
         set
         {
-            float v = Mathf.Clamp(value, 0.1f, 10f);
+            float v = Mathf.Clamp(value, StoredSensitivityMin, StoredSensitivityMax);
             if (Mathf.Approximately(v, CameraSensitivity)) return;
             PlayerPrefs.SetFloat("controls.camSens", v);
             PlayerPrefs.Save();
+            Debug.Log($"[SettingsService] CameraSensitivity saved -> {v}");
             OnCameraSensitivityChanged?.Invoke(v);
         }
     }
@@ -104,10 +110,10 @@ public static class SettingsService
     // -----------------------------
     public static bool FullScreen
     {
-        get => PlayerPrefs.GetInt("video.fullscreen", 1) == 1; 
+        get => PlayerPrefs.GetInt("video.fullscreen", 1) == 1;
         set
         {
-            if(value == FullScreen) return;
+            if (value == FullScreen) return;
             PlayerPrefs.SetInt("video.fullscreen", value ? 1 : 0);
             PlayerPrefs.Save();
             OnFullScreenChanged?.Invoke(value);
@@ -116,11 +122,11 @@ public static class SettingsService
 
     public static bool VSyncOn
     {
-        get => PlayerPrefs.GetInt("video.vsync", 1) == 1; 
+        get => PlayerPrefs.GetInt("video.vsync", 1) == 1;
         set
         {
-            if(value == VSyncOn) return;
-            PlayerPrefs.SetInt("video.vsync", value ? 1 : 0); 
+            if (value == VSyncOn) return;
+            PlayerPrefs.SetInt("video.vsync", value ? 1 : 0);
             PlayerPrefs.Save();
             OnVSyncChanged?.Invoke(value);
         }
@@ -128,14 +134,14 @@ public static class SettingsService
 
     public static float Brightness
     {
-        get => PlayerPrefs.GetFloat("video.brightness", 0.5f); 
+        get => PlayerPrefs.GetFloat("video.brightness", 0.5f);
         set
-        {            
+        {
             float v = Mathf.Clamp01(value);
             if (Mathf.Approximately(v, Brightness)) return;
             PlayerPrefs.SetFloat("video.brightness", v);
             PlayerPrefs.Save();
-            OnBrightnessChanged?.Invoke(v);   // º¯°æ ¾Ë¸²
+            OnBrightnessChanged?.Invoke(v);   // ë³€ê²½ ì•Œë¦¼
         }
     }
 
@@ -154,8 +160,8 @@ public static class SettingsService
 
     public static void ApplyAll()
     {
-        // PlayerPrefs´Â °ÔÀÓÀÌ Á¾·áµÇ¾îµµ ÀúÀåµÈ Á¤º¸°¡ »èÁ¦µÇÁö ¾ÊÀ½
-        // ±×·¯³ª, ½ÇÁ¦ °ÔÀÓ Àû¿ëÀº »èÁ¦µÇ±â ¶§¹®¿¡ Àû¿ëÀ» ÀÏ°ıÀûÀ¸·Î ÇÒ ÇÊ¿ä ÀÖÀ½.
+        // PlayerPrefsëŠ” ê²Œì„ì´ ì¢…ë£Œë˜ì–´ë„ ì €ì¥ëœ ì •ë³´ê°€ ì‚­ì œë˜ì§€ ì•ŠìŒ
+        // ê·¸ëŸ¬ë‚˜, ì‹¤ì œ ê²Œì„ ì ìš©ì€ ì‚­ì œë˜ê¸° ë•Œë¬¸ì— ì ìš©ì„ ì¼ê´„ì ìœ¼ë¡œ í•  í•„ìš” ìˆìŒ.
 
         // Game
         OnGameDifficultyChanged?.Invoke(GameDifficulty);
@@ -167,12 +173,12 @@ public static class SettingsService
         OnMouseSensitivityChanged?.Invoke(MouseSensitivity);
         OnCameraSensitivityChanged?.Invoke(CameraSensitivity);
 
-        // Video Àû¿ë
+        // Video ì ìš©
         OnFullScreenChanged?.Invoke(FullScreen);
         OnVSyncChanged?.Invoke(VSyncOn);
         OnBrightnessChanged?.Invoke(Brightness);
 
-        // ÇØ»óµµµµ ÀÌº¥Æ®·Î ÅëÀÏ (¾Æ·¡¿¡¼­ ¼³¸í)
+        // í•´ìƒë„ë„ ì´ë²¤íŠ¸ë¡œ í†µì¼ (ì•„ë˜ì—ì„œ ì„¤ëª…)
         OnResolutionChanged?.Invoke(
             PlayerPrefs.GetInt("video.res.w", Screen.currentResolution.width),
             PlayerPrefs.GetInt("video.res.h", Screen.currentResolution.height),

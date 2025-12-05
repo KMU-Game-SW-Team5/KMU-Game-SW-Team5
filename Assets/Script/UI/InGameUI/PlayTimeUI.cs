@@ -29,7 +29,7 @@ public class PlayTimeUI : MonoBehaviour
         long seconds = totalSeconds % 60;
 
         // hh:mm:ss 형식 (hours는 2자리 이상으로 자동 확장)
-        string formatted = $"{hours:00}:{minutes:00}:{seconds:00}";
+        string formatted = $"{hours:00} : {minutes:00} : {seconds:00}";
 
         // 변경된 경우에만 텍스트 갱신
         if (formatted != lastText)

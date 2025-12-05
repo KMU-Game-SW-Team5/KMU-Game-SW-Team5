@@ -20,6 +20,19 @@ public class OptionsPanel : MonoBehaviour
 
     private void OnDisable()
     {
+        // 패널 닫기 전에 Controls UI 값(슬라이더)을 SettingsService로 강제 푸시
+        if (controlsPanel != null)
+        {
+            var ctrl = controlsPanel.GetComponentInChildren<ControlsSettingsPanel>(true);
+            if (ctrl != null)
+            {
+                ctrl.PushUIValuesToSettings();
+            }
+        }
+
+        // 모든 리스너에 현재 저장값 재전파
+        SettingsService.ApplyAll();
+
         Time.timeScale = 1f;
         InputBlocker.Unblock();
         Cursor.lockState = CursorLockMode.Locked;
@@ -55,7 +68,7 @@ public class OptionsPanel : MonoBehaviour
         if (Application.CanStreamedLevelBeLoaded("Assets/Scenes/MainUI.unity"))
             SceneManager.LoadScene("Assets/Scenes/MainUI.unity");
         else
-            Debug.LogWarning("Assets/Scenes/MainUI.unity�� Build Settings�� ��ϵǾ� ���� �ʽ��ϴ�");
+            Debug.LogWarning("Assets/Scenes/MainUI.unity is not in Build Settings");
     }
 
     void SetAllPanelsInactive()
