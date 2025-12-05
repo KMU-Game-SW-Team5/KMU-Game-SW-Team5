@@ -1,7 +1,7 @@
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class VideoSettingsPanel : MonoBehaviour
 {
@@ -12,7 +12,33 @@ public class VideoSettingsPanel : MonoBehaviour
 
     private Resolution[] available;
 
-    void OnEnable() { BuildResolutions(); Refresh(); }
+    void OnEnable()
+    {
+        if (dropdownResolution != null) BuildResolutions();
+        Refresh();
+
+        // EventSystem Ï°¥Ïû¨ ÌôïÏù∏
+        if (EventSystem.current == null)
+        {
+            Debug.LogWarning("[VideoSettingsPanel] EventSystem not found in scene. UI events won't work without it.");
+        }
+
+        // Îü∞ÌÉÄÏûÑ Íµ¨ÎèÖ: Inspector Î∞îÏù∏Îî©Ïù¥ Îπ†Ï°åÏùÑ Îïå ÎåÄÎπÑ
+        if (sliderBrightness != null)
+        {
+            // Ï§ëÎ≥µ Íµ¨ÎèÖ Î∞©ÏßÄ
+            sliderBrightness.onValueChanged.RemoveListener(OnChangeBrightness);
+            sliderBrightness.onValueChanged.AddListener(OnChangeBrightness);
+        }
+    }
+
+    void OnDisable()
+    {
+        if (sliderBrightness != null)
+        {
+            sliderBrightness.onValueChanged.RemoveListener(OnChangeBrightness);
+        }
+    }
 
     public void OnClickFullScreen(bool on)
     {
@@ -28,19 +54,22 @@ public class VideoSettingsPanel : MonoBehaviour
 
     public void OnChangeBrightness(float v)
     {
+        Debug.Log($"[VideoSettingsPanel] OnChangeBrightness called: {v}");
         SettingsService.Brightness = v;
     }
 
     public void OnChangeResolution(int idx)
     {
+        if (dropdownResolution == null) return;
         if (available == null || idx < 0 || idx >= available.Length) return;
         var r = available[idx];
         SettingsService.SetResolution(r.width, r.height, SettingsService.FullScreen);
     }
 
-    // µÂ∑”¥ŸøÓ «ÿªÛµµ ∏Ò∑œ ª˝º∫ π◊ «ˆ¿Á «ÿªÛµµø° ∏¬√Á º±≈√¿ª ∏¬√ﬂ¥¬ «‘ºˆ
     private void BuildResolutions()
     {
+        if (dropdownResolution == null) return;
+
         dropdownResolution.ClearOptions();
         available = Screen.resolutions;
         var options = new System.Collections.Generic.List<string>();
@@ -60,7 +89,9 @@ public class VideoSettingsPanel : MonoBehaviour
 
     private void Refresh()
     {
-        sliderBrightness.SetValueWithoutNotify(SettingsService.Brightness);
+        if (sliderBrightness != null)
+            sliderBrightness.SetValueWithoutNotify(SettingsService.Brightness);
+
         RefreshFullScreenUI();
         RefreshVSyncOnUI();
     }
@@ -68,15 +99,15 @@ public class VideoSettingsPanel : MonoBehaviour
     private void RefreshFullScreenUI()
     {
         bool on = SettingsService.FullScreen;
-        SetSelected(btnFullscreenOn, on);
-        SetSelected(btnFullscreenOff, !on);
+        if (btnFullscreenOn != null) SetSelected(btnFullscreenOn, on);
+        if (btnFullscreenOff != null) SetSelected(btnFullscreenOff, !on);
     }
 
     private void RefreshVSyncOnUI()
     {
         bool on = SettingsService.VSyncOn;
-        SetSelected(btnVsyncOn, on);
-        SetSelected(btnVsyncOff, !on);
+        if (btnVsyncOn != null) SetSelected(btnVsyncOn, on);
+        if (btnVsyncOff != null) SetSelected(btnVsyncOff, !on);
     }
 
     private void SetSelected(Button b, bool on)
@@ -84,10 +115,5 @@ public class VideoSettingsPanel : MonoBehaviour
         if (b == null) return;
         if (on) b.GetComponentInChildren<TextMeshProUGUI>(true).color = new Color(1f, 0.7f, 0.3f);
         else b.GetComponentInChildren<TextMeshProUGUI>(true).color = new Color(1f, 1f, 1f);
-
-
-        var selectable = b.GetComponent<UnityEngine.UI.Selectable>();
-        if (selectable != null)
-            selectable.interactable = !on;
     }
 }

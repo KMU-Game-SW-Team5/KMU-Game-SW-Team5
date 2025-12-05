@@ -49,6 +49,8 @@ MonoBehaviour:
   hoverClip: {fileID: 8300000, guid: ec831c2536d30374dbf768096ce241a9, type: 3}
   openClip: {fileID: 8300000, guid: f32d8d60f197f204ba10bab042d4cf87, type: 3}
   closeClip: {fileID: 8300000, guid: f32d8d60f197f204ba10bab042d4cf87, type: 3}
+  paperClip: {fileID: 8300000, guid: 0451bf51c1e06e54699d063da75c1a67, type: 3}
+  selectClip: {fileID: 8300000, guid: fc40ef13c7ab5174f9361c4761264aff, type: 3}
   volume: 1
   audioSource: {fileID: 7785678819069974205}
 --- !u!82 &7785678819069974205
