@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fairy storm
   m_EditorClassIdentifier: 
   skillName: Fairy storm
-  icon: {fileID: 21300000, guid: c15755f9b990f804786cb44e32da6951, type: 3}
+  icon: {fileID: 21300000, guid: 07720b55bb7cb3c45a9e509ca5b5e01c, type: 3}
   descriptionTemplate: Fires 120 rounds of multiple Fairy bullets that track the
     designated enemy and inflict {damage}.
   baseValue: 10
@@ -26,6 +26,12 @@ MonoBehaviour:
   castTime: 0
   animationTypes: 07000000
   castClip: {fileID: 8300000, guid: b1f97d1e88465134ba3b170840ea68cf, type: 3}
+  screenFlashColor: {r: 0, g: 1, b: 0.7159214, a: 0}
+  screenFlashDuration: 0.01
+  screenFlashPeriod: 0.01
+  camShakeDelay: 0
+  camShakeIntensity: 0
+  camShakeDuration: 0
   projectilePrefab: {fileID: 3093370748363751238, guid: 6d0f7a23edea72c49b737345d5714139, type: 3}
   projectileSpeed: 200
   lifeTime: 5

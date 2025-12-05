@@ -25,9 +25,9 @@ MonoBehaviour:
   castTime: 0.2
   animationTypes: 06000000
   castClip: {fileID: 8300000, guid: 87a2e502ddd174591af0e35f76e448a2, type: 3}
-  screenFlashColor: {r: 0, g: 0, b: 0, a: 0}
-  screenFlashDuration: 0
-  screenFlashPeriod: 0
+  screenFlashColor: {r: 1, g: 0.93413985, b: 0.6094339, a: 0.101960786}
+  screenFlashDuration: 0.7
+  screenFlashPeriod: 0.7
   camShakeDelay: 0
   camShakeIntensity: 0
   camShakeDuration: 0
