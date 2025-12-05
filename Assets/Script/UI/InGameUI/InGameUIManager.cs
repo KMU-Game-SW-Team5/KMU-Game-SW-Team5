@@ -203,6 +203,9 @@ public class InGameUIManager : MonoBehaviour
         fullMap.SetActive(!fullMap.activeSelf);
     }
 
+
+    // 지도 펼치는 소리
+    [SerializeField] private AudioClip mapOpenSfx;
     // SkillPanel.Toggle(bool)와 동일한 동작: show가 true일 때 열고, false일 때 닫음
     public void ToggleFullMap(bool show)
     {
@@ -213,10 +216,12 @@ public class InGameUIManager : MonoBehaviour
         if (show && !isOpen)
         {
             fullMap.SetActive(true);
+            SFX_Manager.Instance.PlayOneShot(mapOpenSfx);
         }
         else if (!show && isOpen)
         {
             fullMap.SetActive(false);
+            SFX_Manager.Instance.PlayOneShot(mapOpenSfx);
         }
     }
 

@@ -63,6 +63,8 @@ public class PlayerLevelSystem : MonoBehaviour
         OnLevelUp -= HandleLevelUp;
     }
 
+    [SerializeField] private AudioClip levelUpSFX;
+
     /// <summary>플레이어가 amount 만큼 경험치를 얻음</summary>
     public void AddExp(int amount)
     {
@@ -76,6 +78,7 @@ public class PlayerLevelSystem : MonoBehaviour
             Level++;
             IncreaseMagicStat();
             IncreaseMaxHp();
+            SFX_Manager.Instance.PlayOneShot(levelUpSFX);
             OnLevelUp?.Invoke(Level);
         }
 

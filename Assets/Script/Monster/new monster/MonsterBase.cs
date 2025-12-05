@@ -144,6 +144,9 @@ public abstract class MonsterBase : MonoBehaviour
     {
         // 재사용(풀링) 대비
         isDead = false;
+
+        // 재활성화 시 콜라이더가 꺼져있을 수 있으므로 다시 켬
+        EnableColliders();
     }
 
     protected virtual void Update()
@@ -307,7 +310,7 @@ public abstract class MonsterBase : MonoBehaviour
         // 아무런 디버프가 없다면 색상 원상 복구
         if (!isStunned && additionalDamageTimer >= 0f)
         {
-            RestoreOriginalColor();       
+            RestoreOriginalColor();
         }
     }
 
@@ -337,12 +340,9 @@ public abstract class MonsterBase : MonoBehaviour
             rb.velocity = Vector3.zero;
         }
 
-        // 콜라이더 비활성
-        Collider col = GetComponent<Collider>();
-        if (col != null)
-        {
-            col.enabled = false;
-        }
+        // 모든 콜라이더 비활성 (현재 오브젝트와 자식들 포함)
+        DisableColliders();
+
         KillCounter.Instance.AddMonsterKill();
         Debug.Log("몬스터가 쓰러졌습니다.");
 
@@ -406,7 +406,7 @@ public abstract class MonsterBase : MonoBehaviour
         }
     }
 
-    
+
     // 기절, 둔화 시 애니메이션 재생 속도 조절
     private void UpdateAnimatorSpeed()
     {
@@ -543,6 +543,32 @@ public abstract class MonsterBase : MonoBehaviour
         }
     }
 
+    // ---------------------------
+    // 콜라이더 도움 함수들
+    // ---------------------------
+    // 오브젝트(자식 포함)의 모든 콜라이더를 비활성화
+    protected void DisableColliders()
+    {
+        Collider[] cols = GetComponentsInChildren<Collider>(includeInactive: true);
+        if (cols == null) return;
+        foreach (var c in cols)
+        {
+            if (c == null) continue;
+            c.enabled = false;
+        }
+    }
+
+    // 풀링 재사용 등을 위해 콜라이더를 다시 켜는 헬퍼
+    protected void EnableColliders()
+    {
+        Collider[] cols = GetComponentsInChildren<Collider>(includeInactive: true);
+        if (cols == null) return;
+        foreach (var c in cols)
+        {
+            if (c == null) continue;
+            c.enabled = true;
+        }
+    }
 
 
 

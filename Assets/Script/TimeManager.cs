@@ -5,18 +5,18 @@ public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance { get; private set; }
 
-    // ´øÀü¿¡ ¹ã³·Àº ¾øÁö¸¸, ÀÏ´Ü ¹ã/³·À¸·Î Ç¥Çö
+    // ë˜ì „ì— ë°¤ë‚®ì€ ì—†ì§€ë§Œ, ì¼ë‹¨ ë°¤/ë‚®ìœ¼ë¡œ í‘œí˜„
     [SerializeField] float dayDuration = 240f;
     [SerializeField] float nightDuration = 360f;
 
-    public event Action<bool> OnWaveChanged;   // true: ³·, false: ¹ã
-    public event Action<float> OnCycleProgress;  // 0~1 ÁøÇàµµ (¿øÆÇ È¸Àü¿¡ »ç¿ë)
-    public event Action<float> OnDayRatioChanged;   // DayRatio º¯°æ ½Ã È£Ãâ
+    public event Action<bool> OnWaveChanged;   // true: ë‚®, false: ë°¤
+    public event Action<float> OnCycleProgress;  // 0~1 ì§„í–‰ë„ (ì›íŒ íšŒì „ì— ì‚¬ìš©)
+    public event Action<float> OnDayRatioChanged;   // DayRatio ë³€ê²½ ì‹œ í˜¸ì¶œ
 
-    double elapsed; // ´©Àû ½Ã°£
+    double elapsedTime; // ëˆ„ì  ì‹œê°„
     bool isDay = true;
 
-    public double Elapsed => elapsed;
+    public double ElapsedTime => elapsedTime;
 
     private void Awake()
     {
@@ -36,10 +36,10 @@ public class TimeManager : MonoBehaviour
     void Update()
     {
         float dt = Time.deltaTime;
-        elapsed += dt;
+        elapsedTime += dt;
 
         float fullCycle = dayDuration + nightDuration;
-        float t = (float)(elapsed % fullCycle);
+        float t = (float)(elapsedTime % fullCycle);
         float progress = t / fullCycle;
 
         OnCycleProgress?.Invoke(progress);
@@ -65,11 +65,11 @@ public class TimeManager : MonoBehaviour
 
     public void ResetTimer()
     {
-        elapsed = 0;
+        elapsedTime = 0;
         isDay = true;
     }
     /*
-    È°¿ë ¿¹½Ã
+    í™œìš© ì˜ˆì‹œ
     void OnEnable()
     {
         TimeManager.Instance.OnWaveChanged += ApplyWave;
@@ -97,7 +97,7 @@ public class TimeManager : MonoBehaviour
 
     void ApplyRatioChange(float ratio)
     {
-        if (ratio < TimeManager.Instance.DayRatio) Debug.Log("¹ãÀÌ ±æ¾îÁı´Ï´Ù.");
+        if (ratio < TimeManager.Instance.DayRatio) Debug.Log("ë°¤ì´ ê¸¸ì–´ì§‘ë‹ˆë‹¤.");
     }
     */
 

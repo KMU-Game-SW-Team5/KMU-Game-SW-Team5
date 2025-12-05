@@ -7,10 +7,10 @@ public class HoverSelectedVisual : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler,
     IPointerClickHandler
 {
-    [SerializeField] GameObject selectedImage; // ¼±ÅÃ(ÅÇ/Åä±ÛÃ³·³ À¯Áö)
-    [SerializeField] GameObject hoverImage;    // ¸¶¿ì½º ¿Ã·ÈÀ» ¶§
+    [SerializeField] GameObject selectedImage; // ì„ íƒ(íƒ­/í† ê¸€ì²˜ëŸ¼ ìœ ì§€)
+    [SerializeField] GameObject hoverImage;    // ë§ˆìš°ìŠ¤ ì˜¬ë ¸ì„ ë•Œ
     [SerializeField] private bool ignoreSelectedImage = false;
-    [SerializeField] private TabSelectionGroup group;  // ±×·ì ¿¬°á
+    [SerializeField] private TabSelectionGroup group;  // ê·¸ë£¹ ì—°ê²°
 
     Button btn;
     private bool isSelected;
@@ -24,7 +24,11 @@ public class HoverSelectedVisual : MonoBehaviour,
         if (selectedImage) selectedImage.SetActive(false);
     }
 
-    public void OnPointerEnter(PointerEventData e) { if (!isSelected && hoverImage) hoverImage.SetActive(true); }
+    public void OnPointerEnter(PointerEventData e) 
+    { 
+        if (!isSelected && hoverImage) hoverImage.SetActive(true); 
+        SFX_Manager.Instance.PlayHover();
+    }
     public void OnPointerExit(PointerEventData e) { if (hoverImage) hoverImage.SetActive(false); }
 
     public void OnPointerClick(PointerEventData e)
@@ -32,15 +36,16 @@ public class HoverSelectedVisual : MonoBehaviour,
         if (group != null && !ignoreSelectedImage)
         {
             group.OnButtonSelected(this);
+            SFX_Manager.Instance.PlayClick();
         }
         else
         {
-            // ±×·ìÀÌ ¾ø´Â °æ¿ì
+            // ê·¸ë£¹ì´ ì—†ëŠ” ê²½ìš°
             SetSelected(true);
         }
     }
 
-    // ¿ÜºÎ¿¡¼­ ÅÇ ¼±ÅÃ ½Ã È£Ãâ¿ë
+    // ì™¸ë¶€ì—ì„œ íƒ­ ì„ íƒ ì‹œ í˜¸ì¶œìš©
     public void SetSelected(bool on)
     {
         if (selectedImage && !ignoreSelectedImage) selectedImage.SetActive(on);

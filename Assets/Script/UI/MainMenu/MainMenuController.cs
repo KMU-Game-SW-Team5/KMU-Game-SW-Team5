@@ -5,13 +5,13 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
-    [Header("¿É¼Ç ¸Ş´º Äµ¹ö½º")]
+    [Header("ì˜µì…˜ ë©”ë‰´ ìº”ë²„ìŠ¤")]
     [SerializeField] private GameObject optionsCanvas;
 
-    [Header("¸ŞÀÎ ¸Ş´º Äµ¹ö½º")]
+    [Header("ë©”ì¸ ë©”ë‰´ ìº”ë²„ìŠ¤")]
     [SerializeField] private GameObject mainCanvas;
 
-    [Header("¸ŞÀÎ ¸Ş´º ÆĞ³Î")]
+    [Header("ë©”ì¸ ë©”ë‰´ íŒ¨ë„")]
     [SerializeField] private GameObject menuPanel;
     [SerializeField] private GameObject difficultyPanel;
 
@@ -22,18 +22,21 @@ public class MainMenuController : MonoBehaviour
     }
     public void ShowDifficultyPanel()
     {
+        SFX_Manager.Instance.PlayClick();
         difficultyPanel?.SetActive(true);
         menuPanel?.SetActive(false);
     }
 
     public void ShowMenuPanel()
     {
+        SFX_Manager.Instance.PlayClick();
         menuPanel?.SetActive(true);
         difficultyPanel?.SetActive(false);
     }
 
     public void ShowOptionsCanvas()
     {
+        SFX_Manager.Instance.PlayClick();
         optionsCanvas?.SetActive(true);
         mainCanvas?.SetActive(false);
     }

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class WaveTimerUI : MonoBehaviour
 {
-    [SerializeField] RectTransform discGroup;   // È¸ÀüÀÇ ÁÖÃ¼
+    [SerializeField] RectTransform discGroup;   // íšŒì „ì˜ ì£¼ì²´
     [SerializeField] Image dayDisc;
     [SerializeField] Image nightDisc;
     [SerializeField] TextMeshProUGUI inGameTime;
@@ -12,12 +12,12 @@ public class WaveTimerUI : MonoBehaviour
     void Update()
     {
         if (inGameTime != null)
-            inGameTime.text = FormatTime((float)TimeManager.Instance.Elapsed);
+            inGameTime.text = FormatTime((float)TimeManager.Instance.ElapsedTime);
     }
 
     public void UpdateRotation(float progress)
     {
-        // ¹İ½Ã°è ¹æÇâ È¸Àü
+        // ë°˜ì‹œê³„ ë°©í–¥ íšŒì „
         float z = 360f * progress;
         discGroup.localRotation = Quaternion.Euler(0, 0, z);
     }

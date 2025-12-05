@@ -217,6 +217,8 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         gameObject.transform.localScale = new Vector3(1, 1, 1);
 
+        SFX_Manager.Instance.PlaySelect();
+
         // 카드 변경 사항 적용
         if (isActive)
         {
@@ -238,6 +240,7 @@ public class SkillCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        SFX_Manager.Instance.PlayPaper();
         gameObject.transform.localScale = new Vector3(1.1f, 1.1f, 1);
     }
 

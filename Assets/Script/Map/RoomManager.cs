@@ -22,6 +22,11 @@ public class RoomManager : MonoBehaviour
     [Header("문 관리(자식 오브젝트)")]
     private List<Collider> doorColliders = new List<Collider>();    // 방의 자식으로 존재하는 문들을 저장할 리스트
 
+    [Header("BGM")]
+    [SerializeField] private float nonCombatDelay = 10f; // 비전투 상태 유지 시간(초) 후 normal 재생
+
+    private Coroutine nonCombatCoroutine;
+
     // 방의 설정 값을 정의 하는 함수 -> MapMaker 함수에서 호출
     public void Setup(RoomType newType, int minMonsters, int maxMonsters, int difficulty)
     {
@@ -218,6 +223,15 @@ public class RoomManager : MonoBehaviour
         if (isSpawned) return;
         isSpawned = true;
 
+        // 전투로 전환 (BGM)
+        if (BGM_Manager.Instance != null)
+        {
+            BGM_Manager.Instance.PlayBoss();
+        }
+
+        // 중복된 non-combat 타이머가 있으면 취소
+        CancelNonCombatTimer();
+
         GameObject[] bossPrefabs = Resources.LoadAll<GameObject>("Boss");
 
         if (bossPrefabs.Length == 0)
@@ -248,7 +262,7 @@ public class RoomManager : MonoBehaviour
         bossComponent.SetRoom(this);    // 보스 방 참조 전달
         // 보스의 난이도 설정: (총 보스 처치 수 + 1) * (게임 난이도 + 1)
         // 난이도당 체력과 공격력이 올라가는 정도는 각 보스에서 설정
-        bossComponent.SetDifficulty((KillCounter.Instance.TotalBossKills + 1) 
+        bossComponent.SetDifficulty((KillCounter.Instance.TotalBossKills + 1)
             * (gameDifficulty + 1));
 
         // 보스는 보통 크기가 커서 맵의 자식으로 넣으면 스케일 문제가 생길 수 있어 부모 설정 생략 권장
@@ -264,6 +278,15 @@ public class RoomManager : MonoBehaviour
     {
         if (isSpawned) return; // 중복 스폰 방지
         isSpawned = true;
+
+        // 전투로 전환 (BGM)
+        if (BGM_Manager.Instance != null)
+        {
+            BGM_Manager.Instance.PlayCombat();
+        }
+
+        // 중복된 non-combat 타이머가 있으면 취소
+        CancelNonCombatTimer();
 
         // Resources/Monster 폴더 내의 모든 프리팹 로드
         GameObject[] monsterPrefabs = Resources.LoadAll<GameObject>("Monster");
@@ -289,7 +312,7 @@ public class RoomManager : MonoBehaviour
 
             GameObject monster = Instantiate(selectedMonster, spawnPos, Quaternion.identity);
             MonsterBase monsterComponent = monster.GetComponent<MonsterBase>();
-            monsterComponent.SetDifficulty((KillCounter.Instance.TotalBossKills + 1) 
+            monsterComponent.SetDifficulty((KillCounter.Instance.TotalBossKills + 1)
                 * (gameDifficulty + 1));
 
             // [복구됨] 자식으로 등록
@@ -301,7 +324,7 @@ public class RoomManager : MonoBehaviour
         Debug.Log($"{monsterCount}마리의 몬스터 스폰 완료.");
     }
 
-   
+
     public void NotifyMonsterDied(GameObject monster)
     {
         Debug.Log($"몬스터 사망 알림 받음: {monster.name}");
@@ -326,5 +349,60 @@ public class RoomManager : MonoBehaviour
         {
             Debug.Log("보스방 클리어!");
         }
+
+        // 비전투 상태 타이머 시작 (다른 방에서 전투가 시작되면 해당 방에서 호출한 PlayCombat이 우선 적용됨)
+        StartNonCombatTimer();
+    }
+
+    // -----------------------
+    // non-combat 타이머 관련
+    // -----------------------
+    private void StartNonCombatTimer()
+    {
+        CancelNonCombatTimer();
+        nonCombatCoroutine = StartCoroutine(NonCombatTimerCoroutine());
+    }
+
+    private void CancelNonCombatTimer()
+    {
+        if (nonCombatCoroutine != null)
+        {
+            StopCoroutine(nonCombatCoroutine);
+            nonCombatCoroutine = null;
+        }
+    }
+
+    private IEnumerator NonCombatTimerCoroutine()
+    {
+        float timer = 0f;
+        while (timer < nonCombatDelay)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        // 비전투 10초 후, 현재 씬에 살아있는 몬스터가 없으면 normal BGM 재생(엔딩 제외)
+        if (!AnyLiveMonstersInScene())
+        {
+            if (BGM_Manager.Instance != null && !BGM_Manager.Instance.IsPlayingEndingMusic())
+            {
+                BGM_Manager.Instance.PlayNormal();
+            }
+        }
+
+        nonCombatCoroutine = null;
+    }
+
+    // 현재 씬의 모든 RoomManager를 확인해 살아있는 몬스터가 있는지 검사
+    private bool AnyLiveMonstersInScene()
+    {
+        RoomManager[] rooms = FindObjectsOfType<RoomManager>();
+        foreach (var rm in rooms)
+        {
+            if (rm == null) continue;
+            if (rm.liveMonsters != null && rm.liveMonsters.Count > 0)
+                return true;
+        }
+        return false;
     }
 }

@@ -110,10 +110,12 @@ public class SkillPanel : MonoBehaviour
         if (show && !isOpen)
         {
             Show();   // 닫혀 있는데 키를 눌렀을 때 → 한 번만 열기
+            SFX_Manager.Instance.PlayOpen();
         }
         else if (!show && isOpen)
         {
             Hide();   // 열려 있는데 키를 뗐을 때 → 한 번만 닫기
+            SFX_Manager.Instance.PlayClose();
         }
     }
 

@@ -61,6 +61,13 @@ public class GameManager : MonoBehaviour
     {
         GameResult result = GetGameResult(isClear);
 
+        Debug.Log(isClear ? "Game Clear!" : "Game Over!");  
+
+        if (isClear)
+            BGM_Manager.Instance.PlayVictory();
+        else
+            BGM_Manager.Instance.PlayDefeat();
+
         inGameUIManager.ShowEndingUI(result);
     }
 
@@ -98,7 +105,7 @@ public class GameManager : MonoBehaviour
 
         return new GameResult(
             isClear,
-            (float)timeManager.Elapsed,
+            (float)timeManager.ElapsedTime,
             playerLevelSystem.Level,
             killCounter.TotalKills
         );
