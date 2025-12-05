@@ -194,6 +194,13 @@ public class RoomManager : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            // 엔딩 대기 상태면 방 입장 무시
+            if (GameManager.Instance != null && GameManager.Instance.IsEnding)
+            {
+                Debug.Log("게임 엔딩 대기 중 — 방 입장 처리 무시");
+                return;
+            }
+
             Debug.Log($"{type} 방 입장! 상태: {state}");
 
             // Minimap UI

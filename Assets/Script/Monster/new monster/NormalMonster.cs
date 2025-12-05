@@ -99,17 +99,6 @@ public class NormalMonster : MonsterBase
 
         float distance = Vector3.Distance(transform.position, player.position);
 
-        // ★ [디버깅] 1초마다 현재 상태 출력
-        if (Time.time > debugLogTimer)
-        {
-            debugLogTimer = Time.time + 1f;
-            string stateMsg = "배회 중";
-            if (distance <= attackRange) stateMsg = "공격 범위";
-            else if (distance <= detectionRange) stateMsg = "추격 중 (이동해야 함)";
-            
-            Debug.Log($"[{name}] 거리: {distance:F1} (감지: {detectionRange}) -> 상태: {stateMsg}");
-        }
-
         // 3. [추격] 감지 범위 안 + 공격 범위 밖
         if (distance <= detectionRange && distance > attackRange)
         {

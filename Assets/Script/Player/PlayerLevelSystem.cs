@@ -56,6 +56,7 @@ public class PlayerLevelSystem : MonoBehaviour
     {
         OnLevelUp += HandleLevelUp;
         SkillManager.Instance.SetMagicStat(baseMagicStat);
+        Player.Instance.SetMaxHp(baseMaxHp);
     }
 
     private void OnDestroy()

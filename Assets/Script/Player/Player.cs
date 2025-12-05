@@ -64,7 +64,6 @@ public class Player : MonoBehaviour, IDamageable
         if (isInvincible) return; // 무적 상태라면 데미지 입지 않음.
 
         hp -= damage;
-        Debug.Log("플레이어 체력: " + hp);
 
         CombatUIManager.Instance?.PlayHitEffect();
         LowHPEffect();

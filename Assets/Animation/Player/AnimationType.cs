@@ -1,15 +1,16 @@
 public enum AnimationType
 {
     Idle,
+    Walk,
     Run,
     Jump,
-    Straight,       // Àü¹æÀ» °Ü³ÉÇÏ°í Áøµ¿
-    Right,          // ¿À¸¥ÂÊÀ¸·Î ÈÖµÎ¸§
-    Left,           // ¿ÞÂÊÀ¸·Î ÈÖµÎ¸§
-    Up,             // ¼öÁ÷À¸·Î µéÀ½
-    Down,           // ¾Æ·¡·Î ³»·ÁÄ§
-    Shot,           // ÃÑÃ³·³ ½ô
-    Stick,          // ¶¥¿¡ ¼öÁ÷À¸·Î ²ÈÀ½
-    Block,          // °¡·Î·Î ¸·À½
-    Hit             // ÇÇ°Ý
+    Straight,       // ì „ë°©ì„ ê²¨ëƒ¥í•˜ê³  ì§„ë™
+    Right,          // ì˜¤ë¥¸ìª½ìœ¼ë¡œ íœ˜ë‘ë¦„
+    Left,           // ì™¼ìª½ìœ¼ë¡œ íœ˜ë‘ë¦„
+    Up,             // ìˆ˜ì§ìœ¼ë¡œ ë“¤ìŒ
+    Down,           // ì•„ëž˜ë¡œ ë‚´ë ¤ì¹¨
+    Shot,           // ì´ì²˜ëŸ¼ ì¨
+    Stick,          // ë•…ì— ìˆ˜ì§ìœ¼ë¡œ ê½‚ìŒ
+    Block,          // ê°€ë¡œë¡œ ë§‰ìŒ
+    Hit             // í”¼ê²©
 }

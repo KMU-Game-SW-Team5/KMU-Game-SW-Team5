@@ -16,6 +16,9 @@ public class GameManager : MonoBehaviour
     // 보스 순차적 생성을 위한 변수
     public int bossIdx = 0;
 
+    // 엔딩 대기 상태(보스 처치 직후 다른 방 진입 차단용)
+    public bool IsEnding { get; private set; } = false;
+
     private void Awake()
     {
         // 싱글톤 중복 방지
@@ -69,6 +72,29 @@ public class GameManager : MonoBehaviour
             BGM_Manager.Instance.PlayDefeat();
 
         inGameUIManager.ShowEndingUI(result);
+    }
+
+    // 보스 처치 수 기준으로 엔딩 조건 충족 여부를 반환 (지연 없이 즉시 검사용)
+    public bool IsWinConditionMet()
+    {
+        int difficult = SettingsService.GameDifficulty;
+        switch (difficult)
+        {
+            case 0:
+                return KillCounter.Instance != null && KillCounter.Instance.TotalBossKills == 1;
+            case 1:
+                return KillCounter.Instance != null && KillCounter.Instance.TotalBossKills == 2;
+            case 2:
+                return KillCounter.Instance != null && KillCounter.Instance.TotalBossKills == 3;
+            default:
+                return false;
+        }
+    }
+
+    // 엔딩 대기 상태 설정 (보스 처치 직후 다른 방 입장 차단을 위해 호출)
+    public void MarkGameEnding()
+    {
+        IsEnding = true;
     }
 
     public void CheckAndEndGame()

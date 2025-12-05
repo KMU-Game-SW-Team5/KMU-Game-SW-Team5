@@ -24,8 +24,14 @@ MonoBehaviour:
   thirdStarBonus: 1
   prepareTime: 0.01
   castTime: 0
-  animationTypes: 08000000
+  animationTypes: 09000000
   castClip: {fileID: 8300000, guid: e3298e35eed19c942b6f4d2d41cd21ba, type: 3}
+  screenFlashColor: {r: 0, g: 0, b: 0, a: 0}
+  screenFlashDuration: 0
+  screenFlashPeriod: 0
+  camShakeDelay: 0
+  camShakeIntensity: 0
+  camShakeDuration: 0
   projectilePrefab: {fileID: 7458564200767833722, guid: 0ff7bedf6d978c848940abc2d5c22994, type: 3}
   projectileSpeed: 200
   lifeTime: 4

@@ -243,6 +243,8 @@ public class Boss3 : BossMonsterBase
     {
         if (isDead) return;
         isDead = true;
+        PlayerLevelSystem.Instance?.AddExp(exp);
+
 
         Debug.Log("보스 3 사망");
 

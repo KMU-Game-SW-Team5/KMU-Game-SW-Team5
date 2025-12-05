@@ -181,7 +181,6 @@ public abstract class ActiveSkillBase : ScriptableObject
         }
 
         // 화면 효과가 있다면 적용
-        Debug.Log(screenFlashColor.a.ToString() + " " + screenFlashDuration.ToString());
         if (screenFlashColor.a > 0f && screenFlashDuration > 0f)
         {
             Debug.Log("ActiveSkillBase: 화면 플래시 효과 재생");

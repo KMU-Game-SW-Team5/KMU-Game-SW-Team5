@@ -4,12 +4,13 @@ public class PlayerAnimation : MonoBehaviour
 {
     private Animator animator;
 
-    // ÇöÀç Base Layer°¡ ¾î¶² »óÅÂÀÎÁö (Idle / Run / Jump)
+    // í˜„ì¬ Base Layerê°€ ì–´ë–¤ ìƒíƒœì¸ì§€ (Idle / Run / Jump)
     public AnimationType currentBaseLayerState = AnimationType.Idle;
 
     private Coroutine straightCoroutine;
 
-    // ÇØ½Ã Ä³½Ì (¿É¼ÇÀÌÁö¸¸ ¼º´É»ó ÀÌµæ)
+    // í•´ì‹œ ìºì‹± (ì˜µì…˜ì´ì§€ë§Œ ì„±ëŠ¥ìƒ ì´ë“)
+    private static readonly int HashWalk = Animator.StringToHash("Walk");
     private static readonly int HashRunning = Animator.StringToHash("Running");
     private static readonly int HashStraight = Animator.StringToHash("Straight");
 
@@ -27,7 +28,7 @@ public class PlayerAnimation : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         if (animator == null)
-            Debug.LogError("[PlayerAnimation] Animator°¡ ¾øÀ½");
+            Debug.LogError("[PlayerAnimation] Animatorê°€ ì—†ìŒ");
     }
 
     public void SetAnimation(AnimationType animationType)
@@ -35,10 +36,14 @@ public class PlayerAnimation : MonoBehaviour
         switch (animationType)
         {
             // =====================
-            // Base Layer Á¦¾î
+            // Base Layer ì œì–´
             // =====================
             case AnimationType.Idle:
                 SetBaseIdle();
+                break;
+
+            case AnimationType.Walk:
+                SetBaseWalk();
                 break;
 
             case AnimationType.Run:
@@ -47,7 +52,7 @@ public class PlayerAnimation : MonoBehaviour
 
 
             // =====================
-            // Action Layer (ÁöÆÎÀÌ ¾×¼Ç µî)
+            // Action Layer (ì§€íŒ¡ì´ ì•¡ì…˜ ë“±)
             // =====================
             case AnimationType.Straight:
                 animator.SetBool(HashStraight, true);
@@ -82,7 +87,7 @@ public class PlayerAnimation : MonoBehaviour
                 break;
 
             // =====================
-            // Add Layer (ÇÇ°İ, Á¡ÇÁ µî)
+            // Add Layer (í”¼ê²©, ì í”„ ë“±)
             // =====================
             case AnimationType.Hit:
                 animator.SetTrigger(HashHit);
@@ -100,15 +105,29 @@ public class PlayerAnimation : MonoBehaviour
         if (animator == null) return;
         currentBaseLayerState = AnimationType.Idle;
 
-        // Run ²ô±â
+        // Run ë„ê¸°
         animator.SetBool(HashRunning, false);
-        // ÇÊ¿äÇÏ´Ù¸é Idle Àü¿ë Æ®¸®°Å°¡ ÀÖ´Ù¸é ¿©±â¼­ SetTriggerµµ °¡´É
+        animator.SetBool(HashWalk, false);
+        // í•„ìš”í•˜ë‹¤ë©´ Idle ì „ìš© íŠ¸ë¦¬ê±°ê°€ ìˆë‹¤ë©´ ì—¬ê¸°ì„œ SetTriggerë„ ê°€ëŠ¥
+    }
+
+    private void SetBaseWalk()
+    {
+        if (animator == null) return;
+        currentBaseLayerState = AnimationType.Walk;
+
+        // Runningì´ ì¼œì ¸ìˆì„ ìˆ˜ ìˆìœ¼ë‹ˆ ëª…ì‹œì ìœ¼ë¡œ ë„ê³  Walk ì¼œê¸°
+        animator.SetBool(HashRunning, false);
+        animator.SetBool(HashWalk, true);
     }
 
     private void SetBaseRun()
     {
         if (animator == null) return;
         currentBaseLayerState = AnimationType.Run;
+
+        // Walkê°€ ì¼œì ¸ìˆì„ ìˆ˜ ìˆìœ¼ë‹ˆ ëª…ì‹œì ìœ¼ë¡œ ë„ê³  Run ì¼œê¸°
+        animator.SetBool(HashWalk, false);
         animator.SetBool(HashRunning, true);
     }
 
@@ -118,9 +137,9 @@ public class PlayerAnimation : MonoBehaviour
 
         currentBaseLayerState = AnimationType.Jump;
         animator.SetTrigger(HashJump);
-        // Running boolÀ» ±×´ë·Î µÖ¼­
-        // ÂøÁö ÈÄ ÀÚ¿¬½º·´°Ô Idle/Run ºí·»µå µÇµµ·Ï ¼³Á¤ÇØµµ µÇ°í
-        // ¿©±â¼­ RunningÀ» false·Î ²ô´Â ½ÄÀ¸·Î Á¶Á¤ÇØµµ µÊ(ÃëÇâ/»óÅÂ¸Ó½Å ±¸Á¶¿¡ µû¶ó)
+        // Running boolì„ ê·¸ëŒ€ë¡œ ë‘¬ì„œ
+        // ì°©ì§€ í›„ ìì—°ìŠ¤ëŸ½ê²Œ Idle/Run ë¸”ë Œë“œ ë˜ë„ë¡ ì„¤ì •í•´ë„ ë˜ê³ 
+        // ì—¬ê¸°ì„œ Runningì„ falseë¡œ ë„ëŠ” ì‹ìœ¼ë¡œ ì¡°ì •í•´ë„ ë¨(ì·¨í–¥/ìƒíƒœë¨¸ì‹  êµ¬ì¡°ì— ë”°ë¼)
     }
 
     // -------------------------------
@@ -128,32 +147,32 @@ public class PlayerAnimation : MonoBehaviour
     // -------------------------------
 
 
-    // Straight¸¦ ÀÏÁ¤ ½Ã°£ µ¿¾È¸¸ ÄÑµÎ°í, ±× ÈÄ ÀÚµ¿À¸·Î ²¨ÁÖ´Â ÇÔ¼ö
+    // Straightë¥¼ ì¼ì • ì‹œê°„ ë™ì•ˆë§Œ ì¼œë‘ê³ , ê·¸ í›„ ìë™ìœ¼ë¡œ êº¼ì£¼ëŠ” í•¨ìˆ˜
     public void PlayStraightFor(float duration)
     {
-        // ÀÌÀü¿¡ µ¹°í ÀÖ´ø Straight ÄÚ·çÆ¾ÀÌ ÀÖÀ¸¸é ¸ØÃã
+        // ì´ì „ì— ëŒê³  ìˆë˜ Straight ì½”ë£¨í‹´ì´ ìˆìœ¼ë©´ ë©ˆì¶¤
         if (straightCoroutine != null)
             StopCoroutine(straightCoroutine);
 
-        // Straight ¾Ö´Ï¸ŞÀÌ¼Ç ÄÑ±â
+        // Straight ì• ë‹ˆë©”ì´ì…˜ ì¼œê¸°
         animator.SetBool("Straight", true);
 
-        // durationÀÌ 0 ÀÌÇÏ¸é ¹Ù·Î ²ô´Â °Ç È£ÃâÇÏ´Â ÂÊ¿¡¼­ ¾Ë¾Æ¼­ Ã³¸®ÇØµµ µÇÁö¸¸,
-        // ±×³É ÄÚ·çÆ¾À» »ç¿ëÇØµµ ¹®Á¦ ¾øÀ½
+        // durationì´ 0 ì´í•˜ë©´ ë°”ë¡œ ë„ëŠ” ê±´ í˜¸ì¶œí•˜ëŠ” ìª½ì—ì„œ ì•Œì•„ì„œ ì²˜ë¦¬í•´ë„ ë˜ì§€ë§Œ,
+        // ê·¸ëƒ¥ ì½”ë£¨í‹´ì„ ì‚¬ìš©í•´ë„ ë¬¸ì œ ì—†ìŒ
         straightCoroutine = StartCoroutine(ResetStraightAfter(duration));
     }
-    // À§ ÇÔ¼ö¿¡¼­ È£Ãâ
+    // ìœ„ í•¨ìˆ˜ì—ì„œ í˜¸ì¶œ
     private System.Collections.IEnumerator ResetStraightAfter(float duration)
     {
-        // ÁöÁ¤µÈ ½ÃÀü ½Ã°£¸¸Å­ ´ë±â
+        // ì§€ì •ëœ ì‹œì „ ì‹œê°„ë§Œí¼ ëŒ€ê¸°
         yield return new WaitForSeconds(duration);
 
-        // Straight ²ô±â
+        // Straight ë„ê¸°
         animator.SetBool("Straight", false);
         straightCoroutine = null;
     }
 
-    // ¼öµ¿À¸·Î straight¸¦ ²ô´Â ÇÔ¼ö
+    // ìˆ˜ë™ìœ¼ë¡œ straightë¥¼ ë„ëŠ” í•¨ìˆ˜
     public void ResetStraight()
     {
         if (animator == null) return;

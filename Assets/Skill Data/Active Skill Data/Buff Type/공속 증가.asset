@@ -23,7 +23,7 @@ MonoBehaviour:
   thirdStarBonus: 1
   prepareTime: 0
   castTime: 0
-  animationTypes: 06000000
+  animationTypes: 07000000
   castClip: {fileID: 8300000, guid: dddde2397affa4973880bcc238b6ad30, type: 3}
   screenFlashColor: {r: 1, g: 0.68895674, b: 0, a: 0.09803922}
   screenFlashDuration: 3

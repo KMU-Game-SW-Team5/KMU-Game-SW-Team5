@@ -249,6 +249,8 @@ public class BossDragon : BossMonsterBase
     {
         if (isDead) return;
 
+        PlayerLevelSystem.Instance?.AddExp(exp);
+
         isDead = true;
         Debug.Log($"{name} died.");
 

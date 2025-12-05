@@ -191,6 +191,9 @@ public class Boss2 : BossMonsterBase
         if (isDead) return;
         isDead = true;
 
+        PlayerLevelSystem.Instance?.AddExp(exp);
+
+
         Debug.Log("보스 2 사망");
 
         InGameUIManager.Instance?.DisappearBossUI();

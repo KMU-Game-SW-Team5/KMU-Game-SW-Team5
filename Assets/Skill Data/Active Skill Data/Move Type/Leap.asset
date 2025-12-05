@@ -19,8 +19,16 @@ MonoBehaviour:
   coefficient: 0
   baseCooldown: 5
   cooldownDecreasePerStar: 1
+  secondStarBonus: 0.4
+  thirdStarBonus: 1
   prepareTime: 0
   castTime: 0
-  animationTypes: 02000000
+  animationTypes: 03000000
   castClip: {fileID: 8300000, guid: 2b26cbea232414fcfab41a84fc7a1c55, type: 3}
+  screenFlashColor: {r: 0, g: 0, b: 0, a: 0}
+  screenFlashDuration: 0
+  screenFlashPeriod: 0
+  camShakeDelay: 0
+  camShakeIntensity: 0
+  camShakeDuration: 0
   jumpAngle: 15

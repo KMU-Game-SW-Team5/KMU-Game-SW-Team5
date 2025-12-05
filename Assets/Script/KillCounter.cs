@@ -50,7 +50,14 @@ public class KillCounter : MonoBehaviour
         TotalBossKills++;
         OnKillCountChanged?.Invoke(TotalKills);
 
-        // 여기서 바로 끝내지 말고, 코루틴으로 지연 실행
+        // 보스 처치 직후 즉시 승리 조건 검사 -> 엔딩 대기 플래그 설정(다른 방 진입 차단)
+        if (GameManager.Instance != null && GameManager.Instance.IsWinConditionMet())
+        {
+            GameManager.Instance.MarkGameEnding();
+            Debug.Log("엔딩 조건 충족: 엔딩 대기 상태로 전환됨. 방 입장 무시됨.");
+        }
+
+        // 여기서 바로 끝내지 말고, 코루틴으로 지연 실행하여 엔딩 연출 대기
         StartCoroutine(DelayEndGameCoroutine());
     }
 

@@ -17,6 +17,6 @@ MonoBehaviour:
   description: For each stack, the target is dealt 30 per seconds over 10 second
   maxAcquireCount: 3
   valuePerStack: 30
-  stackedDescriptionTemplate: For each stack, the target is dealt {damage} per seconds
+  stackedDescriptionTemplate: For each stack, the target is dealt {value} per seconds
   hitEffects:
   - {fileID: 11400000, guid: fe3ea714e7b4c6e45888c8ae2761522f, type: 2}
