@@ -85,6 +85,9 @@ public class MoveController : MonoBehaviour
         horizontalLookSensitivity = lookSensitivity * mouseSens;
         verticalLookSensitivity = lookSensitivity * camSens;
 
+        ApplyMouseSensitivity(SettingsService.MouseSensitivity);
+        ApplyCameraSensitivity(SettingsService.CameraSensitivity);
+
         Debug.Log($"[MoveController] Init sens: horiz={horizontalLookSensitivity:F4} vert={verticalLookSensitivity:F4} (base {lookSensitivity})");
 
         SettingsService.OnMouseSensitivityChanged += ApplyMouseSensitivity;

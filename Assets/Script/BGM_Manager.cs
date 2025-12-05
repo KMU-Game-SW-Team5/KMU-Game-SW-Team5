@@ -14,6 +14,11 @@ public class BGM_Manager : MonoBehaviour
     [SerializeField] private AudioClip victory;
     [SerializeField] private AudioClip defeat;
 
+    [Header("Volume")]
+    [Tooltip("BGM의 전체 볼륨(0.0 ~ 1.0). 인스펙터에서 조정 가능하며 런타임에 SetVolume으로 변경하세요.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float bgmVolume = 1f;
+
     [Header("Transition")]
     [SerializeField] private float transitionTime = 1f;
 
@@ -48,20 +53,17 @@ public class BGM_Manager : MonoBehaviour
         InitializeAudioSource(sourceB);
     }
 
-    // 씬이 로드되었을 때 기본 BGM 재생
-    private void Start()
-    {
-        if (normal != null)
-        {
-            PlayNormal();
-        }
-    }
-
     private void InitializeAudioSource(AudioSource src)
     {
         src.playOnAwake = false;
         src.loop = true;
-        src.volume = 1f;
+        src.volume = bgmVolume;
+    }
+
+    private void Start()
+    {
+        // 초기 BGM 재생 (원하는 곡으로 변경 가능)
+        TransitionMusic(normal, 1f);
     }
 
     // 외부에서 호출하는 전환 함수
@@ -100,6 +102,7 @@ public class BGM_Manager : MonoBehaviour
         TransitionMusic(defeat, 0f);
         Debug.Log("Defeat BGM played.");
     }
+
     private IEnumerator TransitionCoroutine(AudioClip clip, float tTime)
     {
         var current = GetCurrentSource();
@@ -110,7 +113,7 @@ public class BGM_Manager : MonoBehaviour
             // 즉시 전환
             current.Stop();
             other.clip = clip;
-            other.volume = 1f;
+            other.volume = bgmVolume;
             other.Play();
             useA = !useA;
             yield break;
@@ -128,14 +131,14 @@ public class BGM_Manager : MonoBehaviour
             timer += Time.deltaTime;
             float p = Mathf.Clamp01(timer / tTime);
 
-            other.volume = Mathf.Lerp(0f, 1f, p);
+            other.volume = Mathf.Lerp(0f, bgmVolume, p);
             current.volume = Mathf.Lerp(startVolCurrent, 0f, p);
 
             yield return null;
         }
 
         // 전환 완료
-        other.volume = 1f;
+        other.volume = bgmVolume;
         current.Stop();
         current.clip = null;
 
@@ -146,9 +149,29 @@ public class BGM_Manager : MonoBehaviour
     private AudioSource GetCurrentSource() => useA ? sourceA : sourceB;
     private AudioSource GetOtherSource() => useA ? sourceB : sourceA;
 
+    // 외부에서 BGM 볼륨을 변경할 때 호출
+    public void SetVolume(float volume)
+    {
+        float v = Mathf.Clamp01(volume);
+        bgmVolume = v;
+
+        if (sourceA != null)
+        {
+            sourceA.volume = sourceA.isPlaying ? bgmVolume : bgmVolume;
+        }
+        if (sourceB != null)
+        {
+            sourceB.volume = sourceB.isPlaying ? bgmVolume : bgmVolume;
+        }
+    }
+
+    // 현재 엔딩 음악을 재생하고 있는지
     public bool IsPlayingEndingMusic()
     {
         var current = GetCurrentSource();
         return current.clip == victory || current.clip == defeat;
     }
+
+    // 현재 설정된 볼륨 반환
+    public float GetVolume() => bgmVolume;
 }
