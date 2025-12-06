@@ -52,12 +52,24 @@ public class BossDragon : BossMonsterBase
     {
         base.Awake(); 
 
+        // 2페이즈 체력 임계값을 시리얼필드가 아닌
+        // 현재 최대 체력의 절반으로 설정
+        phase2Threshold = maxHealth * 0.5f;
+
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.spatialBlend = 1f;
         }
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        // 풀링이나 런타임에 maxHealth가 변경될 가능성에 대비해
+        // 활성화 시점에도 절반으로 재계산
+        phase2Threshold = maxHealth * 0.5f;
     }
 
     protected override void Update()
@@ -249,7 +261,7 @@ public class BossDragon : BossMonsterBase
     {
         if (isDead) return;
 
-        PlayerLevelSystem.Instance?.AddExp(exp);
+        PlayerLevelSystem.Instance?.AddExp(exp);    
 
         isDead = true;
         Debug.Log($"{name} died.");

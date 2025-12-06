@@ -156,7 +156,7 @@ MonoBehaviour:
   moveSpeed: 30
   isFlying: 0
   detectionRange: 1000
-  attackRange: 100
+  attackRange: 50
   lockYToSelf: 1
   attackDamage: 30
   attackCooldown: 1
@@ -168,7 +168,7 @@ MonoBehaviour:
   isCCImmune: 1
   hasEnteredPhase2: 0
   phase2Threshold: 15000
-  phase2AttackRange: 200
+  phase2AttackRange: 100
   audioSource: {fileID: 8402963082270903756}
   walkClips:
   - {fileID: 8300000, guid: 4e30cfd97087d884d8d0cb57aae15fa8, type: 3}

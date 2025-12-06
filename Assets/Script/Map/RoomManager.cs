@@ -267,10 +267,10 @@ public class RoomManager : MonoBehaviour
 
         BossMonsterBase bossComponent = bossInstance.GetComponent<BossMonsterBase>();
         bossComponent.SetRoom(this);    // 보스 방 참조 전달
-        // 보스의 난이도 설정: (총 보스 처치 수 + 1) * (게임 난이도 + 1)
+        // 보스의 난이도 설정: (총 보스 처치 수 + 1) * (게임 난이도)
         // 난이도당 체력과 공격력이 올라가는 정도는 각 보스에서 설정
         bossComponent.SetDifficulty((KillCounter.Instance.TotalBossKills + 1)
-            * (gameDifficulty + 1));
+            * (gameDifficulty));
 
         // 보스는 보통 크기가 커서 맵의 자식으로 넣으면 스케일 문제가 생길 수 있어 부모 설정 생략 권장
         //bossInstance.transform.SetParent(transform);
@@ -320,7 +320,7 @@ public class RoomManager : MonoBehaviour
             GameObject monster = Instantiate(selectedMonster, spawnPos, Quaternion.identity);
             MonsterBase monsterComponent = monster.GetComponent<MonsterBase>();
             monsterComponent.SetDifficulty((KillCounter.Instance.TotalBossKills + 1)
-                * (gameDifficulty + 1));
+                * (gameDifficulty));
 
             // [복구됨] 자식으로 등록
             monster.transform.SetParent(transform);

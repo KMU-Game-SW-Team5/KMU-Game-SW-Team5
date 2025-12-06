@@ -42,6 +42,9 @@ public class Boss3 : BossMonsterBase
             attackCooldown = attackCooldownOverride;
         }
 
+        // 2페이즈 임계값을 maxHealth의 절반으로 설정
+        phase2Threshold = maxHealth * 0.5f;
+
         // Rigidbody 초기화
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (rb != null)
@@ -60,14 +63,21 @@ public class Boss3 : BossMonsterBase
         InvokeRepeating("FindPlayer", 0f, 0.5f);
     }
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        // 재활성화 대비: maxHealth가 변경되었을 수 있으므로 재계산
+        phase2Threshold = maxHealth * 0.5f;
+    }
+
     protected override void Update()
     {
         base.Update(); // 부모 Update 호출
 
         if (isDead) return;
 
-        // [Boss3 고유 로직] 체력 50% 이하 시 2페이즈 전환
-        if (!isPhase2 && currentHealth <= maxHealth / 2)
+        // [Boss3 고유 로직] 체력 50% 이하 시 2페이즈 전환 (phase2Threshold 사용)
+        if (!isPhase2 && currentHealth <= phase2Threshold)
         {
             EnterPhase2();
         }
@@ -163,8 +173,8 @@ public class Boss3 : BossMonsterBase
         {
             if (playerScript != null)
             {
-                // 페이즈 여부(혹은 체력)에 따라 공격 패턴 분기
-                if (currentHealth > maxHealth / 2)
+                // 페이즈 여부(혹은 체력)에 따라 공격 패턴 분기 (phase2Threshold 사용)
+                if (currentHealth > phase2Threshold)
                 {
                     StartCoroutine(Attack1Routine());
                 }

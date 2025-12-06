@@ -37,6 +37,9 @@ public class Boss2 : BossMonsterBase
             attackCooldown = attackCooldownOverride;
         }
 
+        // 2페이즈 임계값을 maxHealth의 절반으로 설정
+        phase2Threshold = maxHealth * 0.5f;
+
         // 초기화 안전 장치
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
@@ -61,6 +64,13 @@ public class Boss2 : BossMonsterBase
 
         // 플레이어 찾기 시작
         InvokeRepeating("FindPlayer", 0f, 0.5f);
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        // 풀링/재활성화 대비: maxHealth가 변경되었을 수 있으므로 재계산
+        phase2Threshold = maxHealth * 0.5f;
     }
 
     protected override void FixedUpdate()
@@ -169,7 +179,8 @@ public class Boss2 : BossMonsterBase
         {
             if (playerScript != null)
             {
-                if (currentHealth > maxHealth / 2)
+                // phase2Threshold 기준으로 공격 패턴 분기
+                if (currentHealth > phase2Threshold)
                 {
                     if (animator != null) animator.SetTrigger("Attack1");
                     PlayGlobalSound(attack1Clip);
@@ -190,7 +201,7 @@ public class Boss2 : BossMonsterBase
     {
         if (isDead) return;
         isDead = true;
-
+    
         PlayerLevelSystem.Instance?.AddExp(exp);
 
 

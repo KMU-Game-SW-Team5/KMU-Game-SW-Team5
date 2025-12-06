@@ -4,20 +4,21 @@ public abstract class MonsterBase : MonoBehaviour
 {
     [Header("=== Difficulty Scaling ===")]
     [Tooltip("보스를 잡을 때마다 증가하는 비율(0.2면 20% 증가")]
-    protected float healthMultiplier = 0.5f;
+    protected float healthMultiplier = 1f;
     protected float damageMultiplier = 0.5f;
 
     // 입력한 값만큼 체력과 공격력에 배율 적용
-    // 입력한 값만큼 체력과 공격력에 배율 적용
     public void SetDifficulty(int difficultyLevel)
     {
-        float multiplier = 1f + (healthMultiplier * (float)difficultyLevel);
+        float hpMultiplier = 1f + (healthMultiplier * (float)(difficultyLevel*2));
 
-        maxHealth = (int)(maxHealth * multiplier);
+        maxHealth = (int)(maxHealth * hpMultiplier);
         currentHealth = maxHealth;
 
+        float adMultiplier = 1f + (damageMultiplier * (float)difficultyLevel);
+
         // 공격력도 동일하게 적용
-        attackDamage = (int)(attackDamage * multiplier);
+        attackDamage = (int)(attackDamage * adMultiplier);
     }
     [Header("=== HP ===")]
     public int maxHealth = 1000;
