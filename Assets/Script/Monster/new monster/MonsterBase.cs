@@ -20,6 +20,8 @@ public abstract class MonsterBase : MonoBehaviour
         // 공격력도 동일하게 적용
         attackDamage = (int)(attackDamage * adMultiplier);
     }
+
+
     [Header("=== HP ===")]
     public int maxHealth = 1000;
     protected float currentHealth;
@@ -54,6 +56,10 @@ public abstract class MonsterBase : MonoBehaviour
 
     protected Rigidbody rb;
     protected Animator animator;
+
+    // Animator 기본 속도 계수 (개별 몬스터가 조정할 수 있게 protected로 노출)
+    // NormalMonster 등에서 이 값을 변경하면 UpdateAnimatorSpeed()가 반영합니다.
+    protected float animatorSpeedMultiplier = 1f;
 
     [Header("=== Target ===")]
     protected Transform player;
@@ -324,7 +330,6 @@ public abstract class MonsterBase : MonoBehaviour
         if (isDead) return;
 
         isDead = true;
-        Debug.Log($"{name} died.");
 
         OnDeath(killer);
 
@@ -409,7 +414,7 @@ public abstract class MonsterBase : MonoBehaviour
 
 
     // 기절, 둔화 시 애니메이션 재생 속도 조절
-    private void UpdateAnimatorSpeed()
+    protected void UpdateAnimatorSpeed()
     {
         if (animator == null) return;
 
@@ -425,7 +430,8 @@ public abstract class MonsterBase : MonoBehaviour
             return;
         }
 
-        animator.speed = slowMultiplier; // 그 외엔 슬로우 배율로
+        // base animator speed (사용 중인 slowMultiplier와 곱하여 최종 애니메이션 속도 결정)
+        animator.speed = animatorSpeedMultiplier * slowMultiplier;
     }
 
 
@@ -476,6 +482,26 @@ public abstract class MonsterBase : MonoBehaviour
             if (r == null) continue;
 
             r.material.color = color;
+        }
+    }
+
+    // 색상에 티인트(tint)를 섞어 적용하는 보호된 헬퍼
+    // amount: 0 -> 원래색, 1 -> tint로 완전 대체
+    protected void ApplyTint(Color tint, float amount)
+    {
+        CacheDebuffRenderersAndColors();
+        if (debuffRenderers == null || originalColors == null) return;
+
+        amount = Mathf.Clamp01(amount);
+
+        for (int i = 0; i < debuffRenderers.Length; i++)
+        {
+            var r = debuffRenderers[i];
+            if (r == null) continue;
+
+            Color orig = originalColors[i];
+            Color target = Color.Lerp(orig, tint, amount);
+            r.material.color = target;
         }
     }
 

@@ -87,7 +87,6 @@ public class MoveController : MonoBehaviour
         horizontalLookSensitivity = lookSensitivity * mouseSens;
         verticalLookSensitivity = lookSensitivity * camSens;
 
-        Debug.Log($"[MoveController] Init sens: horiz={horizontalLookSensitivity:F3} vert={verticalLookSensitivity:F3} (base {lookSensitivity})");
 
         // 변경 이벤트 구독
         SettingsService.OnMouseSensitivityChanged += ApplyMouseSensitivity;
@@ -108,7 +107,6 @@ public class MoveController : MonoBehaviour
     {
         float sens = Mathf.Max(EffectiveMin, v);
         horizontalLookSensitivity = lookSensitivity * sens;
-        Debug.Log($"[MoveController] horizontalLookSensitivity = {horizontalLookSensitivity:F4} (setting {sens})");
     }
 
     private void ApplyCameraSensitivity(float v)
@@ -116,7 +114,6 @@ public class MoveController : MonoBehaviour
         float sens = Mathf.Max(EffectiveMin, v);
         verticalLookSensitivity = lookSensitivity * sens;
         horizontalLookSensitivity = verticalLookSensitivity;
-        Debug.Log($"[MoveController] verticalLookSensitivity = {verticalLookSensitivity:F4} (setting {sens})");
     }
 
     private void Start()

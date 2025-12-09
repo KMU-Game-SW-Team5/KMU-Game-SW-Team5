@@ -8,7 +8,8 @@ public abstract class BossMonsterBase : MonsterBase
     {
         spawnedRoom = room;
     }
-
+    [Header("Boss Info")]
+    [SerializeField] protected string bossName = "BossMonster";
 
     [Header("Boss Phase")]
     [SerializeField] protected bool hasEnteredPhase2 = false;
@@ -24,6 +25,11 @@ public abstract class BossMonsterBase : MonsterBase
 
         // 보스는 높이 차도 그대로 바라보도록 (Y 고정 X)
         lockYToSelf = false;
+    }
+
+    private void Start()
+    {
+        phase2Threshold = maxHealth * 0.5f; // 기본값: 최대체력의 50%
     }
 
     protected override void Update()
@@ -201,7 +207,7 @@ public abstract class BossMonsterBase : MonsterBase
         else
         {
             // 새롭게 감지된 경우
-            InGameUIManager.Instance.AppearBossUI(currentHealth, maxHealth);
+            InGameUIManager.Instance.AppearBossUI(currentHealth, maxHealth, bossName);
             isPlayerDetected = true;
         }
     }

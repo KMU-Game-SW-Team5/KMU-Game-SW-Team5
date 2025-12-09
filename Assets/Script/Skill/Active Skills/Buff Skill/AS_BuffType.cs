@@ -30,6 +30,7 @@ public class AS_BuffType : ActiveSkillBase
             SkillManager.Instance.buffApplier.ApplyBuff(targetStat, buffAmount);
         } else
         {
+            Debug.Log($"AS_BuffType: Applying buff {targetStat} +{buffAmount} for {buffDuration} seconds.");
             SkillManager.Instance.buffApplier.ApplyBuffFor(targetStat, buffAmount, buffDuration);
         }
 

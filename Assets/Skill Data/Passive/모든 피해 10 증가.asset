@@ -10,14 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 59622cc7cf0630646956bda3ca8e3d2a, type: 3}
-  m_Name: "\uBAA8\uB4E0 \uD53C\uD574 20 \uC99D\uAC00"
+  m_Name: "\uBAA8\uB4E0 \uD53C\uD574 10 \uC99D\uAC00"
   m_EditorClassIdentifier: 
   skillName: Bonus attack
   icon: {fileID: 21300000, guid: 58d2c287da4be3549b0e0f3f05b71ff1, type: 3}
   description: Apply 20 bonus damage on all hits
-  maxAcquireCount: 0
+  maxAcquireCount: 5
   valuePerStack: 20
   stackedDescriptionTemplate: Apply {value} bonus damage on all Hits
   hitEffects:
-  - {fileID: 11400000, guid: 8e48abeeffff2294fb336594066595d7, type: 2}
   - {fileID: 11400000, guid: 8e48abeeffff2294fb336594066595d7, type: 2}

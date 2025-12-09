@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,13 +22,24 @@ public class AimPointerUI : MonoBehaviour
     private AnimationCurve intensityCurve =
         AnimationCurve.EaseInOut(0f, 1f, 1f, 0f); // 처음 강하고 점점 줄어드는 형태
 
-    [Header("시그모이드 강도 곡선")]
-    [SerializeField] private float sigmoidMidDamage = 100f;   // 변곡점이 되는 데미지 (여기서 intensity ≒ 0.5)
-    [SerializeField] private float sigmoidMaxSlope = 0.02f;   // 변곡점에서의 최대 기울기(근사). 클수록 더 급격하게 올라감
+    [Header("데미지 -> 강도 매핑")]
+    [Tooltip("이 값 이하의 데미지에는 거의 반응하지 않습니다")]
+    [SerializeField] private float minDamageThreshold = 10f;
+    [Tooltip("이 값을 기준으로 데미지에 비례해 강도가 커지며, 이를 넘으면 강도는 최대치(1)로 수렴합니다")]
+    [SerializeField] private float maxDamageForScaling = 200f;
 
+    [Header("수렴 / 소멸 속도")]
+    [Tooltip("현재 강도가 목표 강도로 수렴하는 속도 (단위: intensity / 초)")]
+    [SerializeField] private float intensityConvergenceSpeed = 3f;
+    [Tooltip("이펙트가 끝난 뒤 강도가 0으로 사라지는 속도 (단위: intensity / 초)")]
+    [SerializeField] private float intensityDecaySpeed = 2f;
 
     private Coroutine effectCo;
-    private float currentIntensity = 0f;   // 0~1, 이번 히트의 “세기”
+    private Coroutine convergeCo;
+    private Coroutine decayCo;
+
+    private float currentIntensity = 0f;   // 0~1, 렌더링 시 사용되는 '실제' 강도 (수렴/감쇠에 의해 갱신)
+    private float targetIntensity = 0f;    // OnDealDamage가 계산한 목표 강도 (0~1)
 
     private void Awake()
     {
@@ -42,49 +53,75 @@ public class AimPointerUI : MonoBehaviour
             aimImage.color = normalColor;
     }
 
-    // 데미지를 넣을 때마다 호출. 반복 호출되면 강도만 갱신하여 재시작.
+    // 데미지를 넣을 때마다 호출.
+    // 이제 작은 데미지(< minDamageThreshold)에는 반응하지 않고,
+    // 그 이상에서는 min..max 범위에 따라 0..1로 정규화된 목표 강도로 수렴합니다.
     public void OnDealDamage(float damage)
     {
         // 음수 방지
         damage = Mathf.Max(0f, damage);
 
-        // 1) 로지스틱 시그모이드 파라미터 계산
-        //    표준형: s(x) = 1 / (1 + exp(-k(x - x0)))
-        //    이때 x0 = 변곡점(sigmoidMidDamage), s'(x0) = k/4 ≒ sigmoidMaxSlope
-        float maxSlope = Mathf.Max(0.0001f, sigmoidMaxSlope);
-        float k = maxSlope * 4f; // 내부 steepness
+        // 임계치 이하이면 무시(거의 반응하지 않음)
+        if (damage <= minDamageThreshold)
+            return;
 
-        float x = damage - sigmoidMidDamage;
-        float t = 1f / (1f + Mathf.Exp(-k * x)); // 0~1 사이 시그모이드
+        // damage를 [minDamageThreshold, maxDamageForScaling] -> [0,1] 범위로 정규화
+        float denom = Mathf.Max(0.0001f, maxDamageForScaling - minDamageThreshold);
+        float normalized = Mathf.Clamp01((damage - minDamageThreshold) / denom);
 
-        float newIntensity = Mathf.Clamp01(t);
+        // 목표 강도 설정
+        targetIntensity = normalized;
 
-        // 2) 이미 돌고 있던 이펙트랑 합성 (더 강한 쪽 우선)
-        currentIntensity = Mathf.Max(currentIntensity, newIntensity);
+        // 기존 감소 코루틴이 돌고 있으면 멈춰서 새로운 목표에 수렴하게 함
+        if (decayCo != null)
+        {
+            StopCoroutine(decayCo);
+            decayCo = null;
+        }
 
-        // 3) 코루틴 다시 시작해서 효과 리셋 (짧은 타격감이 계속 이어지게)
+        // 수렴 코루틴 시작(이미 돌고 있으면 재시작하지 않고 계속 수렴)
+        if (convergeCo == null)
+            convergeCo = StartCoroutine(ConvergeIntensityRoutine());
+        // 만약 이미 수렴 중이라도 목표가 더 클 경우 즉시 반영될 수 있게 허용(ConvergeRoutine 내부에서 처리)
+
+        // 이펙트 코루틴은 매 타격마다 재시작(짧은 타격감이 계속 이어지도록)
         if (effectCo != null)
             StopCoroutine(effectCo);
         effectCo = StartCoroutine(HitEffectCoroutine());
     }
 
+    // currentIntensity를 targetIntensity로 부드럽게 이동시킴
+    private IEnumerator ConvergeIntensityRoutine()
+    {
+        // 빠른 응답을 위해 루프에서 MoveTowards 사용
+        while (!Mathf.Approximately(currentIntensity, targetIntensity))
+        {
+            currentIntensity = Mathf.MoveTowards(currentIntensity, targetIntensity, intensityConvergenceSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        // 도달했으면 코루틴 종료 핸들링
+        convergeCo = null;
+    }
+
+    // 이펙트 코루틴: effectDuration 동안 intensityCurve로 시각적 강도 적용
     private IEnumerator HitEffectCoroutine()
     {
         float time = 0f;
 
         while (time < effectDuration)
         {
-            float normalized = time / effectDuration;     // 0 → 1
-            float curve = intensityCurve.Evaluate(normalized); // 처음 1, 나중 0
+            float normalizedTime = time / effectDuration;     // 0 → 1
+            float curve = intensityCurve.Evaluate(normalizedTime); // 1→0 형태
 
-            // 이번 프레임의 실제 강도
+            // 실제 렌더링 강도: 현재 수렴된 강도(currentIntensity)에 커브를 곱함
             float intensity = currentIntensity * curve;   // 0~1
 
-            // 🔹 스케일 조절
+            // 스케일 조절
             float scale = baseScale + maxExtraScale * intensity;
             rect.localScale = Vector3.one * scale;
 
-            // 🔹 색 조절 (normal ↔ hitColor 사이 보간)
+            // 색 조절 (normal ↔ hitColor 사이 보간)
             if (aimImage != null)
             {
                 Color c = Color.Lerp(normalColor, hitColor, intensity);
@@ -95,12 +132,31 @@ public class AimPointerUI : MonoBehaviour
             yield return null;
         }
 
-        // 원래 상태로 복귀
+        // 이펙트 종료 시 시각적 원복
         rect.localScale = Vector3.one * baseScale;
         if (aimImage != null)
             aimImage.color = normalColor;
 
-        currentIntensity = 0f;
         effectCo = null;
+
+        // 이펙트가 끝난 뒤 수렴 코루틴이 없다면 강도를 천천히 0으로 만들자
+        if (convergeCo == null && currentIntensity > 0f)
+        {
+            if (decayCo != null) StopCoroutine(decayCo);
+            decayCo = StartCoroutine(DecayIntensityRoutine());
+        }
+    }
+
+    // currentIntensity를 0으로 천천히 줄임
+    private IEnumerator DecayIntensityRoutine()
+    {
+        while (currentIntensity > 0.0001f)
+        {
+            currentIntensity = Mathf.MoveTowards(currentIntensity, 0f, intensityDecaySpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        currentIntensity = 0f;
+        decayCo = null;
     }
 }

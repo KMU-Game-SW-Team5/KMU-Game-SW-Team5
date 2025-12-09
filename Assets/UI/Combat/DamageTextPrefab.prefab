@@ -151,7 +151,7 @@ MonoBehaviour:
   lifeTime: 1
   DamageTextObjectRef: {fileID: 2112914933767844937}
   screenJitterRadius: 40
-  floatUpPixels: 40
+  floatUpPixels: 100
   alphaCurve:
     serializedVersion: 2
     m_Curve:

@@ -5,7 +5,7 @@ public class ProjectileComponent : MonoBehaviour
 {
     private float baseDamage;        // 기본 데미지
     private float lifetime;          // 지속 시간
-    private bool penetrable;         // 관통 여부
+    private int penetrationCount;    // 관통 횟수 (0 = 비관통: 첫 몬스터 히트 시 소멸)
 
     private Motion motionType;       // 운동 로직
 
@@ -44,6 +44,9 @@ public class ProjectileComponent : MonoBehaviour
         if (trailRenderer != null)
             trailRenderer.Clear();
         lifetime = Mathf.Max(lifetime, 0f);
+
+        // penetrationCount는 SetDestroyComponent에서 설정되므로 여기서는 아무 동작도 하지 않음.
+        // (혹시 풀링에서 초기값을 보장하려면 기본값을 설정하려면 여기에 추가 가능)
     }
 
 
@@ -58,11 +61,13 @@ public class ProjectileComponent : MonoBehaviour
 
     // ---------------------------------------------------------------------
     // 파괴 관련 설정
+    // penetrationCount: 몬스터에 닿을 때마다 1씩 감소. 감소 후 0이 되면 그 순간 소멸.
+    // 0이면 비관통(첫 히트 시 소멸).
     // ---------------------------------------------------------------------
-    public void SetDestroyComponent(float Lifetime, bool Penetrable)
+    public void SetDestroyComponent(float Lifetime, int penetrationCount)
     {
         this.lifetime = Lifetime;
-        this.penetrable = Penetrable;
+        this.penetrationCount = Mathf.Max(0, penetrationCount);
     }
 
 
@@ -122,15 +127,34 @@ public class ProjectileComponent : MonoBehaviour
                 // ③ 적중시 효과 발동
                 skillManager.OnHit(ctx);
             }
-        }
 
-        Bomb();
+            Bomb();
+
+            // 몬스터에 닿았을 때 관통 카운트 처리:
+            // penetrationCount > 0 이면 1 감소. 감소 후 0이면 소멸.
+            // penetrationCount == 0 이면 비관통: 즉시 소멸.
+            if (penetrationCount > 0)
+            {
+                penetrationCount--;
+                if (penetrationCount < 0)
+                    DespawnProjectile();
+            }
+            else
+            {
+                DespawnProjectile();
+            }
+        }
+        else
+        {
+            // 몬스터가 아닌 것(지형/벽 등)과 충돌하면 항상 폭발/소멸 처리
+            Bomb();
+        }
     }
 
 
 
     // ---------------------------------------------------------------------
-    // 폭발 처리
+    // 폭발 이펙트 발생
     // ---------------------------------------------------------------------
     public void Bomb()
     {
@@ -159,9 +183,6 @@ public class ProjectileComponent : MonoBehaviour
         {
             Debug.Log("Explosion effect is null");
         }
-
-        if (!penetrable)
-            DespawnProjectile();
     }
 
 
@@ -178,7 +199,9 @@ public class ProjectileComponent : MonoBehaviour
     {
         lifetime -= Time.fixedDeltaTime;
         if (lifetime <= 0f)
+        {
             DespawnProjectile();
+        }
     }
 
     private void Move()

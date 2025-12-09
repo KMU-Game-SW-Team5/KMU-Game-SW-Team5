@@ -52,6 +52,7 @@ public class BuffApplier : MonoBehaviour
                 break;
 
             case BuffStatType.CritRate:
+                Debug.Log("Applying Crit Rate Buff: " + amount);
                 SkillManager.Instance.AddCritRate(amount);
                 break;
 
@@ -61,6 +62,14 @@ public class BuffApplier : MonoBehaviour
 
             case BuffStatType.MoveSpeed:
                 moveController.AddMoveSpeed(amount);
+                break;
+
+            case BuffStatType.IncreaseMaxHealth:
+                SkillManager.Instance.player.IncreaseMaxHealth((int)amount);
+                break;
+
+            case BuffStatType.penatration:
+                SkillManager.Instance.AddPenetration((int)amount);
                 break;
 
 

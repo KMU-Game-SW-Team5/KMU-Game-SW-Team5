@@ -60,6 +60,18 @@ public class SkillManager : MonoBehaviour
     // 시전 중에는 스킬 입력을 막기 위한 플래그
     private bool isCasting = false;
 
+    public void AddPenetration(int amount = 1)
+    {
+        ((AS_ProjectType)basicAttackSkill).AddPenetrationCount(amount);
+        foreach (var skill in activeSkills)
+        {
+            if (skill != null && skill is AS_ProjectType)
+            {
+                ((AS_ProjectType) skill).AddPenetrationCount(amount);
+            }
+        }
+    }
+
 
     //=======================================마력 스탯 관련===================================================================
     private float magicStat = 100f;  // 마력 스탯 
@@ -538,9 +550,6 @@ public class SkillManager : MonoBehaviour
     {
         if (newSkill == null) return;
 
-        // 중복 획득 어떻게 처리할지 생각하기
-        //if (!passiveSkills.Contains(skill))
-        //    passiveSkills.Add(skill);
         passiveSkills.Add(newSkill);
         if (SkillPanel.Instance == null)
         {

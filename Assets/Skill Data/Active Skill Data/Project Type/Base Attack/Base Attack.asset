@@ -35,7 +35,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 7458564200767833722, guid: 0ff7bedf6d978c848940abc2d5c22994, type: 3}
   projectileSpeed: 200
   lifeTime: 4
-  penetrable: 0
+  penetration: 0
   projectileMotion: {fileID: 11400000, guid: 20873d6e3adddc14292e1689fe0e4a66, type: 2}
   motionSpeed: 1
   distanceOffset: 10

@@ -35,6 +35,8 @@ public class GameManager : MonoBehaviour
     // 각종 전역 세팅 초기화
     private void InitializeGameSettings()
     {
+        Screen.SetResolution(1920, 1080, true); // 해상도 1920x1080 고정
+
         int projectile = LayerMask.NameToLayer("Projectile");
         int player = LayerMask.NameToLayer("Player");
         int skillAnchor = LayerMask.NameToLayer("SkillAnchor");
@@ -49,6 +51,12 @@ public class GameManager : MonoBehaviour
 
         // 보스 인덱스 초기화
         bossIdx = 0;
+    }
+
+    private void Update()
+    {
+        Screen.SetResolution(1920, 1080, true); // 해상도 1920x1080 고정
+
     }
 
 

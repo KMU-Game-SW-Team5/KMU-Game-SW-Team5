@@ -11,5 +11,6 @@ public enum BuffStatType
     PermanentMoveSpeed,   // 이속 영구
     permanentAttackSpeed,   // 공속 영구
     CoolDownSpeed,  // 쿨감 속도 증가
-    CoolDownDecrase // 쿨타임 고정 감소
+    CoolDownDecrase, // 쿨타임 고정 감소
+    penatration      // 관통력
 }

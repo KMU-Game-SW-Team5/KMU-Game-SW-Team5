@@ -103,7 +103,7 @@ public class Boss3 : BossMonsterBase
                 MoveBossTowards(player.position);
                 
                 // UI 및 감지 처리
-                InGameUIManager.Instance?.AppearBossUI(currentHealth, maxHealth);
+                InGameUIManager.Instance?.AppearBossUI(currentHealth, maxHealth, bossName);
 
                 if (animator != null) animator.SetFloat("Speed", 1f); 
 
@@ -114,7 +114,7 @@ public class Boss3 : BossMonsterBase
             {
                 TryAttack();
                 
-                InGameUIManager.Instance?.AppearBossUI(currentHealth, maxHealth);
+                InGameUIManager.Instance?.AppearBossUI(currentHealth, maxHealth, bossName);
                 if (animator != null) animator.SetFloat("Speed", 0f);
             }
             else

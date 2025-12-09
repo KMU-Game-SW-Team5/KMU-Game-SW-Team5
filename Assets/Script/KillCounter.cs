@@ -41,7 +41,6 @@ public class KillCounter : MonoBehaviour
     public void AddMonsterKill()
     {
         TotalMonsterKills++;
-        Debug.Log("KillCounter: Monster killed. TotalMonsterKills = " + TotalMonsterKills);
         OnKillCountChanged?.Invoke(TotalKills);
     }
 

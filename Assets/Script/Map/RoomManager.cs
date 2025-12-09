@@ -19,6 +19,12 @@ public class RoomManager : MonoBehaviour
     private int maxMonsterCount;
     private int gameDifficulty;                 // [추가] 난이도 저장
 
+    [Header("Spawn Settings")]
+    [SerializeField, Tooltip("한 프레임(또는 한 간격)에 생성할 몬스터 수")]
+    private int spawnPerFrame = 1;
+    [SerializeField, Tooltip("프레임 대신 시간 간격으로 생성하려면 0보다 큰 값을 설정(초). 0 이면 한 프레임마다 생성)")]
+    private float spawnInterval = 0f; // 초 단위, 0이면 yield return null 사용
+
     [Header("문 관리(자식 오브젝트)")]
     private List<Collider> doorColliders = new List<Collider>();    // 방의 자식으로 존재하는 문들을 저장할 리스트
 
@@ -26,6 +32,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private float nonCombatDelay = 10f; // 비전투 상태 유지 시간(초) 후 normal 재생
 
     private Coroutine nonCombatCoroutine;
+    private Coroutine spawnCoroutine;
 
     // 방의 설정 값을 정의 하는 함수 -> MapMaker 함수에서 호출
     public void Setup(RoomType newType, int minMonsters, int maxMonsters, int difficulty)
@@ -197,11 +204,9 @@ public class RoomManager : MonoBehaviour
             // 엔딩 대기 상태면 방 입장 무시
             if (GameManager.Instance != null && GameManager.Instance.IsEnding)
             {
-                Debug.Log("게임 엔딩 대기 중 — 방 입장 처리 무시");
                 return;
             }
 
-            Debug.Log($"{type} 방 입장! 상태: {state}");
 
             // Minimap UI
             int gx = Mathf.RoundToInt(transform.position.x / (10 * 40));
@@ -283,7 +288,7 @@ public class RoomManager : MonoBehaviour
 
     public void SpawnMonsters()
     {
-        if (isSpawned) return; // 중복 스폰 방지
+        if (isSpawned) return;
         isSpawned = true;
 
         // 전투로 전환 (BGM)
@@ -295,42 +300,71 @@ public class RoomManager : MonoBehaviour
         // 중복된 non-combat 타이머가 있으면 취소
         CancelNonCombatTimer();
 
+        // 시작 코루틴으로 여러 프레임에 걸쳐 소환
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
+        spawnCoroutine = StartCoroutine(SpawnMonstersCoroutine());
+    }
+
+    private IEnumerator SpawnMonstersCoroutine()
+    {
         // Resources/Monster 폴더 내의 모든 프리팹 로드
         GameObject[] monsterPrefabs = Resources.LoadAll<GameObject>("Monster");
 
-        if (monsterPrefabs.Length == 0) return; // 몬스터가 없으면 리턴
+        if (monsterPrefabs.Length == 0)
+            yield break; // 몬스터가 없으면 종료 (isSpawned는 이미 true)
 
         int monsterCount = Random.Range(minMonsterCount, maxMonsterCount);
 
+        int spawned = 0;
+
         for (int i = 0; i < monsterCount; i++)
         {
-            GameObject selectedMonster = monsterPrefabs[Random.Range(0, monsterPrefabs.Length)];
+            // 한 프레임(또는 간격)당 spawnPerFrame 만큼 생성
+            for (int j = 0; j < spawnPerFrame && spawned < monsterCount; j++)
+            {
+                GameObject selectedMonster = monsterPrefabs[Random.Range(0, monsterPrefabs.Length)];
 
-            // [복구됨] 방 scale에 맞춰서 랜덤 생성 (이미지의 빨간색 영역)
-            float range = 1.0f;
-            Vector3 randomPos = new Vector3(
-                Random.Range(-range, range),
-                1, // 원래 코드에 있던 고정 높이값
-                Random.Range(-range, range)
-            );
+                // [복구됨] 방 scale에 맞춰서 랜덤 생성 (이미지의 빨간색 영역)
+                float range = 1.0f;
+                Vector3 randomPos = new Vector3(
+                    Random.Range(-range, range),
+                    1, // 원래 코드에 있던 고정 높이값
+                    Random.Range(-range, range)
+                );
 
-            // [복구됨] 로컬 좌표를 월드 좌표로 변환
-            Vector3 spawnPos = transform.TransformPoint(randomPos);
+                // [복구됨] 로컬 좌표를 월드 좌표로 변환
+                Vector3 spawnPos = transform.TransformPoint(randomPos);
 
-            GameObject monster = Instantiate(selectedMonster, spawnPos, Quaternion.identity);
-            MonsterBase monsterComponent = monster.GetComponent<MonsterBase>();
-            monsterComponent.SetDifficulty((KillCounter.Instance.TotalBossKills + 1)
-                * (gameDifficulty));
+                GameObject monster = Instantiate(selectedMonster, spawnPos, Quaternion.identity);
+                NormalMonster monsterComponent = monster.GetComponent<NormalMonster>();
+                monsterComponent.SetDifficulty((KillCounter.Instance.TotalBossKills + 1)
+                    * (gameDifficulty));
 
-            // [복구됨] 자식으로 등록
-            monster.transform.SetParent(transform);
+                monsterComponent.SetVariation();
 
-            // 몬스터 리스트 추가
-            liveMonsters.Add(monster);
+                // [복구됨] 자식으로 등록
+                monster.transform.SetParent(transform);
+
+                // 몬스터 리스트 추가
+                liveMonsters.Add(monster);
+
+                spawned++;
+
+                // 스폰 간격 처리: spawnInterval > 0이면 시간 대기, 아니면 한 프레임 대기
+                if (spawnInterval > 0f)
+                    yield return new WaitForSeconds(spawnInterval);
+                else
+                    yield return null;
+            }
         }
-        Debug.Log($"{monsterCount}마리의 몬스터 스폰 완료.");
-    }
 
+        Debug.Log($"{spawned}마리의 몬스터 스폰 완료.");
+        spawnCoroutine = null;
+    }
 
     public void NotifyMonsterDied(GameObject monster)
     {

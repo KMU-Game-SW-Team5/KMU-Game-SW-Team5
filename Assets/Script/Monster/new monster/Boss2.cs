@@ -108,7 +108,7 @@ public class Boss2 : BossMonsterBase
                 MoveBossTowards(player.position);
                 
                 // UI 연결
-                InGameUIManager.Instance?.AppearBossUI(currentHealth, maxHealth);
+                InGameUIManager.Instance?.AppearBossUI(currentHealth, maxHealth, bossName);
 
                 if (animator != null) animator.SetFloat("Speed", 1f);
 
@@ -121,7 +121,7 @@ public class Boss2 : BossMonsterBase
                 if (distance <= attackRange)
                 {
                     TryAttack();
-                    InGameUIManager.Instance?.AppearBossUI(currentHealth, maxHealth);
+                    InGameUIManager.Instance?.AppearBossUI(currentHealth, maxHealth, bossName);
                 }
                 
                 if (animator != null) animator.SetFloat("Speed", 0f);

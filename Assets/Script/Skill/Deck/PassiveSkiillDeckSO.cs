@@ -11,8 +11,8 @@ public class PassiveSkillDeckSO : ScriptableObject
     [SerializeField] private List<PassiveSkillBase> workingCards = new();  // 항상 new 로 시작
 
     // 🔹 아직 드로우 가능한 패시브 카드 종류 수
-    // (MaxAcquireCount 다 찬 카드는 RemoveCard에서 initialCards에서 빠짐)
-    public int DrawableCount => initialCards?.Count ?? 0;
+    // (MaxAcquireCount 다 찬 카드는 RemoveCard에서 initialCards/workingCards에서 빠짐)
+    public int DrawableCount => workingCards?.Count ?? 0;
 
     public IReadOnlyList<PassiveSkillBase> InitialCards => initialCards;
     public IReadOnlyList<PassiveSkillBase> WorkingCards => workingCards;
@@ -51,19 +51,21 @@ public class PassiveSkillDeckSO : ScriptableObject
         return picked;
     }
 
+    // 수정: 교체 뽑기(복원 가능)도 workingCards에서 뽑도록 변경.
+    // 이렇게 하면 이미 덱에서 제거된(최대 획득 도달) 카드는 더 이상 뽑히지 않습니다.
     public PassiveSkillBase DrawWithReplacement()
     {
-        if (initialCards == null || initialCards.Count == 0)
+        if (workingCards == null || workingCards.Count == 0)
         {
-            Debug.LogWarning("[PassiveSkillDeckSO] DrawWithReplacement 호출했지만 initialCards 가 null 또는 비어있음", this);
+            Debug.LogWarning("[PassiveSkillDeckSO] DrawWithReplacement 호출했지만 workingCards 가 null 또는 비어있음", this);
             DebugPrintDeck("[DrawWithReplacement] 실패 상태");
             return null;
         }
 
-        int index = Random.Range(0, initialCards.Count);
-        PassiveSkillBase picked = initialCards[index];
+        int index = Random.Range(0, workingCards.Count);
+        PassiveSkillBase picked = workingCards[index];
 
-        Debug.Log($"[PassiveSkillDeckSO] [DrawWithReplacement] '{picked?.name}' 뽑음", this);
+        Debug.Log($"[PassiveSkillDeckSO] [DrawWithReplacement from workingCards] '{picked?.name}' 뽑음", this);
         return picked;
     }
 
@@ -89,9 +91,7 @@ public class PassiveSkillDeckSO : ScriptableObject
     {
         if (card == null) return;
 
-        if (initialCards != null)
-            initialCards.Remove(card);
-
+        
         if (workingCards != null)
         {
             // 여러 번 들어 있을 수도 있으니 전부 제거

@@ -8,13 +8,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainUI.unity
     guid: 0bb9a3492a958cd4dbcd89e775a918ae
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
     path: Assets/Scenes/MapMakerScene.unity
     guid: 83383591cdf5b604a963994436f0113f
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/JKJ/JKJ_MapMakerScene.unity
-    guid: ba35dda720bacba42b58c7bc42c9574f
+    guid: d9bc6c525a3d4fb4ba6d500628dd8fd3
   m_configObjects: {}

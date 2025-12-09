@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 
 public class KillCountUI : MonoBehaviour
@@ -27,7 +27,6 @@ public class KillCountUI : MonoBehaviour
 
     private void HandleKillChanged(int totalKills)
     {
-        Debug.Log($"KillCountUI: Kill count updated to {totalKills}");
         textKillCount.text = $"Kills: {totalKills}";
     }
 

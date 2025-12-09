@@ -1773,6 +1773,7 @@ GameObject:
   - component: {fileID: 6980183159802838879}
   - component: {fileID: 6080684546910972848}
   - component: {fileID: 9017274406870044528}
+  - component: {fileID: 7483166223013776934}
   m_Layer: 7
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1854,6 +1855,20 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4130037797608279385}
   m_Enabled: 1
+--- !u!114 &7483166223013776934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4130037797608279385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e0336c239f78b447adb91be2eef4edf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetWidth: 16
+  targetHeight: 9
 --- !u!1 &4429122352639150385
 GameObject:
   m_ObjectHideFlags: 0
@@ -3534,12 +3549,10 @@ GameObject:
   m_Component:
   - component: {fileID: 5215407885252488437}
   - component: {fileID: 7904530960613951305}
-  - component: {fileID: 1844235150869730459}
   - component: {fileID: 4639367399700798939}
   - component: {fileID: 621652012615075189}
   - component: {fileID: 4243399907048013887}
   - component: {fileID: 7740971710797951775}
-  - component: {fileID: 5196499929229690915}
   - component: {fileID: 4998915581994404291}
   - component: {fileID: 2567325219279645160}
   - component: {fileID: 6106417556462171900}
@@ -3580,48 +3593,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8932935889209719771}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &1844235150869730459
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8932935889209719771}
-  m_Enabled: 0
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!136 &4639367399700798939
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3657,8 +3628,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79849bac0d3764f0bbb0a2317ae2e937, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 400
-  hp: 400
   lowHpRatio: 0.2
   invincibleTimeWhenTakeDamage: 1
 --- !u!114 &4243399907048013887
@@ -3687,11 +3656,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraMount: {fileID: 5990078343815042842}
-  lookSensitivity: 200
+  lookSensitivity: 5000
   maxLookAngle: 90
   minLookAngle: -90
-  walkSpeed: 30
-  runSpeed: 50
+  defaultWalkSpeed: 30
   jumpForce: 8
   gravity: -100
   isSkillMoving: 0
@@ -3705,18 +3673,6 @@ MonoBehaviour:
   walkDelay: 0.6
   runDelay: 0.35
   leapImpulseMultiplier: 1
---- !u!114 &5196499929229690915
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8932935889209719771}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 146186c09ded9495eb98b42e210d6e36, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!143 &4998915581994404291
 CharacterController:
   m_ObjectHideFlags: 0
@@ -3797,12 +3753,12 @@ MonoBehaviour:
   radius: 11.8
   skillKeys: 71000000650000007200000066000000
   basicAttackSkill: {fileID: 11400000, guid: 671443c482f707c469d28b80f9f61916, type: 2}
-  attackSpeed: 10
-  baseCritChance: 50
-  baseCritDamage: 2
+  attackSpeed: 2
+  baseCritRate: 30
+  baseCritDamage: 1.5
   skillAnchorPrefab: {fileID: 8333112402990972783, guid: 4f14c3a49e5cfdb40949a31ac4a06bf3, type: 3}
   maxSpellDistance: 1000
-  anchorLifetime: 10
+  anchorLifetime: 2
   skillAudioSource: {fileID: 5603917540863879228}
   activeSkills: []
   passiveSkills: []
@@ -3965,10 +3921,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startLevel: 1
-  baseRequiredExp: 300
+  baseRequiredExp: 500
   expIncrementPerLevel: 30
   baseMagicStat: 300
   magicStatIncrementPerLevel: 10
+  baseMaxHp: 300
+  maxHpIncrementPerLevel: 20
+  levelUpSFX: {fileID: 8300000, guid: 1961556b463fec4459a300f63677f36b, type: 3}
 --- !u!1 &9083218606825446040
 GameObject:
   m_ObjectHideFlags: 0

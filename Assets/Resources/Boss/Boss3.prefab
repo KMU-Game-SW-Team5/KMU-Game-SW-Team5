@@ -3730,6 +3730,7 @@ MonoBehaviour:
   additionalDamageRate: 0
   damageTextAnchor: {fileID: 138757645945798486}
   isCCImmune: 0
+  bossName: Half and Half
   hasEnteredPhase2: 0
   phase2Threshold: 15000
   phase2AttackRange: 100

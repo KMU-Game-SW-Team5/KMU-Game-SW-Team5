@@ -26,6 +26,20 @@ public class NormalMonster : MonsterBase
     private float lastProgress = 0f;
     private float debugLogTimer = 0f; // 로그 도배 방지용
 
+    // SetVariation에서 사용할 원본(베이스) 값들
+    private int baseMaxHealth;
+    private float baseMoveSpeed;
+    private float baseAnimatorSpeedMultiplier;
+    private Vector3 originalLocalScale = Vector3.one;
+
+    [Header("Variation: Color Tint")]
+    [SerializeField, Tooltip("색상 랜덤 틴트의 최소 강도")]
+    private float tintAmountMin = 0.1f;
+    [SerializeField, Tooltip("색상 랜덤 틴트의 최대 강도")]
+    private float tintAmountMax = 0.4f;
+    [SerializeField, Tooltip("틸트에 사용할 색상 허용 편차 (0..0.5 정도 추천)")]
+    private float tintHueDeviation = 0.08f;
+
     protected override void Awake()
     {
         base.Awake(); 
@@ -47,6 +61,14 @@ public class NormalMonster : MonsterBase
 
         // 초기 배회 타이머
         patrolTimer = Random.Range(minPatrolMoveTime, maxPatrolMoveTime);
+
+        // 베이스 값들 캐시 (중복 적용 방지 용)
+        baseMaxHealth = maxHealth;
+        baseMoveSpeed = moveSpeed;
+
+        // 원래 로컬 스케일과 애니메이터 기본 배율 캐시
+        originalLocalScale = transform.localScale;
+        baseAnimatorSpeedMultiplier = animatorSpeedMultiplier;
     }
 
     protected void Start()
@@ -58,9 +80,53 @@ public class NormalMonster : MonsterBase
             {
                 player = pObj.transform;
                 playerScript = pObj.GetComponent<Player>();
-                Debug.Log($"<color=green>[{name}] 시작: Player 찾기 성공!</color>");
             }
         }
+    }
+
+    // 몬스터 변형 적용: 크기(scaleFactor 0.7~1.5), 체력은 동일 비율 적용,
+    // 이동속도 및 애니메이션 속도는 그와 반비례하도록 조정.
+    // 그리고 색을 약간 랜덤하게 틴트 적용함.
+    public void SetVariation()
+    {
+        // 0.7 ~ 1.5 사이의 랜덤 배율 (요구대로)
+        float scaleFactor = Random.Range(0.5f, 1.7f);
+
+        // 스케일 적용 (원래 스케일 기준)
+        transform.localScale = originalLocalScale * scaleFactor;
+
+        // 체력: 베이스 체력에 동일 비율 적용 (정수로)
+        int newMaxHp = Mathf.Max(1, (int)(baseMaxHealth * scaleFactor));
+        maxHealth = newMaxHp;
+        currentHealth = maxHealth;
+
+        // 이동속도: 크기가 커지면 이동속도는 반비례 감소(작아지면 상대적으로 빨라짐)
+        moveSpeed = baseMoveSpeed * (1f / scaleFactor);
+
+        // 애니메이션 속도: 부모의 animatorSpeedMultiplier 필드에 반비례로 적용
+        animatorSpeedMultiplier = baseAnimatorSpeedMultiplier * (1f / scaleFactor);
+
+        // UpdateAnimatorSpeed를 호출하여 slow/stun 상태와 함께 안전하게 적용
+        UpdateAnimatorSpeed();
+
+        // --------------------------
+        // 색상 틴트 적용: 약간의 랜덤 색상(허용된 편차 범위)과 강도로 원색에 섞어 적용
+        // --------------------------
+        // 랜덤한 기본 색 생성: HSV에서 색상 기준을 무작위로 선택하고 약간의 편차만 허용
+        float baseHue = Random.value; // 0..1
+        // 허용 편차 내에서 색상 선택 (원하면 특정 파레트로 제한 가능)
+        float hue = Mathf.Repeat(baseHue + Random.Range(-tintHueDeviation, tintHueDeviation), 1f);
+        float sat = Random.Range(0.15f, 0.45f); // 낮은 채도로 살짝 틴트
+        float val = Random.Range(0.9f, 1f);
+
+        Color tint = Color.HSVToRGB(hue, sat, val);
+
+        float amount = Random.Range(tintAmountMin, tintAmountMax);
+
+        // ApplyTint는 부모(MonsterBase)에 추가된 보호된 헬퍼. amount는 0..1 (0 = 원래색, 1 = tint 완전 대체)
+        ApplyTint(tint, amount);
+
+        Debug.Log($"{name}: SetVariation 적용 (scale={scaleFactor:F2}, maxHP={maxHealth}, moveSpeed={moveSpeed:F2}, animSpeedMul={animatorSpeedMultiplier:F2}, tint={tint} x{amount:F2})");
     }
 
     protected override void Update()

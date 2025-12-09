@@ -17,13 +17,13 @@ MonoBehaviour:
   velocity: {x: 0, y: 0, z: 0}
   motionSpeed: 0
   initVector: {x: 0, y: 0}
-  angle: 0
-  isDispersing: 0
-  baseHomingPower: 2
-  homingAccel: 1
-  maxTurnRate: 180
-  inertia: 0.8
-  speedAccel: 40
+  angle: 15
+  isDispersing: 1
+  baseHomingPower: 0
+  homingAccel: 0
+  maxTurnRate: 0
+  inertia: 1
+  speedAccel: 0
   maxSpeed: 39
   explodeDistance: 0.5
   jitterStrength: 0

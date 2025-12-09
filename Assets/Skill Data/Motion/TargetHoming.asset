@@ -20,11 +20,11 @@ MonoBehaviour:
   angle: 33
   isDispersing: 1
   baseHomingPower: 0
-  homingAccel: 0.85
+  homingAccel: 1.68
   maxTurnRate: 180
-  inertia: 1
-  speedAccel: 78
-  maxSpeed: 100
+  inertia: 0.888
+  speedAccel: 34
+  maxSpeed: 52
   explodeDistance: 1
   jitterStrength: 0.426
   jitterFrequency: 1.69

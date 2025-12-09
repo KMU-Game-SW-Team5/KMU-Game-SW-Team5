@@ -39,6 +39,8 @@ public class DamageTextUI : MonoBehaviour
 
     public void Setup(float damage, Transform targetTransform, bool isCritical)
     {
+        if (damage < 10f)
+            Despawn();
         target = targetTransform;
         cam = Camera.main;
 
@@ -72,6 +74,16 @@ public class DamageTextUI : MonoBehaviour
 
         // 스크린 랜덤 오프셋 등 기존 로직
         screenOffset = Random.insideUnitCircle * screenJitterRadius;
+        if (damage < 100f)
+        {
+            screenOffset.y -= 30f;
+            text.fontSize = minFontSize;
+            text.color = lowDamageColor;
+        }
+        else
+        {
+            screenOffset.y = 0f; // 수평 오프셋만 적용
+        }
         UpdateVisual(0f);   // 첫 프레임 렌더 전에 바로 위치/알파 세팅
     }
 

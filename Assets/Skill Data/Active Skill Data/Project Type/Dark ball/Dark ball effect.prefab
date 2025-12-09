@@ -9811,8 +9811,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 3}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4394374070423833977}
   - {fileID: 8685428845950827657}
@@ -14637,6 +14637,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ExplosionEffectPrefab: {fileID: 362261158077530393, guid: 2c9db3a9de4416144a1c48728cd1b193, type: 3}
+  ExplosionSound: {fileID: 8300000, guid: a15c0f3fe74004cf89b51cfd5604f582, type: 3}
 --- !u!54 &9059216168035384646
 Rigidbody:
   m_ObjectHideFlags: 0

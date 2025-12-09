@@ -194,7 +194,7 @@ MonoBehaviour:
   descText: {fileID: 1454945082707774101}
   starContainer: {fileID: 6449007302172050180}
   starGO: {fileID: 4280875231085137439, guid: 0d290795c861bc642818ee2a3984cb9c, type: 3}
-  damageHighlightColor: {r: 0.46581945, g: 0.4575472, b: 1, a: 1}
+  damageHighlightColor: {r: 0.15364195, g: 0.14244394, b: 0.9150943, a: 1}
 --- !u!1 &5760919670439422539
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,7 +9,15 @@ public class AS_ProjectType : ActiveSkillBase
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float projectileSpeed = 20f;
     [SerializeField] private float lifeTime = 5f;
-    [SerializeField] private bool penetrable = false;
+
+    [Header("관통 설정")]
+    [Tooltip("몬스터를 몇 번 관통할 수 있는지. 0이면 비관통(첫 히트 시 소멸).")]
+    [SerializeField] private int penetration = 0; // 새 필드: 관통 횟수
+    private int runtimePenetrationCount;
+    public void SetPenetrable(bool value) => runtimePenetrationCount = value ? 1 : 0; // 기존 API 호환성: true => 1회 관통 허용
+    public void SetPenetrationCount(int count) => runtimePenetrationCount = Mathf.Max(0, count);
+    public void AddPenetrationCount(int count) => runtimePenetrationCount += count;
+
     [SerializeField] private Motion projectileMotion;
     [SerializeField] private float motionSpeed = 1.0f;
     [SerializeField] private float distanceOffset = 10f;
@@ -31,6 +39,7 @@ public class AS_ProjectType : ActiveSkillBase
     public override void Initialize()
     {
         base.Initialize();
+        runtimePenetrationCount = Mathf.Max(0, penetration);
     }
 
     // ============================================================
@@ -97,14 +106,13 @@ public class AS_ProjectType : ActiveSkillBase
 
                 ProjectileComponent pc = projectile.GetComponent<ProjectileComponent>();
 
-
                 pc.SetPrefabRef(projectilePrefab);
 
                 // 🔥 SkillManager 싱글톤 기반: owner는 자동 => baseDamage만 넘기면 됨
                 pc.Initialize(GetDamage());
 
-
-                pc.SetDestroyComponent(lifeTime, penetrable);
+                // 변경: 관통 횟수(int)를 전달하도록 수정
+                pc.SetDestroyComponent(lifeTime, runtimePenetrationCount);
                 pc.SetMotionType(projectileMotion);
                 pc.SetPhysicalComponent(target, shotDir * projectileSpeed, motionSpeed);
             }
