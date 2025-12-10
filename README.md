@@ -27,7 +27,7 @@
 </br>
 
 ## 📺 플레이 영상
-- YouTube 링크
+- YouTube 링크 : https://youtu.be/ygxRMazw_3U?si=YXF4r3TUWB-ePr6w
 
 </br>
 
