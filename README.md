@@ -34,5 +34,7 @@
 1. 소스코드로 실행 (Unity Editor)
 - 레포지토리를 클론 혹은 다운로드합니다.
 git clone https://github.com/KMU-Game-SW-Team5/KMU-Game-SW-Team5.git
+- 유니티 실행 전에, 먼저 '제출자료' 폴더 안의 Firebase.zip 파일을 압축 해제하세요.
+- 압축을 풀면 생성되는 Firebase/Firebase 폴더 전체를 Unity 프로젝트의 Assets 폴더 안에 그대로 복사합니다.
 - Unity Editor에서 Assets/Scenes/MainUI 씬을 열어 플레이할 수 있습니다.
 - 빌드 시에는 MainUI 씬과 Assets/Scenes/MapMakerScene만 선택하면 됩니다.
