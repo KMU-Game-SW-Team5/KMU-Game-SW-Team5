@@ -1,4 +1,6 @@
 # 🏰 Arcane Dungeon
+최종 제출 자료 : https://dawnww.notion.site/kmu-gamesw-team-5
+
 ## 🎮 게임 소개
 - 장르: 1인칭 3D 로그라이크 핵앤슬래시
 - 플레이 방식: 싱글플레이 (랭킹 등록은 온라인으로만 가능)
